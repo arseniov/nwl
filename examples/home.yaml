@@ -1,0 +1,26 @@
+page:
+  name: Home
+  layout:
+    type: column
+    properties: [center, gap-24]
+  style: [bg-gray-50, min-h-screen]
+  children:
+    - element: heading
+      content: "Welcome back"
+      style: [text-3xl, font-bold, text-gray-900]
+    - element: text
+      content: "Your projects"
+      style: [text-xl, text-gray-600]
+    - element: card
+      style: [p-6, bg-white, rounded-lg, shadow-md]
+      children:
+        - element: heading
+          content: "Sample Project"
+          style: [text-xl, font-semibold, mb-2]
+        - element: text
+          content: "This is a sample project card compiled from YAML"
+          style: [text-gray-600]
+        - element: button
+          content: "Open Project"
+          onClick: "/project/123"
+          style: [bg-blue-600, text-white, px-4, py-2, rounded, mt-4]

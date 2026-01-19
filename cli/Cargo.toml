@@ -1,0 +1,14 @@
+[package]
+name = "nwl-cli"
+edition.workspace = true
+version.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "nwl"
+path = "src/main.rs"
+
+[dependencies]
+nwl-compiler = { path = "../compiler" }
+clap = { version = "4.4", features = ["derive"] }
+anyhow.workspace = true

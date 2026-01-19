@@ -1,0 +1,20 @@
+[workspace]
+members = [
+    "compiler",
+    "cli",
+    "shared"
+]
+
+workspace.resolver = "2"
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+authors = ["NWL Team"]
+
+[workspace.dependencies]
+thiserror = "2.0"
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
