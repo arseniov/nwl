@@ -1,0 +1,55 @@
+page:
+  name: Counter
+  layout:
+    type: column
+    properties: [items-center, justify-center, min-h-screen]
+  style: [bg-gray-100]
+  state:
+    - name: count
+      initial: 0
+    - name: name
+      initial: "Guest"
+    - name: email
+      initial: ""
+  children:
+    - element: card
+      style: [p-8, bg-white, rounded-xl, shadow-lg, max-w-md, w-full]
+      children:
+        - element: heading
+          content: "Counter Example"
+          style: [text-2xl, font-bold, text-gray-900, mb-6]
+        - element: text
+          content: "Hello, {name}!"
+          style: [text-lg, text-gray-600, mb-4]
+        - element: layout
+          layout:
+            type: row
+            properties: [items-center, justify-center, gap-4, mb-6]
+          children:
+            - element: button
+              content: "-"
+              style: [bg-red-500, text-white, w-12, h-12, rounded-full, text-xl, font-bold, hover:bg-red-600]
+              onClick: "setCount(count - 1)"
+            - element: heading
+              content: "{count}"
+              style: [text-4xl, font-bold, text-gray-900, w-16, text-center]
+            - element: button
+              content: "+"
+              style: [bg-green-500, text-white, w-12, h-12, rounded-full, text-xl, font-bold, hover:bg-green-600]
+              onClick: "setCount(count + 1)"
+        - element: spacer
+          style: [my-4]
+        - element: heading
+          content: "Update Your Name"
+          style: [text-xl, font-semibold, text-gray-900, mb-4]
+        - element: input
+          placeholder: "Enter your name"
+          bind: name
+          style: [w-full, border, border-gray-300, rounded-lg, px-4, py-2, mb-4]
+        - element: text
+          content: "Your email (auto-saves):"
+          style: [text-sm, text-gray-600, mb-2]
+        - element: input
+          placeholder: "Enter your email"
+          bind: email
+          style: [w-full, border, border-gray-300, rounded-lg, px-4, py-2]

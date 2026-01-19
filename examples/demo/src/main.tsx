@@ -5,6 +5,8 @@ import './index.css'
 
 import Home from './home';
 import Landing from './landing';
+import Counter from './counter';
+import Interactive from './interactive';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -14,6 +16,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<Home />} />
 
         <Route path="/landing" element={<Landing />} />
+
+        <Route path="/counter" element={<Counter />} />
+
+        <Route path="/interactive" element={<Interactive />} />
 
       </Routes>
     </BrowserRouter>

@@ -1,0 +1,139 @@
+page:
+  name: Interactive
+  layout:
+    type: column
+    properties: [items-center, min-h-screen]
+  style: [bg-gray-50, py-8]
+  state:
+    - name: agreedToTerms
+      initial: false
+    - name: volume
+      initial: 50
+    - name: country
+      initial: ""
+    - name: priority
+      initial: "medium"
+    - name: bio
+      initial: ""
+    - name: formStatus
+      initial: ""
+  children:
+    - element: card
+      style: [max-w-2xl, w-full, p-8, bg-white, rounded-xl, shadow-lg]
+      children:
+        - element: heading
+          content: "Interactive Components Demo"
+          style: [text-2xl, font-bold, text-gray-900, mb-8]
+        - element: spacer
+          style: [my-4]
+
+        # Checkbox
+        - element: heading
+          content: "1. Checkbox (Toggle)"
+          style: [text-lg, font-semibold, text-gray-900, mb-4]
+        - element: checkbox
+          label: "I agree to the terms and conditions"
+          bind: agreedToTerms
+          style: [mb-6]
+        - element: text
+          content: "Status: {agreedToTerms ? 'Agreed!' : 'Not agreed'}"
+          style: [text-gray-600, mb-8]
+
+        # Slider
+        - element: heading
+          content: "2. Slider (Volume Control)"
+          style: [text-lg, font-semibold, text-gray-900, mb-4]
+        - element: slider
+          bind: volume
+          min: 0
+          max: 100
+          step: 10
+          label: "Volume: {volume}%"
+          style: [w-full, mb-2]
+        - element: layout
+          layout:
+            type: row
+            properties: [justify-between]
+          children:
+            - element: text
+              content: "0%"
+              style: [text-sm, text-gray-500]
+            - element: text
+              content: "100%"
+              style: [text-sm, text-gray-500]
+        - element: spacer
+          style: [my-6]
+
+        # Select
+        - element: heading
+          content: "3. Select Dropdown"
+          style: [text-lg, font-semibold, text-gray-900, mb-4]
+        - element: select
+          placeholder: "Choose a country"
+          bind: country
+          options:
+            - value: us
+              label: United States
+            - value: uk
+              label: United Kingdom
+            - value: ca
+              label: Canada
+            - value: de
+              label: Germany
+          style: [w-full, mb-6]
+        - element: text
+          content: "You selected: {country || 'None'}"
+          style: [text-gray-600, mb-8]
+
+        # Radio Group
+        - element: heading
+          content: "4. Radio Group (Priority)"
+          style: [text-lg, font-semibold, text-gray-900, mb-4]
+        - element: radio-group
+          label: "Select priority level"
+          bind: priority
+          options:
+            - value: low
+              label: Low Priority
+            - value: medium
+              label: Medium Priority
+            - value: high
+              label: High Priority
+          style: [mb-6]
+        - element: text
+          content: "Current priority: {priority}"
+          style: [text-gray-600, mb-8]
+
+        # Textarea
+        - element: heading
+          content: "5. Textarea (Bio)"
+          style: [text-lg, font-semibold, text-gray-900, mb-4]
+        - element: textarea
+          placeholder: "Tell us about yourself..."
+          bind: bio
+          rows: 4
+          style: [w-full, border, border-gray-300, rounded-lg, px-4, py-2, mb-4]
+        - element: text
+          content: "Character count: {bio.length}"
+          style: [text-sm, text-gray-500, mb-8]
+
+        # Form
+        - element: heading
+          content: "6. Form Submission"
+          style: [text-lg, font-semibold, text-gray-900, mb-4]
+        - element: form
+          onSubmit: "setFormStatus('Form submitted successfully!')"
+          style: [space-y-4]
+          children:
+            - element: input
+              placeholder: "Email address"
+              style: [w-full, border, border-gray-300, rounded-lg, px-4, py-2]
+            - element: input
+              placeholder: "Password"
+              style: [w-full, border, border-gray-300, rounded-lg, px-4, py-2]
+            - element: button
+              content: "Submit Form"
+              style: [bg-blue-600, text-white, px-6, py-3, rounded-lg, font-semibold, hover:bg-blue-700, w-full]
+        - element: text
+          content: "{formStatus}"
+          style: [text-green-600, font-medium, mt-4]

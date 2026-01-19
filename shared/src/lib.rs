@@ -46,6 +46,18 @@ pub enum Element {
     Spacer(SpacerElement),
     #[serde(rename = "container")]
     Container(ContainerElement),
+    #[serde(rename = "checkbox")]
+    Checkbox(CheckboxElement),
+    #[serde(rename = "slider")]
+    Slider(SliderElement),
+    #[serde(rename = "select")]
+    Select(SelectElement),
+    #[serde(rename = "radio-group")]
+    RadioGroup(RadioGroupElement),
+    #[serde(rename = "textarea")]
+    Textarea(TextareaElement),
+    #[serde(rename = "form")]
+    Form(FormElement),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -101,6 +113,8 @@ pub struct InputElement {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub value: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub onChange: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub style: Vec<String>,
@@ -131,6 +145,102 @@ pub struct ContainerElement {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CheckboxElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SliderElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min: Option<i32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max: Option<i32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub step: Option<i32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SelectOption {
+    pub value: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SelectElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub placeholder: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub options: Vec<SelectOption>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RadioOption {
+    pub value: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RadioGroupElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub options: Vec<RadioOption>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TextareaElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub placeholder: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rows: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FormElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onSubmit: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub children: Vec<Element>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Page {
     #[serde(rename = "page")]
     pub page_data: PageData,
@@ -145,25 +255,18 @@ pub struct PageData {
     pub style: Vec<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub children: Vec<Element>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct StateFile {
-    #[serde(rename = "state")]
-    pub states: Vec<StateDefinition>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub state: Vec<StateDefinition>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct StateDefinition {
     pub name: String,
+    #[serde(rename = "type")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value_type: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub initial: Option<serde_yaml::Value>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub source: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub query: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub cache: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
