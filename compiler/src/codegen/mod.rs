@@ -26,7 +26,7 @@ impl ReactGenerator {
     fn generate_page(page: &PageData) -> Result<String, CodegenError> {
         let mut output = String::new();
 
-        let component_name = "App";
+        let component_name = Self::to_pascal_case(&page.name);
 
         output.push_str(&format!(
             "export default function {}() {{\n",
@@ -280,7 +280,7 @@ impl ReactGenerator {
 
     fn generate_spacer(_spacer: &SpacerElement, indent: usize) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
-        Ok(format!("{}<div style={{height: '24px'}} />", indent_str))
+        Ok(format!("{}<div className=\"h-6\" />", indent_str))
     }
 
     fn generate_container(
@@ -363,6 +363,29 @@ impl ReactGenerator {
 
 pub fn generate_react(document: &Document) -> Result<String, CodegenError> {
     ReactGenerator::generate(document)
+}
+
+pub fn generate_router(name: &str, imports: &str, routes: &str) -> String {
+    format!(
+        r#"import React from 'react'
+import ReactDOM from 'react-dom/client'
+import {{ BrowserRouter, Routes, Route }} from 'react-router-dom'
+import './index.css'
+
+{}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <Routes>
+{}
+      </Routes>
+    </BrowserRouter>
+  </React.StrictMode>,
+)
+"#,
+        imports, routes
+    )
 }
 
 impl From<CodegenError> for nwl_shared::CompileError {

@@ -1,0 +1,8 @@
+# NWL Project Configuration
+name: My App
+
+routes:
+  - path: /
+    page: pages/home.yaml
+  - path: /landing
+    page: pages/landing.yaml

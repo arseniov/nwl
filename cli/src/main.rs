@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use nwl_compiler::compile_file;
+use nwl_compiler::build_project;
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
@@ -16,9 +16,7 @@ struct Args {
 enum Commands {
     #[command(name = "build")]
     Build {
-        #[arg(short, long)]
-        output: Option<PathBuf>,
-        #[arg(default_value = "pages")]
+        #[arg(default_value = ".")]
         input: PathBuf,
     },
     #[command(name = "compile")]
@@ -35,13 +33,21 @@ fn main() {
     let args = Args::parse();
 
     match args.command {
-        Commands::Build { output, input } => {
-            println!("Building from {}", input.display());
+        Commands::Build { input } => {
+            println!("Building NWL project in {}", input.display());
             if !input.exists() {
-                eprintln!("Error: Input directory not found: {}", input.display());
+                eprintln!("Error: Directory not found: {}", input.display());
                 std::process::exit(1);
             }
-            println!("Build command ready - compiles YAML pages to React");
+            match build_project(input) {
+                Ok(()) => {
+                    println!("Build successful! Routes generated automatically.");
+                }
+                Err(e) => {
+                    eprintln!("Build error: {}", e);
+                    std::process::exit(1);
+                }
+            }
         }
         Commands::Compile { output, file } => {
             if !file.exists() {
@@ -49,7 +55,8 @@ fn main() {
                 std::process::exit(1);
             }
 
-            match compile_file(file.clone()) {
+            let content = std::fs::read_to_string(&file).expect("Failed to read file");
+            match nwl_compiler::compile(&content) {
                 Ok(output_code) => {
                     if let Some(output_path) = output {
                         std::fs::write(&output_path, &output_code).expect("Failed to write output");

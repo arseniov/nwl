@@ -1,29 +1,15 @@
 #!/bin/bash
-# Dev workflow helper for NWL development
+# NWL Development Workflow
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+EXAMPLE_DIR="$SCRIPT_DIR/examples/demo"
 
 build_compiler() {
     echo "Building NWL compiler..."
-    cargo build --release
+    cargo build --release --manifest-path "$SCRIPT_DIR/Cargo.toml"
     echo "Compiler built successfully!"
-}
-
-compile_page() {
-    INPUT="${1:-examples/home.yaml}"
-    OUTPUT="${2:-src/App.tsx}"
-
-    if [ ! -f "$INPUT" ]; then
-        echo "Error: Input file not found: $INPUT"
-        exit 1
-    fi
-
-    echo "Compiling $INPUT -> $OUTPUT"
-    ./target/release/nwl compile "$INPUT" -o "$OUTPUT"
-    echo "Done!"
 }
 
 case "$1" in
@@ -31,54 +17,69 @@ case "$1" in
     build_compiler
     ;;
   compile)
-    compile_page "$2" "$3"
+    INPUT="${2:-$EXAMPLE_DIR/pages/home.yaml}"
+    OUTPUT="${3:-$EXAMPLE_DIR/src/home.tsx}"
+
+    if [ ! -f "$INPUT" ]; then
+        echo "Error: Input file not found: $INPUT"
+        exit 1
+    fi
+
+    echo "Compiling $INPUT -> $OUTPUT"
+    "$SCRIPT_DIR/target/release/nwl" compile "$INPUT" -o "$OUTPUT"
+    echo "Done!"
+    ;;
+  build-project)
+    build_compiler
+    echo ""
+    echo "Building project in examples/demo..."
+    "$SCRIPT_DIR/target/release/nwl" build "$EXAMPLE_DIR"
     ;;
   dev)
     echo "=== NWL Development Workflow ==="
     echo ""
 
-    if [ ! -f "./target/release/nwl" ]; then
+    if [ ! -f "$SCRIPT_DIR/target/release/nwl" ]; then
         echo "Compiler not found. Building..."
         build_compiler
         echo ""
     fi
 
-    echo "Compiling page..."
-    compile_page "examples/home.yaml" "src/App.tsx"
+    echo "Building project (generates routes from nwl.yaml)..."
+    "$SCRIPT_DIR/target/release/nwl" build "$EXAMPLE_DIR"
 
     echo ""
     echo "Starting Vite dev server..."
     echo "Press Ctrl+C to stop"
     echo ""
 
+    cd "$EXAMPLE_DIR"
     npm run dev -- --host 0.0.0.0
+    ;;
+  install)
+    echo "Installing dependencies for demo project..."
+    cd "$EXAMPLE_DIR"
+    npm install
     ;;
   watch)
     echo "=== Watching for YAML changes ==="
     echo "Press Ctrl+C to stop"
     echo ""
 
-    if [ ! -f "./target/release/nwl" ]; then
+    if [ ! -f "$SCRIPT_DIR/target/release/nwl" ]; then
         echo "Building compiler first..."
-        cargo build --release
+        build_compiler
     fi
 
-    inotifywait -m -e close_write examples/*.yaml pages/*.yaml -q |
+    inotifywait -m -e close_write "$EXAMPLE_DIR/pages"/*.yaml "$EXAMPLE_DIR/nwl.yaml" -q |
     while read -r filename; do
         echo "[$(date '+%H:%M:%S')] Changed: $filename"
-        INPUT="$filename"
-        OUTPUT="src/App.tsx"
-
-        if ./target/release/nwl compile "$INPUT" -o "$OUTPUT" 2>/dev/null; then
-            echo "  -> Compiled successfully"
+        if "$SCRIPT_DIR/target/release/nwl" build "$EXAMPLE_DIR" 2>/dev/null; then
+            echo "  -> Built successfully"
         else
-            echo "  -> Compilation failed"
+            echo "  -> Build failed"
         fi
     done
-    ;;
-  build-page)
-    build_compiler
-    compile_page "$2" "$3"
     ;;
   *)
     echo "NWL Development Workflow"
@@ -86,12 +87,18 @@ case "$1" in
     echo "Usage: ./dev.sh <command>"
     echo ""
     echo "Commands:"
-    echo "  build-page - Build compiler and compile page"
-    echo "  build      - Build only the NWL compiler"
-    echo "  compile    - Compile YAML to React (args: [input] [output])"
-    echo "              Default: examples/home.yaml -> src/App.tsx"
-    echo "  dev        - Build, compile, and start dev server"
-    echo "  watch      - Watch YAML files and auto-compile"
+    echo "  build-project - Build compiler and build demo project"
+    echo "  build         - Build only the NWL compiler"
+    echo "  compile       - Compile single YAML file (args: [input] [output])"
+    echo "  dev           - Build project and start dev server"
+    echo "  install       - Install npm dependencies for demo"
+    echo "  watch         - Watch YAML files and auto-rebuild"
+    echo ""
+    echo "Demo project: examples/demo/"
+    echo "Routes configured in: examples/demo/nwl.yaml"
+    echo ""
+    echo "Routes:"
+    grep "path:" "$EXAMPLE_DIR/nwl.yaml" | sed 's/.*path: */  /'
     echo ""
     ;;
 esac
