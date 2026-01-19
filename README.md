@@ -1,106 +1,372 @@
-# DSL for UI Development
+# NWL - Natural Web Language
 
-A declarative UI DSL that compiles to React with Tailwind CSS.
+<div align="center">
+
+**A DSL that compiles declarative YAML to production-ready React and React Native code**
+
+[![Rust](https://img.shields.io/badge/Rust-1.70+-orange?logo=rust)](https://www.rust-lang.org)
+[![React](https://img.shields.io/badge/React-18-blue?logo=react)](https://reactjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
+
+</div>
+
+## What is NWL?
+
+NWL (Natural Web Language) is a domain-specific language that lets you describe user interfaces in simple, declarative YAML. The Rust compiler generates production-ready React/React Native TypeScript code with Tailwind CSS styling.
+
+**No JavaScript knowledge required.** Write what you want, not how to build it.
+
+## Features
+
+- 🚀 **Instant Compilation** - Built with Rust for blazing fast builds
+- 📝 **Simple YAML Syntax** - Declarative, easy to read and maintain
+- 🔒 **Type-Safe Output** - Generates full TypeScript with proper types
+- 🎨 **Tailwind CSS Integration** - All Tailwind classes supported
+- ⚛️ **React Native Ready** - Can target both web and mobile
+- 🧩 **28+ Built-in Components** - Forms, navigation, display, and more
+- 🔄 **Auto State Management** - `useState` hooks generated automatically
+- 📦 **Zero Runtime** - Pure compile-time code generation
 
 ## Quick Start
 
-### 1. Build the DSL Compiler
-
 ```bash
-cargo build --release
-```
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Compile DSL to React
-
-```bash
-./target/release/dsl compile examples/home.app -o src/App.tsx
-```
-
-### 4. Start Development Server
-
-```bash
-npm run dev
-```
-
-Then open the URL shown (usually http://localhost:5173) to see your compiled DSL app.
-
-## Development Workflow
-
-```bash
-# Build the compiler
+# 1. Build the compiler
 ./dev.sh build
 
-# Compile DSL to React
-./dev.sh compile
-
-# Start Vite dev server
+# 2. Start development server (builds project + starts vite)
 ./dev.sh dev
 
-# Watch DSL files and auto-compile on changes
-./dev.sh watch
+# 3. Open http://localhost:5173
 ```
 
-## DSL Syntax
+## Available Commands
 
-```dsl
-page Home:
-  layout [column gap-4 p-8 items-center]
-  heading "My App"
-
-  card:
-    heading "Counter"
-    button "Increment":
-      text "Clicked!"
-
-  card:
-    heading "List"
-    list items=[a, b, c]:
-      text "{item}"
+```bash
+./dev.sh build         # Build only the NWL compiler
+./dev.sh build-project # Build compiler + compile demo project
+./dev.sh compile       # Compile a single YAML file
+./dev.sh dev           # Build project + start dev server
+./dev.sh install       # Install npm dependencies
+./dev.sh watch         # Watch YAML files and auto-rebuild
 ```
 
-### Elements
-- `page <Name>` - Page component
-- `layout [column|row <classes...>]` - Layout container
-- `heading "Text"` - Heading element
-- `text "Text"` - Paragraph text
-- `button "Label"` - Button element
-- `button "Label":` - Button with children
-- `card:` - Card container
-- `card: <children>` - Card with children
-- `list <variable>=[items]:` - List iteration
-- `style [<tailwind-classes>]` - Apply Tailwind classes
+## YAML Syntax
 
-### Layout Types
-- `column` - flex-col
-- `row` - flex-row
-
-### Tailwind Classes
-All Tailwind CSS classes are supported in layout and style directives.
-
-## Example
-
-Input:
-```dsl
-page Home:
-  layout [column center gap-4]
-  heading "Hello"
+```yaml
+page:
+  name: MyPage
+  state:
+    - name: count
+      initial: 0
+  children:
+    - heading:
+        content: "Counter: {count}"
+        style: [text-2xl, font-bold]
+    - button:
+        content: "Increment"
+        onClick: "setCount(count + 1)"
 ```
 
-Output:
+Compiles to:
+
 ```tsx
-export default function Home() {
+export default function MyPage() {
+  const [count, setCount] = useState(0);
   return (
     <>
-      <div className="flex flex-col center gap-4">
-        <p className="text-xl">Hello</p>
-      </div>
+      <h1 className="text-2xl font-bold">Counter: {count}</h1>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
     </>
   );
 }
 ```
+
+## Components
+
+### Form Components
+
+| Component | Description |
+|-----------|-------------|
+| `input` | Text input field |
+| `checkbox` | Checkbox with label |
+| `slider` | Range slider with min/max |
+| `select` | Dropdown select |
+| `radio-group` | Radio button group |
+| `textarea` | Multi-line text input |
+| `form` | Form with submit handler |
+
+### Date & Time
+
+| Component | Description |
+|-----------|-------------|
+| `date-input` | Date picker |
+| `time-input` | Time picker |
+| `datetime-input` | Combined date/time picker |
+
+### Selection & Display
+
+| Component | Description |
+|-----------|-------------|
+| `color-picker` | Color selection input |
+| `file-upload` | File upload input |
+| `progress` | Progress bar |
+| `rating` | Star rating component |
+
+### Toggle & Switch
+
+| Component | Description |
+|-----------|-------------|
+| `toggle` | Toggle switch component |
+
+### Navigation
+
+| Component | Description |
+|-----------|-------------|
+| `tabs` | Tab navigation |
+| `breadcrumb` | Breadcrumb navigation |
+| `pagination` | Page navigation |
+| `accordion` | Collapsible sections |
+
+### Modal & Dialogs
+
+| Component | Description |
+|-----------|-------------|
+| `modal` | Modal dialog |
+| `alert` | Alert messages (info, warning, success, error) |
+
+### Indicators & Badges
+
+| Component | Description |
+|-----------|-------------|
+| `badge` | Status badge |
+| `tag` | Tag/category label |
+| `spinner` | Loading spinner (small, medium, large) |
+
+### Input Components
+
+| Component | Description |
+|-----------|-------------|
+| `search-input` | Search input with search button |
+| `counter` | Number counter (+/- buttons) |
+| `copy-button` | Copy to clipboard button |
+| `avatar` | User avatar display |
+| `chip-input` | Tag/chip input with suggestions |
+
+## State Management
+
+Declare state in your page and NWL generates `useState` hooks automatically:
+
+```yaml
+page:
+  name: MyPage
+  state:
+    - name: username
+      initial: ""
+    - name: isLoading
+      initial: false
+    - name: items
+      initial: ["apple", "banana"]
+  children:
+    - input:
+        bind: username
+    - checkbox:
+        bind: isLoading
+```
+
+Generates:
+
+```tsx
+export default function MyPage() {
+  const [username, setUsername] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [items, setItems] = useState(["apple", "banana"]);
+  // ...
+}
+```
+
+## Two-Way Binding
+
+Use `bind:` to connect inputs to state - NWL handles both reading and writing:
+
+```yaml
+- input:
+    bind: email
+- checkbox:
+    bind: agreedToTerms
+- slider:
+    bind: volume
+    min: 0
+    max: 100
+```
+
+Generates proper event handlers automatically:
+
+```tsx
+<input value={email} onChange={(e) => setEmail(e.target.value)} />
+<input type="checkbox" checked={agreedToTerms} onChange={() => setAgreedToTerms(!agreedToTerms)} />
+<input type="range" value={volume} onChange={(e) => setVolume(e.target.value)} />
+```
+
+## Event Handlers
+
+Bind events with JavaScript expressions:
+
+```yaml
+- button:
+    content: "Click Me"
+    onClick: "setCount(count + 1)"
+- form:
+    onSubmit: "handleSubmit(formData)"
+```
+
+## Layout System
+
+Use the `layout` element for container layouts:
+
+```yaml
+- layout:
+    type: column
+    properties: [items-center, gap-4]
+  children:
+    - heading: "Section 1"
+    - heading: "Section 2"
+```
+
+Layout types:
+- `column` → `flex flex-col`
+- `row` → `flex flex-row`
+- `grid` → `grid` (use `columns` property for `grid-cols-N`)
+
+## Styling
+
+Apply Tailwind CSS classes with the `style` property:
+
+```yaml
+- heading:
+    content: "Hello"
+    style: [text-3xl, font-bold, text-blue-600, mb-4]
+- container:
+    style: [bg-white, p-6, rounded-lg, shadow-md]
+```
+
+## Project Structure
+
+```
+nwl/
+├── Cargo.toml           # Rust workspace config
+├── dev.sh              # Development workflow script
+├── README.md           # This file
+├── ROADMAP.md          # Project roadmap
+├── shared/             # Shared YAML schema definitions
+│   └── src/lib.rs      # Element structs and enums
+├── compiler/           # YAML → React compiler
+│   └── src/codegen/    # Code generation logic
+├── cli/                # CLI entry point
+│   └── src/main.rs     # nwl CLI commands
+└── examples/demo/      # Demo project
+    ├── nwl.yaml        # Route configuration
+    └── pages/          # Page YAML files
+        ├── home.yaml       # Homepage
+        └── playground.yaml # Component playground
+```
+
+## Routes Configuration
+
+Define routes in `examples/demo/nwl.yaml`:
+
+```yaml
+name: My App
+routes:
+  - path: /
+    page: pages/home.yaml
+  - path: /playground
+    page: pages/playground.yaml
+```
+
+## Development
+
+### Running the Demo
+
+```bash
+# Start dev server (builds + watches)
+./dev.sh dev
+
+# Or watch for YAML changes only
+./dev.sh watch
+```
+
+### Building the Compiler
+
+```bash
+# Debug build
+cargo build
+
+# Release build
+cargo build --release
+```
+
+### Testing Changes
+
+```bash
+# Rebuild the project with latest compiler
+./dev.sh build-project
+
+# Build and start dev server
+./dev.sh dev
+```
+
+## Example: Interactive Form
+
+```yaml
+page:
+  name: ContactForm
+  state:
+    - name: name
+      initial: ""
+    - name: email
+      initial: ""
+    - name: message
+      initial: ""
+  children:
+    - heading:
+        content: "Contact Us"
+        style: [text-2xl, font-bold, mb-6]
+    - input:
+        placeholder: "Your name"
+        bind: name
+        style: [w-full, mb-4]
+    - input:
+        placeholder: "Email"
+        bind: email
+        style: [w-full, mb-4]
+    - textarea:
+        placeholder: "Message"
+        bind: message
+        rows: 4
+        style: [w-full, mb-4]
+    - button:
+        content: "Send Message"
+        style: [bg-blue-600, text-white, px-6, py-3, rounded-lg]
+        onClick: "console.log({name, email, message})"
+```
+
+## Tech Stack
+
+- **Language**: Rust 1.70+
+- **Output**: TypeScript 5.x + React 18
+- **Styling**: Tailwind CSS 3.4
+- **Build Tool**: Vite 5.x
+- **Parser**: serde_yaml
+
+## License
+
+MIT
+
+---
+
+<div align="center">
+
+**Built with Rust + React**
+
+</div>

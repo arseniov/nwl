@@ -4,9 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 
 import Home from './home';
-import Landing from './landing';
-import Counter from './counter';
-import Interactive from './interactive';
+import Playground from './playground';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -15,11 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/" element={<Home />} />
 
-        <Route path="/landing" element={<Landing />} />
-
-        <Route path="/counter" element={<Counter />} />
-
-        <Route path="/interactive" element={<Interactive />} />
+        <Route path="/playground" element={<Playground />} />
 
       </Routes>
     </BrowserRouter>

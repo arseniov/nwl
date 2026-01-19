@@ -89,7 +89,7 @@ Build a landing page + dashboard app with zero React knowledge.
 
 - React Native compiler
 - Platform-aware components
-- Shared DSL files
+- Shared NWL files
 
 ### Milestone 4: Power Users (Future)
 
@@ -100,8 +100,8 @@ Build a landing page + dashboard app with zero React knowledge.
 
 ### Milestone 5: AI-Native (Future)
 
-- AI generates DSL
-- Visual ↔ DSL sync
+- AI generates NWL
+- Visual ↔ NWL sync
 - Refactoring via intent
 - Design tokens from Figma
 
@@ -234,17 +234,16 @@ The demo project includes these routes:
 | Route | Description |
 |-------|-------------|
 | `/` | Home page |
-| `/landing` | Landing page |
-| `/counter` | Counter with state + input binding |
-| `/interactive` | All interactive components demo |
+| `/playground` | All interactive components demo |
 
-Try the `/interactive` route to see:
-- Checkbox toggle with two-way binding
-- Slider with min/max/step
-- Select dropdown with options
-- Radio group with options
-- Textarea with binding
-- Form with submit handler
+Try the `/playground` route to see:
+- Form components (input, checkbox, slider, select, radio, textarea, form)
+- Date/Time inputs (date, time, datetime)
+- Selection components (color picker, file upload, progress, toggle, rating)
+- Navigation (tabs, breadcrumb, pagination, accordion)
+- Modal & dialogs
+- Indicators (badges, tags, spinner)
+- Input components (search, counter, copy button, avatar, chip input)
 
 ---
 

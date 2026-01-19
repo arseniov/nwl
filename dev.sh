@@ -6,6 +6,22 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EXAMPLE_DIR="$SCRIPT_DIR/examples/demo"
 
+# Cleanup function to stop dev server on exit
+cleanup() {
+    if [ -n "$NPM_PID" ] && kill -0 "$NPM_PID" 2>/dev/null; then
+        echo ""
+        echo "Stopping dev server..."
+        kill "$NPM_PID" 2>/dev/null || true
+        wait "$NPM_PID" 2>/dev/null || true
+    fi
+    # Also kill any leftover vite processes for this project
+    pkill -f "vite.*examples/demo" 2>/dev/null || true
+}
+
+# Set up signal handlers
+trap cleanup EXIT
+trap 'cleanup; exit 130' INT TERM
+
 build_compiler() {
     echo "Building NWL compiler..."
     cargo build --release --manifest-path "$SCRIPT_DIR/Cargo.toml"
@@ -54,7 +70,9 @@ case "$1" in
     echo ""
 
     cd "$EXAMPLE_DIR"
-    npm run dev -- --host 0.0.0.0
+    npm run dev -- --host 0.0.0.0 &
+    NPM_PID=$!
+    wait $NPM_PID
     ;;
   install)
     echo "Installing dependencies for demo project..."

@@ -1,6 +1,6 @@
 # NWL - Natural Web Language
 
-A declarative UI + app DSL that compiles to React (web) and React Native (mobile). Developers describe intent, not implementation.
+A declarative UI + app framework that compiles to React (web) and React Native (mobile). Developers describe intent, not implementation.
 
 ---
 
@@ -11,7 +11,7 @@ A declarative UI + app DSL that compiles to React (web) and React Native (mobile
 - A React replacement
 
 **Building:**
-- A declarative UI + app DSL that compiles to React and React Native, not plain HTML
+- A declarative UI + app framework that compiles to React and React Native, not plain HTML
 - Think of it as: Figma → code, but for developers / Markdown → HTML, but for full apps / SQL for UI
 
 **Mental model for users (3 concepts only):**

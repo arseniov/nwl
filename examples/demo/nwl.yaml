@@ -4,9 +4,5 @@ name: My App
 routes:
   - path: /
     page: pages/home.yaml
-  - path: /landing
-    page: pages/landing.yaml
-  - path: /counter
-    page: pages/counter.yaml
-  - path: /interactive
-    page: pages/interactive.yaml
+  - path: /playground
+    page: pages/playground.yaml

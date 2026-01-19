@@ -2,25 +2,179 @@ page:
   name: Home
   layout:
     type: column
-    properties: [center, gap-24]
-  style: [bg-gray-50, min-h-screen]
+  style: [bg-white]
   children:
-    - element: heading
-      content: "Welcome back"
-      style: [text-3xl, font-bold, text-gray-900]
-    - element: text
-      content: "Your projects"
-      style: [text-xl, text-gray-600]
-    - element: card
-      style: [p-6, bg-white, rounded-lg, shadow-md]
+    - element: container
+      style: [bg-gray-900, text-white, py-20]
       children:
-        - element: heading
-          content: "Sample Project"
-          style: [text-xl, font-semibold, mb-2]
-        - element: text
-          content: "This is a sample project card compiled from YAML"
-          style: [text-gray-600]
-        - element: button
-          content: "Open Project"
-          onClick: "/project/123"
-          style: [bg-blue-600, text-white, px-4, py-2, rounded, mt-4]
+        - element: layout
+          layout:
+            type: column
+            properties: [items-center, max-w-4xl, mx-auto, px-6]
+          children:
+            - element: heading
+              content: "NWL - Natural Web Language"
+              style: [text-5xl, font-bold, mb-6, text-center]
+            - element: text
+              content: "A DSL that compiles declarative YAML to production-ready React and React Native code"
+              style: [text-xl, text-gray-300, text-center, mb-8]
+            - element: layout
+              layout:
+                type: row
+                properties: [gap-4]
+              children:
+                - element: button
+                  content: "Get Started"
+                  style: [bg-blue-600, text-white, px-8, py-3, rounded-lg, font-semibold, hover:bg-blue-700]
+                  onClick: "/playground"
+                - element: button
+                  content: "View on GitHub"
+                  style: [bg-gray-800, text-white, px-8, py-3, rounded-lg, font-semibold, border, border-gray-700, hover:bg-gray-700]
+            - element: layout
+              layout:
+                type: row
+                properties: [gap-8, mt-12]
+              children:
+                - element: layout
+                  layout:
+                    type: column
+                    properties: [items-center]
+                  children:
+                    - element: text
+                      content: "YAML"
+                      style: [text-3xl, font-bold, text-blue-400]
+                    - element: text
+                      content: "Declarative Syntax"
+                      style: [text-gray-400, text-sm]
+                - element: layout
+                  layout:
+                    type: column
+                    properties: [items-center]
+                  children:
+                    - element: text
+                      content: "Rust"
+                      style: [text-3xl, font-bold, text-orange-500]
+                    - element: text
+                      content: "Blazing Fast"
+                      style: [text-gray-400, text-sm]
+                - element: layout
+                  layout:
+                    type: column
+                    properties: [items-center]
+                  children:
+                    - element: text
+                      content: "React"
+                      style: [text-3xl, font-bold, text-cyan-400]
+                    - element: text
+                      content: "Production Ready"
+                      style: [text-gray-400, text-sm]
+
+    - element: container
+      style: [py-16, px-6]
+      children:
+        - element: layout
+          layout:
+            type: column
+            properties: [max-w-4xl, mx-auto]
+          children:
+            - element: heading
+              content: "Why NWL?"
+              style: [text-3xl, font-bold, text-gray-900, mb-8, text-center]
+            - element: layout
+              layout:
+                type: row
+                properties: [gap-8, flex-wrap]
+              children:
+                - element: card
+                  style: [flex-1, p-6, border, border-gray-200, rounded-xl, min-w-280]
+                  children:
+                    - element: text
+                      content: "Simple & Declarative"
+                      style: [text-xl, font-semibold, text-gray-900, mb-3]
+                    - element: text
+                      content: "Write UI in plain YAML. No JavaScript knowledge required. Focus on what to build, not how to build it."
+                      style: [text-gray-600]
+                - element: card
+                  style: [flex-1, p-6, border, border-gray-200, rounded-xl, min-w-280]
+                  children:
+                    - element: text
+                      content: "Type-Safe Output"
+                      style: [text-xl, font-semibold, text-gray-900, mb-3]
+                    - element: text
+                      content: "Generate production-ready TypeScript/React code. Full type inference and compile-time validation."
+                      style: [text-gray-600]
+                - element: card
+                  style: [flex-1, p-6, border, border-gray-200, rounded-xl, min-w-280]
+                  children:
+                    - element: text
+                      content: "Fast Compilation"
+                      style: [text-xl, font-semibold, text-gray-900, mb-3]
+                    - element: text
+                      content: "Built with Rust for instant compilation. Regenerate your entire UI in milliseconds."
+                      style: [text-gray-600]
+
+    - element: container
+      style: [bg-gray-50, py-16, px-6]
+      children:
+        - element: layout
+          layout:
+            type: column
+            properties: [max-w-4xl, mx-auto]
+          children:
+            - element: heading
+              content: "How It Works"
+              style: [text-3xl, font-bold, text-gray-900, mb-8, text-center]
+            - element: card
+              style: [bg-gray-900, rounded-xl, p-6, overflow-x-auto]
+              children:
+                - element: layout
+                  layout:
+                    type: column
+                    properties: [gap-2]
+                  children:
+                    - element: text
+                      content: "1. Write simple YAML"
+                      style: [text-green-400, font-mono, text-sm]
+                    - element: text
+                      content: "2. Run the NWL compiler"
+                      style: [text-blue-400, font-mono, text-sm]
+                    - element: text
+                      content: "3. Get production React code"
+                      style: [text-yellow-400, font-mono, text-sm]
+            - element: text
+              content: "The compiler automatically generates useState hooks, event handlers, and proper JSX from your declarative YAML."
+              style: [text-gray-600, text-center, mt-6, max-w-2xl]
+
+    - element: container
+      style: [py-16, px-6]
+      children:
+        - element: layout
+          layout:
+            type: column
+            properties: [max-w-4xl, mx-auto, items-center]
+          children:
+            - element: heading
+              content: "Try It Yourself"
+              style: [text-3xl, font-bold, text-gray-900, mb-4]
+            - element: text
+              content: "Explore our interactive playground with all available components"
+              style: [text-gray-600, mb-8]
+            - element: button
+              content: "Open Playground"
+              style: [bg-blue-600, text-white, px-8, py-3, rounded-lg, font-semibold, hover:bg-blue-700]
+              onClick: "/playground"
+
+    - element: container
+      style: [bg-gray-900, text-white, py-12]
+      children:
+        - element: layout
+          layout:
+            type: column
+            properties: [max-w-4xl, mx-auto, px-6, items-center]
+          children:
+            - element: text
+              content: "Built with Rust + React"
+              style: [text-gray-400]
+            - element: text
+              content: "NWL Project - Open Source on GitHub"
+              style: [text-gray-500, text-sm, mt-2]

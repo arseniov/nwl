@@ -1,0 +1,587 @@
+page:
+  name: Playground
+  layout:
+    type: column
+    properties: [items-center, min-h-screen]
+  style: [bg-gray-50, py-8]
+  state:
+    - name: agreedToTerms
+      initial: false
+    - name: volume
+      initial: 50
+    - name: country
+      initial: ""
+    - name: priority
+      initial: "medium"
+    - name: bio
+      initial: ""
+    - name: formStatus
+      initial: ""
+    - name: selectedDate
+      initial: ""
+    - name: selectedTime
+      initial: ""
+    - name: selectedColor
+      initial: "#3b82f6"
+    - name: uploadedFiles
+      initial: []
+    - name: progressValue
+      initial: 45
+    - name: toggleValue
+      initial: true
+    - name: activeTab
+      initial: "tab1"
+    - name: isModalOpen
+      initial: false
+    - name: ratingValue
+      initial: 3
+    - name: searchQuery
+      initial: ""
+    - name: counterValue
+      initial: 5
+    - name: currentPage
+      initial: 1
+    - name: tags
+      initial: ["react", "rust"]
+    - name: notification
+      initial: ""
+  children:
+    - element: card
+      style: [max-w-4xl, w-full, p-8, bg-white, rounded-xl, shadow-lg]
+      children:
+        - element: heading
+          content: "NWL Component Playground"
+          style: [text-2xl, font-bold, text-gray-900, mb-2]
+        - element: text
+          content: "Explore all interactive components available in NWL"
+          style: [text-gray-600, mb-8]
+        - element: spacer
+          style: [my-4]
+
+        # Checkbox
+        - element: heading
+          content: "Form Components"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
+        - element: layout
+          layout:
+            type: grid
+            columns: 2
+          children:
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "1. Checkbox"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: checkbox
+                  label: "I agree to the terms"
+                  bind: agreedToTerms
+                - element: text
+                  content: "{agreedToTerms ? 'Agreed!' : 'Not agreed'}"
+                  style: [text-sm, text-gray-600, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "2. Slider"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: slider
+                  bind: volume
+                  min: 0
+                  max: 100
+                  step: 10
+                  label: "Volume: {volume}%"
+                - element: layout
+                  layout:
+                    type: row
+                    properties: [justify-between]
+                  children:
+                    - element: text
+                      content: "0%"
+                      style: [text-xs, text-gray-500]
+                    - element: text
+                      content: "100%"
+                      style: [text-xs, text-gray-500]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "3. Select"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: select
+                  placeholder: "Choose country"
+                  bind: country
+                  options:
+                    - value: us
+                      label: United States
+                    - value: uk
+                      label: United Kingdom
+                    - value: ca
+                      label: Canada
+                - element: text
+                  content: "{country || 'None'}"
+                  style: [text-sm, text-gray-600, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "4. Radio Group"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: radio-group
+                  bind: priority
+                  options:
+                    - value: low
+                      label: Low
+                    - value: medium
+                      label: Medium
+                    - value: high
+                      label: High
+                - element: text
+                  content: "{priority}"
+                  style: [text-sm, text-gray-600, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "5. Textarea"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: textarea
+                  placeholder: "Your bio..."
+                  bind: bio
+                  rows: 3
+                  style: [w-full, border, border-gray-300, rounded, px-3, py-2]
+                - element: text
+                  content: "{bio.length} chars"
+                  style: [text-xs, text-gray-500, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "6. Form"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: form
+                  onSubmit: "setFormStatus('Submitted!')"
+                  children:
+                    - element: input
+                      placeholder: "Email"
+                      style: [w-full, border, border-gray-300, rounded, px-3, py-2, mb-2]
+                    - element: button
+                      content: "Submit"
+                      style: [w-full, bg-blue-600, text-white, px-4, py-2, rounded]
+                - element: text
+                  content: "{formStatus}"
+                  style: [text-sm, text-green-600, mt-2]
+
+        # Date/Time Inputs
+        - element: heading
+          content: "Date & Time Inputs"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
+        - element: layout
+          layout:
+            type: grid
+            columns: 3
+          children:
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "7. Date Input"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: date-input
+                  label: "Select Date"
+                  bind: selectedDate
+                - element: text
+                  content: "{selectedDate || '-'}"
+                  style: [text-sm, text-gray-600, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "8. Time Input"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: time-input
+                  label: "Select Time"
+                  bind: selectedTime
+                - element: text
+                  content: "{selectedTime || '-'}"
+                  style: [text-sm, text-gray-600, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "9. DateTime Input"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: datetime-input
+                  label: "Date & Time"
+                - element: text
+                  content: "-"
+                  style: [text-sm, text-gray-600, mt-2]
+
+        # Selection & Display
+        - element: heading
+          content: "Selection & Display"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
+        - element: layout
+          layout:
+            type: grid
+            columns: 3
+          children:
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "10. Color Picker"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: color-picker
+                  label: "Choose Color"
+                  bind: selectedColor
+                  showPalette: true
+                - element: text
+                  content: "Selected: {selectedColor}"
+                  style: [text-sm, text-gray-600, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "11. File Upload"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: file-upload
+                  label: "Upload Files"
+                  bind: uploadedFiles
+                - element: text
+                  content: "{uploadedFiles ? uploadedFiles.length : 0} files"
+                  style: [text-sm, text-gray-600, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "12. Progress Bar"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: progress
+                  bind: progressValue
+                  showValue: true
+                  label: "Progress"
+                - element: layout
+                  layout:
+                    type: row
+                    properties: [gap-2, mt-2]
+                  children:
+                    - element: button
+                      content: "-"
+                      onClick: "setProgressValue(Math.max(0, progressValue - 10))"
+                      style: [px-2, py-1, border, rounded]
+                    - element: button
+                      content: "+"
+                      onClick: "setProgressValue(Math.min(100, progressValue + 10))"
+                      style: [px-2, py-1, border, rounded]
+
+        # Toggle & Switch
+        - element: heading
+          content: "Toggle Components"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
+        - element: layout
+          layout:
+            type: grid
+            columns: 2
+          children:
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "13. Toggle Switch"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: toggle
+                  label: "Enable notifications"
+                  bind: toggleValue
+                - element: text
+                  content: "{toggleValue ? 'Enabled' : 'Disabled'}"
+                  style: [text-sm, text-gray-600, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "14. Rating"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: rating
+                  bind: ratingValue
+                  max: 5
+                - element: text
+                  content: "{ratingValue}/5"
+                  style: [text-sm, text-gray-600, mt-2]
+
+        # Navigation
+        - element: heading
+          content: "Navigation"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
+        - element: layout
+          layout:
+            type: grid
+            columns: 2
+          children:
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "15. Tabs"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: tabs
+                  bind: activeTab
+                  options:
+                    - value: tab1
+                      label: Tab 1
+                    - value: tab2
+                      label: Tab 2
+                    - value: tab3
+                      label: Tab 3
+                - element: text
+                  content: "Active: {activeTab}"
+                  style: [text-sm, text-gray-600, mt-3]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "16. Breadcrumb"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: breadcrumb
+                  items:
+                    - label: Home
+                      href: "/"
+                    - label: Docs
+                      href: "/docs"
+                    - label: Guide
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "17. Pagination"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: pagination
+                  bind: currentPage
+                  total: 50
+                  perPage: 10
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "18. Accordion"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: accordion
+                  items:
+                    - title: "Section 1"
+                      content: "Content for section 1"
+                    - title: "Section 2"
+                      content: "Content for section 2"
+                    - title: "Section 3"
+                      content: "Content for section 3"
+
+        # Modal & Dialogs
+        - element: heading
+          content: "Modal & Dialogs"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
+        - element: layout
+          layout:
+            type: grid
+            columns: 2
+          children:
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "19. Modal"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: button
+                  content: "Open Modal"
+                  onClick: "setIsModalOpen(true)"
+                  style: [bg-blue-600, text-white, px-4, py-2, rounded]
+                - element: modal
+                  label: "Confirm Dialog"
+                  bind: isModalOpen
+                  children:
+                    - element: text
+                      content: "Are you sure you want to proceed?"
+                      style: [mb-4]
+                    - element: layout
+                      layout:
+                        type: row
+                        properties: [justify-end, gap-2]
+                      children:
+                        - element: button
+                          content: "Cancel"
+                          onClick: "setIsModalOpen(false)"
+                          style: [border, px-4, py-2, rounded]
+                        - element: button
+                          content: "Confirm"
+                          onClick: "setIsModalOpen(false)"
+                          style: [bg-blue-600, text-white, px-4, py-2, rounded]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "20. Alert"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: alert
+                  content: "This is an info alert"
+                  alertType: info
+                  style: [mb-2]
+                - element: alert
+                  content: "Warning message here"
+                  alertType: warning
+                  style: [mb-2]
+                - element: alert
+                  content: "Success message here"
+                  alertType: success
+
+        # Indicators
+        - element: heading
+          content: "Indicators & Badges"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
+        - element: layout
+          layout:
+            type: grid
+            columns: 3
+          children:
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "21. Badges"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: layout
+                  layout:
+                    type: row
+                    properties: [gap-2]
+                  children:
+                    - element: badge
+                      content: "New"
+                      style: [bg-blue-100, text-blue-800]
+                    - element: badge
+                      content: "Hot"
+                      style: [bg-red-100, text-red-800]
+                    - element: badge
+                      content: "Sale"
+                      style: [bg-yellow-100, text-yellow-800]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "22. Tags"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: layout
+                  layout:
+                    type: row
+                    properties: [gap-2]
+                  children:
+                    - element: tag
+                      content: "React"
+                    - element: tag
+                      content: "Rust"
+                    - element: tag
+                      content: "TypeScript"
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "23. Spinner"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: layout
+                  layout:
+                    type: row
+                    properties: [gap-4]
+                  children:
+                    - element: spinner
+                      size: small
+                    - element: spinner
+                      size: medium
+                    - element: spinner
+                      size: large
+
+        # Inputs
+        - element: heading
+          content: "Input Components"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
+        - element: layout
+          layout:
+            type: grid
+            columns: 2
+          children:
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "24. Search Input"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: search-input
+                  placeholder: "Search..."
+                  bind: searchQuery
+                - element: text
+                  content: "Query: {searchQuery || '-'}"
+                  style: [text-sm, text-gray-600, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "25. Counter"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: counter
+                  bind: counterValue
+                  min: 0
+                  max: 99
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "26. Copy Button"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: copy-button
+                  content: "https://nwl.dev"
+                  text: "Copy URL"
+                - element: copy-button
+                  text: "Copy Text"
+                  style: [ml-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "27. Avatar"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: layout
+                  layout:
+                    type: row
+                    properties: [gap-2, items-center]
+                  children:
+                    - element: avatar
+                      name: "JD"
+                      size: small
+                    - element: avatar
+                      name: "AB"
+                      size: medium
+                    - element: avatar
+                      name: "CD"
+                      size: large
+
+        # Chip Input
+        - element: heading
+          content: "Chip Input"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
+        - element: card
+          style: [p-4, border, border-gray-200, rounded-lg]
+          children:
+            - element: heading
+              content: "28. Chip Input (Tags)"
+              style: [text-base, font-semibold, text-gray-900, mb-3]
+            - element: chip-input
+              label: "Add Tags"
+              bind: tags
+              placeholder: "Type and press Enter..."
+              suggestions:
+                - react
+                - rust
+                - typescript
+                - javascript
+                - python
+            - element: text
+              content: "Tags: {tags.join(', ')}"
+              style: [text-sm, text-gray-600, mt-3]
+
+        - element: spacer
+          style: [my-8]

@@ -58,6 +58,50 @@ pub enum Element {
     Textarea(TextareaElement),
     #[serde(rename = "form")]
     Form(FormElement),
+    #[serde(rename = "date-input")]
+    DateInput(DateInputElement),
+    #[serde(rename = "time-input")]
+    TimeInput(TimeInputElement),
+    #[serde(rename = "datetime-input")]
+    DateTimeInput(DateTimeInputElement),
+    #[serde(rename = "color-picker")]
+    ColorPicker(ColorPickerElement),
+    #[serde(rename = "file-upload")]
+    FileUpload(FileUploadElement),
+    #[serde(rename = "progress")]
+    Progress(ProgressElement),
+    #[serde(rename = "toggle")]
+    Toggle(ToggleElement),
+    #[serde(rename = "tabs")]
+    Tabs(TabsElement),
+    #[serde(rename = "accordion")]
+    Accordion(AccordionElement),
+    #[serde(rename = "modal")]
+    Modal(ModalElement),
+    #[serde(rename = "rating")]
+    Rating(RatingElement),
+    #[serde(rename = "badge")]
+    Badge(BadgeElement),
+    #[serde(rename = "tag")]
+    Tag(TagElement),
+    #[serde(rename = "alert")]
+    Alert(AlertElement),
+    #[serde(rename = "spinner")]
+    Spinner(SpinnerElement),
+    #[serde(rename = "counter")]
+    Counter(CounterElement),
+    #[serde(rename = "search-input")]
+    SearchInput(SearchInputElement),
+    #[serde(rename = "copy-button")]
+    CopyButton(CopyButtonElement),
+    #[serde(rename = "pagination")]
+    Pagination(PaginationElement),
+    #[serde(rename = "breadcrumb")]
+    Breadcrumb(BreadcrumbElement),
+    #[serde(rename = "avatar")]
+    Avatar(AvatarElement),
+    #[serde(rename = "chip-input")]
+    ChipInput(ChipInputElement),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -236,6 +280,329 @@ pub struct FormElement {
     pub onSubmit: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub children: Vec<Element>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DateInputElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub placeholder: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TimeInputElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub step: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub placeholder: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DateTimeInputElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub placeholder: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ColorPickerElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub showPalette: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FileUploadElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub accept: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub maxSize: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub multiple: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ProgressElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub showLabel: Option<bool>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ToggleElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onColor: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub offColor: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TabItem {
+    pub value: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TabsElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub options: Vec<TabItem>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AccordionItem {
+    pub title: String,
+    pub content: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AccordionElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub multiple: Option<bool>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub items: Vec<AccordionItem>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ModalElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onClose: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub children: Vec<Element>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RatingElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub showValue: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BadgeElement {
+    pub content: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub variant: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TagElement {
+    pub content: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub removable: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onRemove: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AlertElement {
+    pub content: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub alertType: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dismissible: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onDismiss: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SpinnerElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CounterElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min: Option<i32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max: Option<i32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub step: Option<i32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchInputElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub placeholder: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub clearable: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onSearch: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CopyButtonElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onCopy: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PaginationElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub total: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub perPage: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onChange: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BreadcrumbItem {
+    pub label: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub href: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BreadcrumbElement {
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub items: Vec<BreadcrumbItem>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AvatarElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub src: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fallback: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ChipInputElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub suggestions: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub placeholder: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onAdd: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onRemove: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub style: Vec<String>,
 }
