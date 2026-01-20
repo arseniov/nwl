@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 export default function Playground() {
-  const [menuOpen, setMenuOpen] = useState(false), [agreedToTerms, setAgreedToTerms] = useState(false), [volume, setVolume] = useState(50), [country, setCountry] = useState(""), [priority, setPriority] = useState("medium"), [bio, setBio] = useState(""), [formStatus, setFormStatus] = useState(""), [email, setEmail] = useState(""), [password, setPassword] = useState(""), [selectedDate, setSelectedDate] = useState(""), [selectedTime, setSelectedTime] = useState(""), [selectedColor, setSelectedColor] = useState("#3b82f6"), [uploadedFiles, setUploadedFiles] = useState([]), [progressValue, setProgressValue] = useState(45), [toggleValue, setToggleValue] = useState(true), [activeTab, setActiveTab] = useState("tab1"), [isModalOpen, setIsModalOpen] = useState(false), [ratingValue, setRatingValue] = useState(3), [searchQuery, setSearchQuery] = useState(""), [counterValue, setCounterValue] = useState(5), [currentPage, setCurrentPage] = useState(1), [tags, setTags] = useState(["react", "rust"]), [notification, setNotification] = useState(""), [listSelected, setListSelected] = useState("item2"), [imageSrc, setImageSrc] = useState("https://picsum.photos/seed/picsum/200/300");
+  const [menuOpen, setMenuOpen] = useState(false), [agreedToTerms, setAgreedToTerms] = useState(false), [volume, setVolume] = useState(50), [country, setCountry] = useState(""), [priority, setPriority] = useState("medium"), [bio, setBio] = useState(""), [formStatus, setFormStatus] = useState(""), [email, setEmail] = useState(""), [password, setPassword] = useState(""), [selectedDate, setSelectedDate] = useState(""), [selectedTime, setSelectedTime] = useState(""), [selectedColor, setSelectedColor] = useState("#3b82f6"), [uploadedFiles, setUploadedFiles] = useState([]), [progressValue, setProgressValue] = useState(45), [toggleValue, setToggleValue] = useState(true), [activeTab, setActiveTab] = useState("tab1"), [isModalOpen, setIsModalOpen] = useState(false), [searchQuery, setSearchQuery] = useState(""), [counterValue, setCounterValue] = useState(5), [currentPage, setCurrentPage] = useState(1), [tags, setTags] = useState(["react", "rust"]), [notification, setNotification] = useState(""), [listSelected, setListSelected] = useState("item2"), [imageSrc, setImageSrc] = useState("https://picsum.photos/seed/picsum/200/300");
   return (
     <>
       <div className="bg-gray-50 py-8">
@@ -91,7 +91,7 @@ export default function Playground() {
 
                 <div className="p-4 border border-gray-200 rounded-lg">
                     <h1 className="text-base font-semibold text-gray-900 mb-3">6. Form</h1>
-                    <form onSubmit={(e) => { e.preventDefault(); let _hasError = false; if (!password.trim()) { console.error('Password is required'); _hasError = true; } if (password.length < 8) { console.error('Password must be at least 8 characters'); _hasError = true; } if (!email.trim()) { console.error('Email is required'); _hasError = true; } if (!new RegExp('^[^@]+@[^@]+.[^@]+$').test(email)) { console.error('Please enter a valid email address'); _hasError = true; } if (_hasError) { console.error('Validation failed'); setFormStatus('Validation failed!'); return; } setFormStatus('Submitted!') }}>
+                    <form onSubmit={(e) => { e.preventDefault(); let _hasError = false; if (!email.trim()) { console.error('Email is required'); _hasError = true; } if (!new RegExp('^[^@]+@[^@]+.[^@]+$').test(email)) { console.error('Please enter a valid email address'); _hasError = true; } if (!password.trim()) { console.error('Password is required'); _hasError = true; } if (password.length < 8) { console.error('Password must be at least 8 characters'); _hasError = true; } if (_hasError) { console.error('Validation failed'); setFormStatus('Validation failed!'); return; } setFormStatus('Submitted!') }}>
                         <input className="w-full border border-gray-300 rounded px-3 py-2 mb-2" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
                         <input className="w-full border border-gray-300 rounded px-3 py-2 mb-2" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
                         <button className="w-full bg-blue-600 text-white px-4 py-2 rounded">Submit</button>
@@ -127,19 +127,12 @@ export default function Playground() {
             <div className="flex flex-col gap-4">
                 <div className="p-4 border border-gray-200 rounded-lg">
                     <h1 className="text-base font-semibold text-gray-900 mb-3">13. Toggle Switch</h1>
-                    <label className="inline-flex relative items-center cursor-pointer"><span className="mr-3 text-sm font-medium text-gray-900">Enable notifications</span><input type="checkbox" className="sr-only peer" checked={toggleValue} onChange={() => setToggleValue(!toggleValue)} /><div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div></label>
+                    <label className="inline-flex relative items-center cursor-pointer"><span className="mr-3 text-sm font-medium text-gray-900">Enable notifications</span><input type="checkbox" className="sr-only peer" checked={toggleValue} onChange={() => setToggleValue(!toggleValue)} /><div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div></label>
                     <p className="text-sm text-gray-600 mt-2">{toggleValue ? 'Enabled' : 'Disabled'}</p>
         </div>
 
                 <div className="p-4 border border-gray-200 rounded-lg">
-                    <h1 className="text-base font-semibold text-gray-900 mb-3">14. Rating</h1>
-                    <div><label className="flex items-center cursor-pointer">          <input type="radio" name="rating" value="" className="sr-only peer" />          <span className="text-yellow-400 text-xl">★</span>
-          <span className="text-yellow-400 text-xl">★</span>
-          <span className="text-yellow-400 text-xl">★</span>
-          <span className="text-yellow-400 text-xl">★</span>
-          <span className="text-yellow-400 text-xl">★</span>
-</label></div>
-                    <p className="text-sm text-gray-600 mt-2">Rating: {ratingValue}/5</p>
+                    <h1 className="text-base font-semibold text-gray-900 mb-3">14. Modal</h1>
         </div>
 
       </div>
@@ -220,13 +213,13 @@ export default function Playground() {
 
                 <div className="p-4 border border-gray-200 rounded-lg">
                     <h1 className="text-base font-semibold text-gray-900 mb-3">25. Counter</h1>
-                    <div className="flex items-center border rounded-lg ">          <button onClick={() => counterValue > 0 && setCounterValue(counterValue - 1)} className="px-3 py-1 border-r hover:bg-gray-100">-</button><span className="text-lg font-semibold mx-4">{counterValue}</span><button onClick={() => counterValue < 99 && setCounterValue(counterValue + 1)} className="px-3 py-1 border-l hover:bg-gray-100">+</button></div>
+                    <div className="flex items-center justify-center border rounded-lg ">          <button onClick={() => counterValue > 0 && setCounterValue(counterValue - 1)} className="w-10 px-3 py-1 border-r hover:bg-gray-100 flex items-center justify-center">-</button><span className="text-lg font-semibold mx-4">{counterValue}</span><button onClick={() => counterValue < 99 && setCounterValue(counterValue + 1)} className="w-10 px-3 py-1 border-l hover:bg-gray-100 flex items-center justify-center">+</button></div>
         </div>
 
                 <div className="p-4 border border-gray-200 rounded-lg">
                     <h1 className="text-base font-semibold text-gray-900 mb-3">26. Copy Button</h1>
-                    <button onClick={() => navigator.clipboard.writeText("https://nwl.dev")} className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 ">Copy</button>
-                    <button onClick={() => navigator.clipboard.writeText("Copy Text")} className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 ml-2">Copy</button>
+                    <button onClick={() => navigator.clipboard.writeText("https://nwl.dev")} className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 ">Copy URL</button>
+                    <button onClick={() => navigator.clipboard.writeText("Copy Text")} className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 ml-2">Copy Text</button>
         </div>
 
                 <div className="p-4 border border-gray-200 rounded-lg">

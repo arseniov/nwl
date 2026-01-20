@@ -106,6 +106,34 @@ Build a landing page + dashboard app with zero React knowledge.
 - [ ] Database schema initialization
 - [ ] CI/CD pipeline generation
 
+### Milestone 2c: Full CLI Feature Set (NEW)
+
+Complete the `nwl` CLI with a single bundled executable:
+
+- [ ] **Project Scaffolding**
+  - [ ] User-specified project location with validation
+  - [ ] Warning if location exists or is not empty
+  - [ ] Templates for different project types (blank, demo, dashboard)
+  - [ ] Automatic package manager detection (npm/pnpm/yarn)
+
+- [ ] **Compilation Pipeline**
+  - [ ] Compile all NWL pages to React components
+  - [ ] Watch mode for automatic recompilation
+  - [ ] Incremental builds for faster compilation
+  - [ ] Configurable output directory
+
+- [ ] **Integrated Dev Server**
+  - [ ] Built-in dev server with watch mode
+  - [ ] Automatic compilation on file changes
+  - [ ] Hot module replacement (HMR) support
+  - [ ] Configurable port and host binding
+  - [ ] Browser auto-open on startup
+
+- [ ] **Single Executable Distribution**
+  - [ ] Bundle compiler with CLI for standalone use
+  - [ ] Cross-platform builds (Linux, macOS, Windows)
+  - [ ] No external dependencies required
+
 ### Milestone 3: Mobile (Future)
 
 - React Native compiler
@@ -692,7 +720,7 @@ The demo project includes these routes:
 Try the `/playground` route to see:
 - Form components (input, checkbox, slider, select, radio, textarea, form)
 - Date/Time inputs (date, time, datetime)
-- Selection components (color picker, file upload, progress, toggle, rating)
+- Selection components (color picker, file upload, progress, toggle)
 - Navigation (tabs, breadcrumb, pagination, accordion)
 - Modal & dialogs
 - Indicators (badges, tags, spinner)

@@ -170,7 +170,6 @@ impl ReactGenerator {
                 Self::generate_accordion(accordion, indent)
             }
             nwl_shared::Element::Modal(modal) => Self::generate_modal(modal, indent),
-            nwl_shared::Element::Rating(rating) => Self::generate_rating(rating, indent),
             nwl_shared::Element::Badge(badge) => Self::generate_badge(badge, indent),
             nwl_shared::Element::Tag(tag) => Self::generate_tag(tag, indent),
             nwl_shared::Element::Alert(alert) => Self::generate_alert(alert, indent),
@@ -1128,7 +1127,7 @@ impl ReactGenerator {
         };
 
         Ok(format!(
-            "{}<label className=\"inline-flex relative items-center cursor-pointer\">{}<input {} /><div className=\"w-11 h-6 bg-{}-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-{}-500\"></div></label>",
+            "{}<label className=\"inline-flex relative items-center cursor-pointer\">{}<input {} /><div className=\"relative w-11 h-6 bg-{}-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-{}-500\"></div></label>",
             indent_str, label_html, props_str, off_color, on_color
         ))
     }
@@ -1305,60 +1304,6 @@ impl ReactGenerator {
         Ok(output)
     }
 
-    fn generate_rating(
-        rating: &nwl_shared::RatingElement,
-        indent: usize,
-    ) -> Result<String, CodegenError> {
-        let indent_str = "  ".repeat(indent);
-        let max = rating.max.unwrap_or(5);
-        let class_name = Self::format_style(&rating.style);
-
-        let mut stars = String::new();
-        for i in 1..=max {
-            let filled = if rating.showValue == Some(true) {
-                if let Some(bind) = &rating.bind {
-                    format!(
-                        "{{{{ {} >= {} ? '★' : '☆' }}}}",
-                        Self::to_camel_case(bind),
-                        i
-                    )
-                } else {
-                    "★".to_string()
-                }
-            } else {
-                "★".to_string()
-            };
-            stars.push_str(&format!(
-                "{}<span className=\"text-yellow-400 text-xl\">{}</span>\n",
-                indent_str, filled
-            ));
-        }
-
-        let value_label = if rating.showValue == Some(true) {
-            if let Some(bind) = &rating.bind {
-                format!(
-                    "<span className=\"ml-2 text-gray-600\">{{{}}}</span>",
-                    Self::to_camel_case(bind)
-                )
-            } else {
-                String::new()
-            }
-        } else {
-            String::new()
-        };
-
-        let wrapper_class = if class_name.is_empty() {
-            String::new()
-        } else {
-            format!(" className=\"{}\"", class_name)
-        };
-
-        Ok(format!(
-            "{}<div{}>{}<label className=\"flex items-center cursor-pointer\">{}<input type=\"radio\" name=\"rating\" value=\"\" className=\"sr-only peer\" />{}</label></div>",
-            indent_str, wrapper_class, value_label, indent_str, stars
-        ))
-    }
-
     fn generate_badge(
         badge: &nwl_shared::BadgeElement,
         indent: usize,
@@ -1523,7 +1468,7 @@ impl ReactGenerator {
         };
 
         Ok(format!(
-            "{}<div className=\"flex items-center border rounded-lg {}\">{}<button {} className=\"px-3 py-1 border-r hover:bg-gray-100\">-</button>{}<button {} className=\"px-3 py-1 border-l hover:bg-gray-100\">+</button></div>",
+            "{}<div className=\"flex items-center justify-center border rounded-lg {}\">{}<button {} className=\"w-10 px-3 py-1 border-r hover:bg-gray-100 flex items-center justify-center\">-</button>{}<button {} className=\"w-10 px-3 py-1 border-l hover:bg-gray-100 flex items-center justify-center\">+</button></div>",
             indent_str,
             if counter.step.is_some() { "w-32" } else { "" },
             indent_str,
@@ -1606,11 +1551,18 @@ impl ReactGenerator {
                 )
             });
 
+        let button_text = copy
+            .text
+            .as_ref()
+            .map(|s| s.clone())
+            .unwrap_or_else(|| "Copy".to_string());
+
         Ok(format!(
-            "{}<button {} className=\"inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 {}\">Copy</button>",
+            "{}<button {} className=\"inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 {}\">{}</button>",
             indent_str,
             handler,
-            class_name
+            class_name,
+            button_text
         ))
     }
 

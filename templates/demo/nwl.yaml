@@ -1,0 +1,8 @@
+name: {PROJECT_NAME}
+source: src
+pages: pages
+routes:
+  - path: /
+    page: pages/home.yaml
+  - path: /playground
+    page: pages/playground.yaml

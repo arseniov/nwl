@@ -79,8 +79,6 @@ pub enum Element {
     Accordion(AccordionElement),
     #[serde(rename = "modal")]
     Modal(ModalElement),
-    #[serde(rename = "rating")]
-    Rating(RatingElement),
     #[serde(rename = "badge")]
     Badge(BadgeElement),
     #[serde(rename = "tag")]
@@ -503,20 +501,6 @@ pub struct ModalElement {
     pub onClose: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub children: Vec<Element>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub style: Vec<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct RatingElement {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub bind: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub max: Option<u32>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub showValue: Option<bool>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub onChange: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub style: Vec<String>,
 }

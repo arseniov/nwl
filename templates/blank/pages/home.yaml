@@ -1,0 +1,15 @@
+page:
+  name: Home
+  children:
+    - element: container
+      style: [min-h-screen, bg-gray-50, py-8]
+      children:
+        - element: card
+          style: [max-w-md, mx-auto, p-8, bg-white, rounded-xl, shadow-lg]
+          children:
+            - element: heading
+              content: "Welcome to NWL"
+              style: [text-2xl, font-bold, text-gray-900, mb-4]
+            - element: text
+              content: "Your NWL project is ready! Start editing pages/home.yaml to build your app."
+              style: [text-gray-600]

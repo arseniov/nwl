@@ -31,24 +31,40 @@ NWL (Natural Web Language) is a domain-specific language that lets you describe 
 ## Quick Start
 
 ```bash
-# 1. Build the compiler
-./dev.sh build
+# 1. Build the CLI
+cargo build --release
 
-# 2. Start development server (builds project + starts vite)
-./dev.sh dev
+# 2. Create a new project
+./target/release/nwl new my-app --template blank    # Minimal template
+./target/release/nwl new my-app --template demo     # Full demo with all components
 
-# 3. Open http://localhost:5173
+# 3. Navigate and install dependencies
+cd my-app
+npm install
+
+# 4. Start development server
+./target/release/nwl dev
+
+# 5. Open http://localhost:5173
 ```
 
 ## Available Commands
 
 ```bash
-./dev.sh build         # Build only the NWL compiler
-./dev.sh build-project # Build compiler + compile demo project
-./dev.sh compile       # Compile a single YAML file
-./dev.sh dev           # Build project + start dev server
-./dev.sh install       # Install npm dependencies
-./dev.sh watch         # Watch YAML files and auto-rebuild
+nwl new <name>          # Create a new project
+  --location, -l        # Project location (default: current directory)
+  --template, -t        # Template: blank or demo (default: blank)
+
+nwl build [path]        # Compile NWL files to React
+  --watch, -w           # Watch for changes and recompile
+
+nwl dev [path]          # Build + start dev server with hot reload
+  --port, -p            # Port (default: 5173)
+  --no-open             # Don't open browser automatically
+
+nwl compile <file>      # Compile a single YAML file
+  --output, -o          # Output file path
+```
 ```
 
 ## YAML Syntax
@@ -111,7 +127,6 @@ export default function MyPage() {
 | `color-picker` | Color selection input |
 | `file-upload` | File upload input |
 | `progress` | Progress bar |
-| `rating` | Star rating component |
 
 ### Toggle & Switch
 
