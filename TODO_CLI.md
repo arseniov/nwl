@@ -29,6 +29,15 @@ This document tracks the tasks for completing the NWL CLI with full functionalit
 - [x] Support `--port` flag for custom port
 - [x] Support `--host` flag for custom host binding (e.g., 0.0.0.0)
 
+### CLI Commands
+
+- [x] `nwl new` - Create new projects with templates
+- [x] `nwl build` - Compile NWL files to React
+- [x] `nwl build --watch` - Watch and recompile
+- [x] `nwl dev` - Build + start dev server
+- [x] `nwl dev --watch` - Dev server with auto-recompile
+- [x] `nwl compile` - Compile single YAML file
+
 ## 🚀 Next Steps
 
 ### GitHub Template Distribution
@@ -49,11 +58,19 @@ This document tracks the tasks for completing the NWL CLI with full functionalit
 - [ ] Implement incremental builds for faster compilation
 - [ ] Add `--output` flag to configure output directory
 
-### Single Executable Distribution
+### Deployment
 
-- [ ] Bundle Rust compiler with CLI binary for cross-platform distribution
-- [ ] Create build scripts for Linux, macOS, Windows
-- [ ] Generate checksums for verification
+- [ ] `nwl deploy` command for Node.js targets
+- [ ] `nwl deploy --target docker` for containerized deployments
+- [ ] Vercel and Netlify deployment integrations
+- [ ] Environment configuration management
+- [ ] CI/CD pipeline generation
+
+### Project Initialization
+
+- [ ] Interactive `nwl init` for existing directories
+- [ ] Git repository initialization option
+- [ ] More template types (agency, e-commerce, dashboard)
 
 ## Example Usage
 

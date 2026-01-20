@@ -23,10 +23,10 @@ NWL (Natural Web Language) is a domain-specific language that lets you describe 
 - 📝 **Simple YAML Syntax** - Declarative, easy to read and maintain
 - 🔒 **Type-Safe Output** - Generates full TypeScript with proper types
 - 🎨 **Tailwind CSS Integration** - All Tailwind classes supported
-- ⚛️ **React Native Ready** - Can target both web and mobile
-- 🧩 **28+ Built-in Components** - Forms, navigation, display, and more
+- 🧩 **30+ Built-in Components** - Forms, navigation, display, and more
 - 🔄 **Auto State Management** - `useState` hooks generated automatically
 - 📦 **Zero Runtime** - Pure compile-time code generation
+- 💻 **Full CLI** - Project scaffolding, build, watch mode, and dev server
 
 ## Quick Start
 

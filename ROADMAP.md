@@ -81,7 +81,7 @@ Build a landing page + dashboard app with zero React knowledge.
 - [x] State management (local state)
 - [x] Input binding (two-way)
 - [x] Interactive components
-- [ ] Forms & validation (server-side submission)
+- [ ] Forms & validation (server-side form submission)
 - [ ] Forms captcha (Cloudflare Turnstile, reCAPTCHA, hCaptcha)
 - [ ] Routing with parameters
 - [ ] Data mutations
@@ -89,9 +89,9 @@ Build a landing page + dashboard app with zero React knowledge.
 - [ ] Error boundaries
 - [ ] Custom CSS support (external stylesheet)
 - [ ] Reusable YAML components (imports)
-- [ ] Navigation components (Nav, Menu with mobile hamburger)
+- [x] Navigation components (Nav, Menu with mobile hamburger)
 
-### Milestone 2b: CLI & DevOps
+### Milestone 2b: CLI & DevOps ✓ COMPLETED
 
 - [x] Interactive project scaffolding (`nwl new`)
 - [x] Configurable project location
