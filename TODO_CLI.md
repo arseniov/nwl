@@ -19,14 +19,15 @@ This document tracks the tasks for completing the NWL CLI with full functionalit
 - [x] Compile all NWL files in `pages/` directory
 - [x] Generate React components with proper imports
 - [x] Create/update router configuration
-- [x] Implement watch mode for auto-recompilation
+- [x] Implement watch mode for auto-recompilation (`nwl build --watch`)
 
 ### Integrated Dev Server
 
 - [x] Add `nwl dev` command
 - [x] Start Vite dev server automatically
-- [x] Watch NWL files for changes (via build --watch)
+- [x] Watch NWL files for changes (`nwl dev --watch`)
 - [x] Support `--port` flag for custom port
+- [x] Support `--host` flag for custom host binding (e.g., 0.0.0.0)
 
 ## 🚀 Next Steps
 
@@ -45,12 +46,14 @@ This document tracks the tasks for completing the NWL CLI with full functionalit
 - [ ] Support custom template URLs
 - [ ] Add template list command
 - [ ] Add `nwl init` to initialize in existing project
+- [ ] Implement incremental builds for faster compilation
+- [ ] Add `--output` flag to configure output directory
 
-### Documentation
+### Single Executable Distribution
 
-- [ ] Document template structure
-- [ ] Add template contribution guide
-- [ ] Create template showcase in docs
+- [ ] Bundle Rust compiler with CLI binary for cross-platform distribution
+- [ ] Create build scripts for Linux, macOS, Windows
+- [ ] Generate checksums for verification
 
 ## Example Usage
 
@@ -72,8 +75,8 @@ nwl build
 nwl build --watch
 
 # Run with dev server (auto-watch + hot reload)
-nwl dev
+nwl dev --watch
 
-# Run on custom port
-nwl dev --port 3000
+# Run on custom port and host
+nwl dev --port 3000 --host 0.0.0.0
 ```

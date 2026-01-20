@@ -42,8 +42,8 @@ cargo build --release
 cd my-app
 npm install
 
-# 4. Start development server
-./target/release/nwl dev
+# 4. Start development server with watch mode
+./target/release/nwl dev --watch
 
 # 5. Open http://localhost:5173
 ```
@@ -56,15 +56,39 @@ nwl new <name>          # Create a new project
   --template, -t        # Template: blank or demo (default: blank)
 
 nwl build [path]        # Compile NWL files to React
-  --watch, -w           # Watch for changes and recompile
+  --watch, -w           # Watch for changes and auto-recompile
 
 nwl dev [path]          # Build + start dev server with hot reload
   --port, -p            # Port (default: 5173)
+  --host                # Host binding (default: localhost)
   --no-open             # Don't open browser automatically
+  --watch, -w           # Watch YAML files and recompile on change
 
 nwl compile <file>      # Compile a single YAML file
   --output, -o          # Output file path
 ```
+
+## Project Templates
+
+### Blank Template
+Minimal starter project with a single home page.
+
+```bash
+nwl new my-project --template blank
+```
+
+### Demo Template
+Full playground with all 30+ components ready to use.
+
+```bash
+nwl new my-project --template demo
+```
+
+Both templates include:
+- Full Vite + React + TypeScript setup
+- Tailwind CSS configured
+- React Router for navigation
+- Hot Module Replacement (HMR)
 ```
 
 ## YAML Syntax

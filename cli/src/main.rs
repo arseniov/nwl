@@ -47,8 +47,12 @@ enum Commands {
         input: PathBuf,
         #[arg(short, long, default_value = "5173")]
         port: String,
+        #[arg(long, default_value = "localhost")]
+        host: String,
         #[arg(long)]
         no_open: bool,
+        #[arg(short, long)]
+        watch: bool,
     },
 }
 
@@ -76,9 +80,11 @@ fn main() {
         Commands::Dev {
             input,
             port,
+            host,
             no_open,
+            watch,
         } => {
-            run_dev_server(input, port, no_open);
+            run_dev_server(input, port, host, no_open, watch);
         }
     }
 }
@@ -375,35 +381,72 @@ fn write_file(path: &PathBuf, content: &str) {
     }
 }
 
-fn run_dev_server(input: PathBuf, port: String, _no_open: bool) {
+fn run_dev_server(input: PathBuf, port: String, host: String, _no_open: bool, watch: bool) {
     println!("Starting NWL dev server...");
     println!("Port: {}", port);
+    println!("Host: {}", host);
+
+    if watch {
+        println!("Watch mode: enabled");
+    }
 
     // Build first
     println!("\nBuilding project...");
     run_build(input.clone());
 
-    // Start dev server
-    println!("\nStarting Vite dev server...");
-    println!("Press Ctrl+C to stop.\n");
+    if watch {
+        println!("\nStarting Vite dev server with watch mode...");
+        println!("Press Ctrl+C to stop.\n");
 
-    std::env::set_current_dir(&input).ok();
+        std::env::set_current_dir(&input).ok();
 
-    let status = std::process::Command::new("npx")
-        .args(&["vite", "--port", &port])
-        .stdout(std::process::Stdio::inherit())
-        .stderr(std::process::Stdio::inherit())
-        .status();
+        // Start watch build in background thread
+        let watch_input = input.clone();
+        std::thread::spawn(move || {
+            run_watch_build(watch_input);
+        });
 
-    match status {
-        Ok(s) if s.success() => {}
-        Ok(_) => {
-            eprintln!("Vite dev server exited with error");
-            std::process::exit(1);
+        // Start Vite dev server
+        let status = std::process::Command::new("npx")
+            .args(&["vite", "--port", &port, "--host", &host])
+            .stdout(std::process::Stdio::inherit())
+            .stderr(std::process::Stdio::inherit())
+            .status();
+
+        match status {
+            Ok(s) if s.success() => {}
+            Ok(_) => {
+                eprintln!("Vite dev server exited with error");
+                std::process::exit(1);
+            }
+            Err(e) => {
+                eprintln!("Failed to start dev server: {}", e);
+                std::process::exit(1);
+            }
         }
-        Err(e) => {
-            eprintln!("Failed to start dev server: {}", e);
-            std::process::exit(1);
+    } else {
+        // Start dev server without watch
+        println!("\nStarting Vite dev server...");
+        println!("Press Ctrl+C to stop.\n");
+
+        std::env::set_current_dir(&input).ok();
+
+        let status = std::process::Command::new("npx")
+            .args(&["vite", "--port", &port, "--host", &host])
+            .stdout(std::process::Stdio::inherit())
+            .stderr(std::process::Stdio::inherit())
+            .status();
+
+        match status {
+            Ok(s) if s.success() => {}
+            Ok(_) => {
+                eprintln!("Vite dev server exited with error");
+                std::process::exit(1);
+            }
+            Err(e) => {
+                eprintln!("Failed to start dev server: {}", e);
+                std::process::exit(1);
+            }
         }
     }
 }

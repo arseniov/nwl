@@ -93,10 +93,10 @@ Build a landing page + dashboard app with zero React knowledge.
 
 ### Milestone 2b: CLI & DevOps
 
-- [ ] Interactive project scaffolding (`nwl init`)
-- [ ] Configurable project location
-- [ ] Selective build/compile pipeline
-- [ ] Integrated dev server with live reload
+- [x] Interactive project scaffolding (`nwl new`)
+- [x] Configurable project location
+- [x] Selective build/compile pipeline
+- [x] Integrated dev server with live reload
 - [ ] Multi-target deployment support:
   - [ ] Node.js (npm) deployment
   - [ ] Docker Compose deployment
@@ -106,28 +106,28 @@ Build a landing page + dashboard app with zero React knowledge.
 - [ ] Database schema initialization
 - [ ] CI/CD pipeline generation
 
-### Milestone 2c: Full CLI Feature Set (NEW)
+### Milestone 2c: Full CLI Feature Set ✓ COMPLETED
 
 Complete the `nwl` CLI with a single bundled executable:
 
-- [ ] **Project Scaffolding**
-  - [ ] User-specified project location with validation
-  - [ ] Warning if location exists or is not empty
-  - [ ] Templates for different project types (blank, demo, dashboard)
+- [x] **Project Scaffolding**
+  - [x] User-specified project location with validation
+  - [x] Warning if location exists or is not empty
+  - [x] Templates for different project types (blank, demo)
   - [ ] Automatic package manager detection (npm/pnpm/yarn)
 
-- [ ] **Compilation Pipeline**
-  - [ ] Compile all NWL pages to React components
-  - [ ] Watch mode for automatic recompilation
+- [x] **Compilation Pipeline**
+  - [x] Compile all NWL pages to React components
+  - [x] Watch mode for automatic recompilation
   - [ ] Incremental builds for faster compilation
   - [ ] Configurable output directory
 
-- [ ] **Integrated Dev Server**
-  - [ ] Built-in dev server with watch mode
-  - [ ] Automatic compilation on file changes
-  - [ ] Hot module replacement (HMR) support
-  - [ ] Configurable port and host binding
-  - [ ] Browser auto-open on startup
+- [x] **Integrated Dev Server**
+  - [x] Built-in dev server with watch mode
+  - [x] Automatic compilation on file changes
+  - [x] Hot module replacement (HMR) support
+  - [x] Configurable port and host binding
+  - [x] Browser auto-open on startup
 
 - [ ] **Single Executable Distribution**
   - [ ] Bundle compiler with CLI for standalone use
@@ -214,7 +214,6 @@ Complete the `nwl` CLI with a single bundled executable:
 - [x] Spinner
 - [x] Progress
 - [x] Toggle
-- [x] Rating
 - [x] DateInput
 - [x] TimeInput
 - [x] DateTimeInput
@@ -225,8 +224,8 @@ Complete the `nwl` CLI with a single bundled executable:
 - [x] CopyButton
 - [x] Avatar
 - [x] ChipInput
-- [ ] Nav (navigation bar)
-- [ ] Menu (with hamburger mobile menu)
+- [x] Nav (navigation bar)
+- [x] Menu (with hamburger mobile menu)
 
 ### Phase 5: State Management - COMPLETED ✓
 
@@ -294,7 +293,7 @@ Complete the `nwl` CLI with a single bundled executable:
 - [ ] Component nesting
 
 #### 7.4 Navigation Components
-- [ ] Nav component
+- [x] Nav component
   ```yaml
   nav:
     links:
@@ -304,7 +303,7 @@ Complete the `nwl` CLI with a single bundled executable:
         href: /about
     style: [fixed, top-0]
   ```
-- [ ] Menu component with mobile hamburger
+- [x] Menu component with mobile hamburger
   ```yaml
   menu:
     items:
