@@ -316,6 +316,39 @@ cargo build --release
 ./dev.sh dev
 ```
 
+## Testing
+
+### Rust Tests (Compiler & Shared)
+
+```bash
+# Run all Rust tests
+cargo test
+
+# Run tests for specific crate
+cargo test -p nwl-shared
+cargo test -p nwl-compiler
+
+# Run with output
+cargo test -- --nocapture
+```
+
+### TypeScript Type Checking
+
+```bash
+# Type check generated code
+cd examples/demo
+npm run typecheck
+```
+
+### React Component Tests
+
+```bash
+# Run vitest tests
+cd examples/demo
+npm run test        # Watch mode
+npm run test:run    # Single run
+```
+
 ## Example: Interactive Form
 
 ```yaml

@@ -1,6 +1,7 @@
 use nwl_shared::{
-    ButtonElement, CardElement, ContainerElement, Document, HeadingElement, ImageElement,
-    InputElement, LayoutElement, LayoutType, ListElement, PageData, SpacerElement, TextElement,
+    ButtonElement, CaptchaConfig, CardElement, ContainerElement, Document, FormElement,
+    HeadingElement, ImageElement, InputElement, LayoutElement, LayoutType, ListElement, PageData,
+    SpacerElement, TextElement,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -41,9 +42,33 @@ impl ReactGenerator {
             component_name
         ));
 
-        if !page.state.is_empty() {
+        // Check if any menu has hamburger enabled
+        let needs_menu_state = page.children.iter().any(|child| {
+            if let nwl_shared::Element::Menu(menu) = child {
+                menu.hamburger == Some(true)
+            } else {
+                false
+            }
+        });
+
+        let total_states = if needs_menu_state {
+            page.state.len() + 1
+        } else {
+            page.state.len()
+        };
+
+        if !page.state.is_empty() || needs_menu_state {
             output.push_str("  const ");
             let mut first = true;
+            let mut state_index = 0;
+
+            // First, add menuOpen state if needed
+            if needs_menu_state {
+                output.push_str("[menuOpen, setMenuOpen] = useState(false)");
+                first = false;
+            }
+
+            // Then add the rest of the states
             for state in &page.state {
                 if !first {
                     output.push_str(", ");
@@ -74,6 +99,7 @@ impl ReactGenerator {
                     camel_name, setter_name, initial
                 ));
                 first = false;
+                state_index += 1;
             }
             output.push_str(";\n");
         }
@@ -160,6 +186,10 @@ impl ReactGenerator {
             }
             nwl_shared::Element::Avatar(avatar) => Self::generate_avatar(avatar, indent),
             nwl_shared::Element::ChipInput(chip) => Self::generate_chip_input(chip, indent),
+            nwl_shared::Element::Nav(nav) => Self::generate_nav(nav, indent),
+            nwl_shared::Element::Menu(menu) => Self::generate_menu(menu, indent),
+            nwl_shared::Element::Url(url) => Self::generate_url(url, indent),
+            nwl_shared::Element::Email(email) => Self::generate_email(email, indent),
         }
     }
 
@@ -254,33 +284,34 @@ impl ReactGenerator {
 
         let mut output = String::new();
 
-        if let Some(data_var) = &list.data {
-            output.push_str(&format!("{}{{ {}.map((item) => (\n", indent_str, data_var));
+        output.push_str(&format!("{}<div className=\"border rounded", indent_str));
+
+        if !list.style.is_empty() {
+            let style_str = list.style.join(" ");
+            output.push_str(&format!(" {}\"", style_str));
+        } else {
+            output.push_str("\"");
+        }
+
+        output.push_str(">\n");
+
+        for (index, item) in list.items.iter().enumerate() {
+            let key = format!("list-item-{}", index);
+            let click_handler = if let Some(onClick) = &item.onClick {
+                format!(" onClick={{() => {}}}", onClick)
+            } else {
+                String::new()
+            };
 
             output.push_str(&format!(
-                "{}  <React.Fragment key={{item.id}}>\n",
-                indent_str
+                "{}  <div key=\"{}\" className=\"p-2 border-b last:border-b-0 cursor-pointer hover:bg-gray-50\"{}>\n",
+                indent_str, key, click_handler
             ));
-
-            for child in &list.children {
-                output.push_str(&format!(
-                    "{}    {}\n",
-                    indent_str,
-                    Self::generate_element(child, indent + 2)?
-                ));
-            }
-
-            output.push_str(&format!("{}  </React.Fragment>\n", indent_str));
-            output.push_str(&format!("{}))}}\n", indent_str));
-        } else {
-            for child in &list.children {
-                output.push_str(&format!(
-                    "{}{}\n",
-                    indent_str,
-                    Self::generate_element(child, indent)?
-                ));
-            }
+            output.push_str(&format!("{}    {}\n", indent_str, item.content));
+            output.push_str(&format!("{}  </div>\n", indent_str));
         }
+
+        output.push_str(&format!("{}</div>\n", indent_str));
 
         Ok(output)
     }
@@ -651,10 +682,7 @@ impl ReactGenerator {
         Ok(format!("{}<textarea{} />", indent_str, props_str))
     }
 
-    fn generate_form(
-        form: &nwl_shared::FormElement,
-        indent: usize,
-    ) -> Result<String, CodegenError> {
+    fn generate_form(form: &FormElement, indent: usize) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
         let class_name = Self::format_style(&form.style);
 
@@ -665,11 +693,7 @@ impl ReactGenerator {
             format!(" className=\"{}\"", class_name)
         };
 
-        let on_submit = if let Some(handler) = &form.onSubmit {
-            format!("onSubmit={{(e) => {{ e.preventDefault(); {} }}}}", handler)
-        } else {
-            "onSubmit={(e) => e.preventDefault()}".to_string()
-        };
+        let on_submit = Self::generate_form_submit_handler(form);
 
         output.push_str(&format!("{}<form{} {}>\n", indent_str, props, on_submit));
 
@@ -681,9 +705,150 @@ impl ReactGenerator {
             ));
         }
 
+        if let Some(captcha) = &form.captcha {
+            output.push_str(&format!(
+                "{}  {}\n",
+                indent_str,
+                Self::generate_captcha(captcha, indent + 1)
+            ));
+        }
+
         output.push_str(&format!("{}</form>\n", indent_str));
 
         Ok(output)
+    }
+
+    fn generate_captcha(captcha: &CaptchaConfig, indent: usize) -> String {
+        let indent_str = "  ".repeat(indent);
+        match captcha.provider {
+            nwl_shared::CaptchaProvider::Cloudflare => {
+                let site_key = captcha.siteKey.as_deref().unwrap_or("");
+                let theme = captcha.theme.as_deref().unwrap_or("auto");
+                format!(
+                    "{}<div className=\"cf-turnstile\" data-sitekey=\"{}\" data-theme=\"{}\"></div>",
+                    indent_str,
+                    site_key,
+                    theme
+                )
+            }
+            nwl_shared::CaptchaProvider::Recaptcha => {
+                let site_key = captcha.siteKey.as_deref().unwrap_or("");
+                let version = captcha.version.as_deref().unwrap_or("v2");
+                if version == "v3" {
+                    let action = captcha.action.as_deref().unwrap_or("submit");
+                    format!(
+                        "{}<div id=\"recaptcha-container\" data-sitekey=\"{}\" data-action=\"{}\"></div>",
+                        indent_str,
+                        site_key,
+                        action
+                    )
+                } else {
+                    format!(
+                        "{}<div className=\"g-recaptcha\" data-sitekey=\"{}\"></div>",
+                        indent_str, site_key
+                    )
+                }
+            }
+            nwl_shared::CaptchaProvider::HCaptcha => {
+                let site_key = captcha.siteKey.as_deref().unwrap_or("");
+                let theme = captcha.theme.as_deref().unwrap_or("light");
+                format!(
+                    "{}<div className=\"h-captcha\" data-sitekey=\"{}\" data-theme=\"{}\"></div>",
+                    indent_str, site_key, theme
+                )
+            }
+        }
+    }
+
+    fn generate_form_submit_handler(form: &FormElement) -> String {
+        let mut validation_checks = Vec::new();
+
+        if let Some(validation) = &form.validation {
+            for (field, rules) in validation {
+                let camel_field = Self::to_camel_case(field);
+                for rule in rules {
+                    if let Some(true) = rule.required {
+                        let msg = rule
+                            .message
+                            .clone()
+                            .unwrap_or_else(|| format!("{} is required", field));
+                        validation_checks.push(format!(
+                            "if (!{}.trim()) {{ console.error('{}'); _hasError = true; }}",
+                            camel_field, msg
+                        ));
+                    }
+
+                    if let Some(pattern) = &rule.pattern {
+                        let msg = rule
+                            .message
+                            .clone()
+                            .unwrap_or_else(|| format!("Invalid format for {}", field));
+                        validation_checks.push(format!(
+                            "if (!new RegExp('{}').test({})) {{ console.error('{}'); _hasError = true; }}",
+                            pattern.replace("\\", "\\\\"),
+                            camel_field,
+                            msg
+                        ));
+                    }
+
+                    if let Some(min_len) = rule.minLength {
+                        let msg = rule.message.clone().unwrap_or_else(|| {
+                            format!("{} must be at least {} characters", field, min_len)
+                        });
+                        validation_checks.push(format!(
+                            "if ({}.length < {}) {{ console.error('{}'); _hasError = true; }}",
+                            camel_field, min_len, msg
+                        ));
+                    }
+
+                    if let Some(max_len) = rule.maxLength {
+                        let msg = rule.message.clone().unwrap_or_else(|| {
+                            format!("{} must be no more than {} characters", field, max_len)
+                        });
+                        validation_checks.push(format!(
+                            "if ({}.length > {}) {{ console.error('{}'); _hasError = true; }}",
+                            camel_field, max_len, msg
+                        ));
+                    }
+                }
+            }
+        }
+
+        let mut all_checks = validation_checks;
+
+        if form.captcha.is_some() {
+            all_checks.push(
+                "if (!window.captchaToken) { console.error('Please complete the captcha'); _hasError = true; }"
+                    .to_string(),
+            );
+        }
+
+        let validation_code = if all_checks.is_empty() {
+            String::new()
+        } else {
+            let error_handling = form
+                .onValidationError
+                .as_ref()
+                .map(|h| format!("{};", h))
+                .unwrap_or_default();
+            format!(
+                "let _hasError = false; {} if (_hasError) {{ console.error('Validation failed'); {} return; }}",
+                all_checks.join(" "),
+                error_handling
+            )
+        };
+
+        if let Some(handler) = &form.onSubmit {
+            format!(
+                "onSubmit={{(e) => {{ e.preventDefault(); {} {} }}}}",
+                validation_code, handler
+            )
+        } else {
+            format!(
+                "onSubmit={{(e) => {{ e.preventDefault(); {} }}}}",
+                validation_code
+            )
+        }
     }
 
     fn generate_date_input(
@@ -955,7 +1120,7 @@ impl ReactGenerator {
 
         let label_html = if let Some(label) = &toggle.label {
             format!(
-                "<span className=\"ml-3 text-sm font-medium text-gray-900\">{}</span>",
+                "<span className=\"mr-3 text-sm font-medium text-gray-900\">{}</span>",
                 label
             )
         } else {
@@ -963,8 +1128,8 @@ impl ReactGenerator {
         };
 
         Ok(format!(
-            "{}<label className=\"inline-flex relative items-center cursor-pointer\">{}<input {} /><div className=\"w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-{}-100\"></div>{}</label>",
-            indent_str, label_html, props_str, on_color, label_html
+            "{}<label className=\"inline-flex relative items-center cursor-pointer\">{}<input {} /><div className=\"w-11 h-6 bg-{}-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-{}-500\"></div></label>",
+            indent_str, label_html, props_str, off_color, on_color
         ))
     }
 
@@ -1076,31 +1241,50 @@ impl ReactGenerator {
     ) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
 
-        let show_prop = if let Some(bind) = &modal.bind {
-            format!("{{{} && (", Self::to_camel_case(bind))
+        let close_handler = if let Some(onClose) = &modal.onClose {
+            format!("onClick={{(e) => {{ e.stopPropagation(); {} }}}}", onClose)
         } else {
             String::new()
         };
 
-        let close_handler = if let Some(onClose) = &modal.onClose {
+        let backdrop_handler = if let Some(onClose) = &modal.onClose {
             format!("onClick={{() => {}}}", onClose)
         } else {
             String::new()
         };
 
         let mut output = String::new();
-        output.push_str(&format!("{}<>{}\n", indent_str, show_prop));
-        output.push_str(&format!("{}  <div className=\"fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50\" {}>\n", indent_str, close_handler));
+
+        if let Some(bind) = &modal.bind {
+            let var = Self::to_camel_case(bind);
+            output.push_str(&format!("{{{} && (\n", var));
+        }
+
+        output.push_str(&format!("{}  <div className=\"fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50\" {}>\n", indent_str, backdrop_handler));
         output.push_str(&format!(
-            "{}    <div className=\"bg-white rounded-lg p-6 max-w-md w-full shadow-xl\">\n",
-            indent_str
+            "{}    <div className=\"bg-white rounded-lg p-6 max-w-md w-full shadow-xl\" {}>\n",
+            indent_str, close_handler
         ));
 
-        if let Some(title) = &modal.title {
+        // Header with title and close button
+        if modal.title.is_some() || modal.onClose.is_some() {
             output.push_str(&format!(
-                "{}      <h2 className=\"text-xl font-bold mb-4\">{}</h2>\n",
-                indent_str, title
+                "{}      <div className=\"flex items-center justify-between mb-4\">\n",
+                indent_str
             ));
+            if let Some(title) = &modal.title {
+                output.push_str(&format!(
+                    "{}        <h2 className=\"text-xl font-bold\">{}</h2>\n",
+                    indent_str, title
+                ));
+            }
+            if let Some(onClose) = &modal.onClose {
+                output.push_str(&format!(
+                    "{}        <button className=\"text-gray-500 hover:text-gray-700\" onClick={{() => {}}}>\n{}          <svg className=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg>\n{}        </button>\n",
+                    indent_str, onClose, indent_str, indent_str
+                ));
+            }
+            output.push_str(&format!("{}      </div>\n", indent_str));
         }
 
         for child in &modal.children {
@@ -1113,7 +1297,10 @@ impl ReactGenerator {
 
         output.push_str(&format!("{}    </div>\n", indent_str));
         output.push_str(&format!("{}  </div>\n", indent_str));
-        output.push_str(&format!("{})}}</>", indent_str));
+
+        if modal.bind.is_some() {
+            output.push_str(")}");
+        }
 
         Ok(output)
     }
@@ -1247,7 +1434,7 @@ impl ReactGenerator {
         };
 
         Ok(format!(
-            "{}<div className=\"{} border p-4 rounded-lg flex items-start {}\">{}<p>{}</p></div>",
+            "{}<div className=\"my-2 {} border p-4 rounded-lg flex items-start {}\">{}<p>{}</p></div>",
             indent_str,
             alert_type,
             if alert.dismissible == Some(true) {
@@ -1300,7 +1487,7 @@ impl ReactGenerator {
         indent: usize,
     ) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
-        let class_name = Self::format_style(&counter.style);
+        let _class_name = Self::format_style(&counter.style);
 
         let decrement = if let Some(bind) = &counter.bind {
             let camel_name = Self::to_camel_case(bind);
@@ -1573,36 +1760,293 @@ impl ReactGenerator {
         let indent_str = "  ".repeat(indent);
         let class_name = Self::format_style(&chip.style);
 
-        let mut suggestions_html = String::new();
-        for suggestion in &chip.suggestions {
-            suggestions_html.push_str(&format!("<span className=\"inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full mr-2 mb-1 cursor-pointer hover:bg-gray-200\">{}</span>\n", suggestion));
-        }
-
-        let input_handler = if let Some(bind) = &chip.bind {
-            let camel_name = Self::to_camel_case(bind);
-            let setter_name = format!("set{}", Self::to_pascal_case(bind));
-            format!("onKeyDown={{(e) => e.key === 'Enter' && {}([...{}, e.target.value]) && (e.target.value = '')}}", setter_name, camel_name)
+        let (bind_name, setter_name) = if let Some(bind) = &chip.bind {
+            let camel = Self::to_camel_case(bind);
+            let setter = format!("set{}", Self::to_pascal_case(bind));
+            (camel, setter)
         } else {
-            "onKeyDown={{() => {{}}}}".to_string()
+            (String::new(), String::new())
         };
 
-        let chips = if let Some(bind) = &chip.bind {
-            let camel_name = Self::to_camel_case(bind);
-            let setter_name = format!("set{}", Self::to_pascal_case(bind));
-            format!("<div className=\"flex flex-wrap gap-2 mb-2\">{{ {}.map((chip, i) => <span key={{i}} className=\"px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm\">{{chip}}<button className=\"ml-1 text-blue-600\" onClick={{() => {}({}.filter((_, j) => j !== i))}}>×</button></span>) }}</div>", camel_name, setter_name, camel_name)
+        let suggestions_with_handlers: Vec<String> = chip.suggestions.iter().map(|suggestion| {
+            format!(
+                "<span key=\"{0}\" className=\"inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full mr-2 mb-1 cursor-pointer hover:bg-gray-200\" style={{{1}.includes(\"{0}\") ? {{ opacity: 0.5, pointerEvents: 'none' }} : {{}}}} onClick={{() => {{ if (!{1}.includes(\"{0}\")) {{ {2}([...{1}, \"{0}\"]); }} }}}}>{0}</span>",
+                suggestion,
+                bind_name,
+                setter_name
+            )
+        }).collect();
+
+        let input_handler = if setter_name.is_empty() {
+            String::new()
+        } else {
+            format!(
+                "onKeyDown={{(e) => {{ if (e.key === 'Enter') {{ const newValue = e.target.value.trim(); if (newValue && !{0}.includes(newValue)) {{ {1}([...{0}, newValue]); }} e.target.value = ''; }} }}}}",
+                bind_name, setter_name
+            )
+        };
+
+        let chips_display = if bind_name.is_empty() {
+            String::new()
+        } else {
+            format!(
+                "<div className=\"flex flex-wrap gap-2 mb-2\">{{{0}.map((chip, i) => <span key={{i}} className=\"px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm flex items-center\">{{chip}}<button className=\"ml-1 text-blue-600 hover:text-blue-800\" onClick={{() => {1}({0}.filter((_, j) => j !== i))}}>×</button></span>)}}</div>",
+                bind_name, setter_name
+            )
+        };
+
+        let suggestions_html = if !chip.suggestions.is_empty() {
+            format!(
+                "<div className=\"mb-2 flex flex-wrap\">{}</div>",
+                suggestions_with_handlers.join("")
+            )
         } else {
             String::new()
         };
+
+        let placeholder = chip
+            .placeholder
+            .as_ref()
+            .map(|s| s.clone())
+            .unwrap_or_else(|| "Add tags...".to_string());
 
         Ok(format!(
             "{}<div className=\"{}\">{}{}<input type=\"text\" placeholder=\"{}\" {} className=\"w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500\" /></div>",
             indent_str,
             class_name,
-            chips,
-            if !chip.suggestions.is_empty() { format!("<div className=\"mb-2\">{}</div>", suggestions_html) } else { String::new() },
-            chip.placeholder.as_ref().unwrap_or(&"Add tags...".to_string()),
+            chips_display,
+            suggestions_html,
+            placeholder,
             input_handler
         ))
+    }
+
+    fn generate_nav(nav: &nwl_shared::NavElement, indent: usize) -> Result<String, CodegenError> {
+        let indent_str = "  ".repeat(indent);
+        let class_name = Self::format_style(&nav.style);
+
+        let sticky_suffix = if nav.sticky == Some(true) {
+            " sticky top-0 z-50"
+        } else {
+            ""
+        };
+
+        let bg_class = if nav.transparent == Some(true) {
+            "bg-transparent"
+        } else {
+            "bg-black"
+        };
+
+        let logo_html = if let Some(logo) = &nav.logo {
+            format!(
+                "<a href=\"/\" className=\"text-xl font-bold text-white\">{}</a>",
+                logo
+            )
+        } else {
+            String::new()
+        };
+
+        let mut links_html = String::new();
+        for link in &nav.links {
+            let active_class = if link.active == Some(true) {
+                " text-blue-400"
+            } else {
+                " text-white hover:text-blue-400"
+            };
+            let href = link
+                .href
+                .as_ref()
+                .map(|h| format!("href=\"{}\"", h))
+                .unwrap_or_default();
+            links_html.push_str(&format!(
+                "{}<a {} className=\"{} transition-colors{}\">{}</a>\n",
+                indent_str, href, "text-sm font-medium", active_class, link.label
+            ));
+        }
+
+        Ok(format!(
+            "{}<nav className=\"{} flex items-center justify-between px-6 py-4{} {}\">{}<div className=\"flex items-center gap-6\">{}</div></nav>",
+            indent_str,
+            class_name,
+            sticky_suffix,
+            bg_class,
+            logo_html,
+            links_html
+        ))
+    }
+
+    fn generate_menu(
+        menu: &nwl_shared::MenuElement,
+        indent: usize,
+    ) -> Result<String, CodegenError> {
+        let indent_str = "  ".repeat(indent);
+        let class_name = Self::format_style(&menu.style);
+
+        let hamburger = if menu.hamburger == Some(true) {
+            format!(
+                "{0}{1}<button className=\"md:hidden text-white p-2\" onClick={{() => setMenuOpen(!menuOpen)}}>\n{1}  <svg className=\"w-6 h-6\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\">\n{1}    <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M4 6h16M4 12h16M4 18h16\"></path>\n{1}  </svg>\n{1}</button>\n",
+                indent_str, indent_str
+            )
+        } else {
+            String::new()
+        };
+
+        let mut desktop_links = String::new();
+        let mut mobile_links = String::new();
+        for link in &menu.items {
+            let href = link
+                .href
+                .as_ref()
+                .map(|h| format!("href=\"{}\"", h))
+                .unwrap_or_default();
+            desktop_links.push_str(&format!(
+                "{}<a {} className=\"text-white hover:text-blue-400 transition-colors text-sm font-medium\">{}</a>\n",
+                indent_str, href, link.label
+            ));
+            mobile_links.push_str(&format!(
+                "{}<a {} className=\"block py-3 text-white hover:text-blue-400 border-b border-gray-700\">{}</a>\n",
+                indent_str, href, link.label
+            ));
+        }
+
+        let transform_class = if menu.hamburger == Some(true) {
+            "{{menuOpen ? 'translate-x-0' : 'translate-x-full'}}"
+        } else {
+            ""
+        };
+
+        let display_style = if menu.hamburger == Some(true) {
+            "{{display: menuOpen ? 'block' : 'none'}}"
+        } else {
+            ""
+        };
+
+        Ok(format!(
+            "{0}<div className=\"relative\">\n{0}  <div className=\"flex items-center justify-between px-6 py-4 bg-black\">\n{0}{1}{2}    <div className=\"hidden md:flex items-center gap-6\">\n{0}    </div>\n{0}  </div>\n{0}  <div className=\"fixed inset-0 bg-gray-900 z-50 transform {3} transition-transform duration-300 md:hidden\"\n{0}       style={4}>\n{0}    <div className=\"p-6\">\n{0}      <button className=\"absolute top-4 right-4 text-white\" onClick={{() => setMenuOpen(false)}}>\n{0}        <svg className=\"w-6 h-6\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\">\n{0}          <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path>\n{0}        </svg>\n{0}      </button>\n{0}      <div className=\"mt-8\">\n{0}{5}      </div>\n{0}    </div>\n{0}  </div>\n{0}</div>\n",
+            indent_str,
+            hamburger,
+            desktop_links,
+            transform_class,
+            display_style,
+            mobile_links
+        ))
+    }
+
+    fn generate_url(url: &nwl_shared::UrlElement, indent: usize) -> Result<String, CodegenError> {
+        let indent_str = "  ".repeat(indent);
+        let class_name = Self::format_style(&url.style);
+
+        // If it's used as an input (has placeholder or bind), generate input field
+        if url.placeholder.is_some() || url.bind.is_some() {
+            let placeholder = url
+                .placeholder
+                .as_ref()
+                .map(|s| format!(" placeholder=\"{}\"", s))
+                .unwrap_or_default();
+            let bind = url
+                .bind
+                .as_ref()
+                .map(|s| format!(" value={{{}}}", Self::to_camel_case(s)))
+                .unwrap_or_default();
+            let class_prop = if class_name.is_empty() {
+                String::new()
+            } else {
+                format!(" className=\"{}\"", class_name)
+            };
+
+            return Ok(format!(
+                "{}<input type=\"url\"{}{}{}/>",
+                indent_str, placeholder, bind, class_prop
+            ));
+        }
+
+        // Otherwise, generate anchor link
+        let target = url
+            .target
+            .as_ref()
+            .map(|t| format!("target=\"{}\"", t))
+            .unwrap_or_default();
+
+        let rel = if url.target.as_ref().map(|t| t == "_blank").unwrap_or(false) {
+            "rel=\"noopener noreferrer\""
+        } else {
+            ""
+        };
+
+        let href = url.href.as_deref().unwrap_or("");
+        let content = url
+            .content
+            .as_ref()
+            .or(url.href.as_ref())
+            .map(|s| s.as_str())
+            .unwrap_or("");
+
+        let props = if class_name.is_empty() {
+            format!("href=\"{}\"", href)
+        } else {
+            format!("href=\"{}\" className=\"{}\"", href, class_name)
+        };
+
+        Ok(format!(
+            "{}<a {} {} {}>{}</a>",
+            indent_str, props, target, rel, content
+        ))
+    }
+
+    fn generate_email(
+        email: &nwl_shared::EmailElement,
+        indent: usize,
+    ) -> Result<String, CodegenError> {
+        let indent_str = "  ".repeat(indent);
+
+        // If it's used as an input (has placeholder or bind), generate input field
+        if email.placeholder.is_some() || email.bind.is_some() {
+            let placeholder = email
+                .placeholder
+                .as_ref()
+                .map(|s| format!(" placeholder=\"{}\"", s))
+                .unwrap_or_default();
+            let bind = email
+                .bind
+                .as_ref()
+                .map(|s| format!(" value={{{}}}", Self::to_camel_case(s)))
+                .unwrap_or_default();
+            let class_name = Self::format_style(&email.style);
+            let class_prop = if class_name.is_empty() {
+                String::new()
+            } else {
+                format!(" className=\"{}\"", class_name)
+            };
+
+            return Ok(format!(
+                "{}<input type=\"email\"{}{}{}/>",
+                indent_str, placeholder, bind, class_prop
+            ));
+        }
+
+        // Otherwise, generate mailto link
+        let class_name = Self::format_style(&email.style);
+
+        let address = email.address.as_deref().unwrap_or("");
+        let mut mailto = format!("mailto:{}", address);
+        if let Some(subject) = &email.subject {
+            mailto.push_str(&format!("?subject={}", subject));
+        }
+
+        let content = email
+            .content
+            .as_ref()
+            .or(email.address.as_ref())
+            .map(|s| s.as_str())
+            .unwrap_or("");
+
+        let props = if class_name.is_empty() {
+            format!("href=\"{}\"", mailto)
+        } else {
+            format!("href=\"{}\" className=\"{}\"", mailto, class_name)
+        };
+
+        Ok(format!("{}<a {}>{}</a>", indent_str, props, content))
     }
 
     fn format_layout_props(layout: &nwl_shared::Layout) -> String {
@@ -1702,5 +2146,223 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 impl From<CodegenError> for nwl_shared::CompileError {
     fn from(e: CodegenError) -> Self {
         nwl_shared::CompileError::Codegen(e.to_string())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use nwl_shared::{
+        ButtonElement, Document, Element, HeadingElement, Layout, LayoutType, Page, PageData,
+        StateDefinition,
+    };
+
+    fn make_simple_page() -> Page {
+        Page {
+            page_data: PageData {
+                name: "Test".to_string(),
+                layout: None,
+                style: vec![],
+                children: vec![
+                    Element::Heading(HeadingElement {
+                        content: "Hello World".to_string(),
+                        style: vec!["text-2xl".to_string(), "font-bold".to_string()],
+                    }),
+                    Element::Button(ButtonElement {
+                        content: "Click Me".to_string(),
+                        onClick: Some("handleClick()".to_string()),
+                        style: vec!["bg-blue-500".to_string(), "text-white".to_string()],
+                    }),
+                ],
+                state: vec![],
+            },
+        }
+    }
+
+    #[test]
+    fn test_generate_simple_page() {
+        let page = make_simple_page();
+        let document = Document { pages: vec![page] };
+        let result = generate_react(&document);
+        assert!(result.is_ok());
+        let code = result.unwrap();
+        assert!(code.contains("export default function Test()"));
+        assert!(code.contains("Hello World"));
+        assert!(code.contains("Click Me"));
+        assert!(code.contains("handleClick()"));
+    }
+
+    #[test]
+    fn test_generate_heading_component() {
+        let page = Page {
+            page_data: PageData {
+                name: "HeadingTest".to_string(),
+                layout: None,
+                style: vec![],
+                children: vec![Element::Heading(HeadingElement {
+                    content: "Test Heading".to_string(),
+                    style: vec!["text-xl".to_string(), "font-semibold".to_string()],
+                })],
+                state: vec![],
+            },
+        };
+        let document = Document { pages: vec![page] };
+        let result = generate_react(&document).unwrap();
+        assert!(result.contains("<h1"));
+        assert!(result.contains("Test Heading"));
+    }
+
+    #[test]
+    fn test_generate_button_with_onclick() {
+        let page = Page {
+            page_data: PageData {
+                name: "ButtonTest".to_string(),
+                layout: None,
+                style: vec![],
+                children: vec![Element::Button(ButtonElement {
+                    content: "Submit".to_string(),
+                    onClick: Some("handleSubmit()".to_string()),
+                    style: vec!["bg-primary".to_string()],
+                })],
+                state: vec![],
+            },
+        };
+        let document = Document { pages: vec![page] };
+        let result = generate_react(&document).unwrap();
+        assert!(result.contains("onClick={() => handleSubmit()}"));
+        assert!(result.contains("Submit"));
+    }
+
+    #[test]
+    fn test_generate_page_with_layout() {
+        let page = Page {
+            page_data: PageData {
+                name: "LayoutTest".to_string(),
+                layout: Some(Layout {
+                    layout_type: LayoutType::Column,
+                    columns: None,
+                    properties: vec!["items-center".to_string(), "gap-4".to_string()],
+                }),
+                style: vec!["bg-gray-100".to_string()],
+                children: vec![Element::Heading(HeadingElement {
+                    content: "Title".to_string(),
+                    style: vec![],
+                })],
+                state: vec![],
+            },
+        };
+        let document = Document { pages: vec![page] };
+        let result = generate_react(&document).unwrap();
+        // Page layout creates a div with the page style (bg-gray-100)
+        assert!(result.contains("className=\"bg-gray-100\""));
+        assert!(result.contains("Title"));
+    }
+
+    #[test]
+    fn test_to_pascal_case() {
+        assert_eq!(ReactGenerator::to_pascal_case("hello"), "Hello");
+        assert_eq!(ReactGenerator::to_pascal_case("hello_world"), "HelloWorld");
+        assert_eq!(ReactGenerator::to_pascal_case("hello-world"), "HelloWorld");
+        assert_eq!(ReactGenerator::to_pascal_case("hello world"), "HelloWorld");
+    }
+
+    #[test]
+    fn test_to_camel_case() {
+        // to_camel_case preserves first char, only capitalizes after delimiters
+        assert_eq!(ReactGenerator::to_camel_case("hello"), "hello");
+        assert_eq!(ReactGenerator::to_camel_case("hello_world"), "helloWorld");
+        assert_eq!(ReactGenerator::to_camel_case("hello-world"), "helloWorld");
+        assert_eq!(ReactGenerator::to_camel_case("hello world"), "helloWorld");
+        assert_eq!(ReactGenerator::to_camel_case("Hello"), "Hello");
+        assert_eq!(ReactGenerator::to_camel_case("HelloWorld"), "HelloWorld");
+        assert_eq!(ReactGenerator::to_camel_case("HELLO"), "HELLO");
+    }
+
+    #[test]
+    fn test_generate_multiple_pages() {
+        let page1 = Page {
+            page_data: PageData {
+                name: "Home".to_string(),
+                layout: None,
+                style: vec![],
+                children: vec![Element::Heading(HeadingElement {
+                    content: "Welcome".to_string(),
+                    style: vec![],
+                })],
+                state: vec![],
+            },
+        };
+        let page2 = Page {
+            page_data: PageData {
+                name: "About".to_string(),
+                layout: None,
+                style: vec![],
+                children: vec![Element::Heading(HeadingElement {
+                    content: "About Us".to_string(),
+                    style: vec![],
+                })],
+                state: vec![],
+            },
+        };
+        let document = Document {
+            pages: vec![page1, page2],
+        };
+        let result = generate_react(&document).unwrap();
+        assert!(result.contains("function Home()"));
+        assert!(result.contains("function About()"));
+        assert!(result.contains("Welcome"));
+        assert!(result.contains("About Us"));
+    }
+
+    #[test]
+    fn test_generate_router() {
+        let imports = "import Home from './home';\nimport About from './about';".to_string();
+        let routes = "        <Route path=\"/\" element={<Home />}} />\n        <Route path=\"/about\" element={<About />}} />\n".to_string();
+        let router = generate_router("TestApp", &imports, &routes);
+        assert!(router.contains("import React from 'react'"));
+        assert!(router.contains("BrowserRouter"));
+        assert!(router.contains("Home"));
+        assert!(router.contains("About"));
+        assert!(router.contains("\"/\""));
+        assert!(router.contains("\"/about\""));
+    }
+
+    #[test]
+    fn test_generate_page_with_state() {
+        let page = Page {
+            page_data: PageData {
+                name: "Counter".to_string(),
+                layout: None,
+                style: vec![],
+                children: vec![Element::Button(ButtonElement {
+                    content: "Count: 0".to_string(),
+                    style: vec![],
+                    onClick: None,
+                })],
+                state: vec![StateDefinition {
+                    name: "count".to_string(),
+                    value_type: None,
+                    initial: Some(serde_yaml::Value::Number(0.into())),
+                }],
+            },
+        };
+        let document = Document { pages: vec![page] };
+        let result = generate_react(&document).unwrap();
+        assert!(result.contains("useState"));
+        assert!(result.contains("count"));
+        assert!(result.contains("setCount"));
+    }
+
+    #[test]
+    fn test_format_layout_props() {
+        let layout = Layout {
+            layout_type: LayoutType::Column,
+            columns: None,
+            properties: vec!["items-center".to_string(), "gap-4".to_string()],
+        };
+        let result = ReactGenerator::format_layout_props(&layout);
+        assert!(result.contains("flex flex-col"));
+        assert!(result.contains("items-center"));
+        assert!(result.contains("gap-4"));
     }
 }

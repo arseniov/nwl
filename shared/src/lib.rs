@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -102,6 +103,14 @@ pub enum Element {
     Avatar(AvatarElement),
     #[serde(rename = "chip-input")]
     ChipInput(ChipInputElement),
+    #[serde(rename = "nav")]
+    Nav(NavElement),
+    #[serde(rename = "menu")]
+    Menu(MenuElement),
+    #[serde(rename = "url")]
+    Url(UrlElement),
+    #[serde(rename = "email")]
+    Email(EmailElement),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -136,11 +145,18 @@ pub struct CardElement {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ListElement {
+pub struct ListItem {
+    pub content: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub data: Option<String>,
+    pub onClick: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListElement {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub children: Vec<Element>,
+    pub items: Vec<ListItem>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -275,9 +291,52 @@ pub struct TextareaElement {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CaptchaProvider {
+    #[serde(rename = "cloudflare")]
+    Cloudflare,
+    #[serde(rename = "recaptcha")]
+    Recaptcha,
+    #[serde(rename = "hcaptcha")]
+    HCaptcha,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CaptchaConfig {
+    pub provider: CaptchaProvider,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub siteKey: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub theme: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub action: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ValidationRule {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub required: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pattern: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub minLength: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub maxLength: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FormElement {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub onSubmit: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub validation: Option<HashMap<String, Vec<ValidationRule>>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub captcha: Option<CaptchaConfig>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onValidationError: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub children: Vec<Element>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -394,6 +453,7 @@ pub struct ToggleElement {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TabItem {
+    #[serde(rename = "id")]
     pub value: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
@@ -437,7 +497,7 @@ pub struct AccordionElement {
 pub struct ModalElement {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", alias = "isOpen")]
     pub bind: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub onClose: Option<String>,
@@ -608,6 +668,75 @@ pub struct ChipInputElement {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NavLink {
+    pub label: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub href: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub active: Option<bool>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NavElement {
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub links: Vec<NavLink>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub logo: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sticky: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub transparent: Option<bool>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MenuElement {
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub items: Vec<NavLink>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mobileBreakpoint: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hamburger: Option<bool>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub mobileStyle: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct UrlElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub href: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub placeholder: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EmailElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub address: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub subject: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub placeholder: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Page {
     #[serde(rename = "page")]
     pub page_data: PageData,
@@ -689,5 +818,259 @@ impl fmt::Display for LayoutType {
             LayoutType::Stack => write!(f, "stack"),
             LayoutType::Grid => write!(f, "grid"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_simple_page() {
+        let yaml = r#"
+page:
+  name: Test
+  children:
+    - element: heading
+      content: "Hello"
+"#;
+        let page: Page = serde_yaml::from_str(yaml).expect("Should parse simple page");
+        assert_eq!(page.page_data.name, "Test");
+        assert_eq!(page.page_data.children.len(), 1);
+    }
+
+    #[test]
+    fn test_parse_page_with_state() {
+        let yaml = r#"
+page:
+  name: Counter
+  state:
+    - name: count
+      initial: 0
+    - name: name
+      initial: "Guest"
+  children:
+    - element: heading
+      content: "Counter"
+"#;
+        let page: Page = serde_yaml::from_str(yaml).expect("Should parse page with state");
+        assert_eq!(page.page_data.name, "Counter");
+        assert_eq!(page.page_data.state.len(), 2);
+        assert_eq!(page.page_data.state[0].name, "count");
+        assert_eq!(
+            page.page_data.state[0].initial,
+            Some(serde_yaml::Value::Number(0.into()))
+        );
+    }
+
+    #[test]
+    fn test_parse_page_with_layout() {
+        let yaml = r#"
+page:
+  name: LayoutTest
+  layout:
+    type: column
+    properties: [items-center, gap-4]
+  children:
+    - element: heading
+      content: "Title"
+"#;
+        let page: Page = serde_yaml::from_str(yaml).expect("Should parse page with layout");
+        assert!(page.page_data.layout.is_some());
+        let layout = page.page_data.layout.unwrap();
+        assert_eq!(layout.layout_type, LayoutType::Column);
+        assert_eq!(layout.properties, vec!["items-center", "gap-4"]);
+    }
+
+    #[test]
+    fn test_parse_validation_rule() {
+        let yaml = r#"
+page:
+  name: FormTest
+  children:
+    - element: form
+      validation:
+        email:
+          - required: true
+            message: "Email is required"
+          - pattern: "^[^@]+@[^@]+$"
+            message: "Invalid email"
+        password:
+          - required: true
+            minLength: 8
+"#;
+        let page: Page = serde_yaml::from_str(yaml).expect("Should parse validation rules");
+        let form = match &page.page_data.children[0] {
+            Element::Form(f) => f,
+            _ => panic!("Expected Form element"),
+        };
+        assert!(form.validation.is_some());
+        let validation = form.validation.as_ref().unwrap();
+        assert!(validation.contains_key("email"));
+        let email_rules = validation.get("email").unwrap();
+        assert_eq!(email_rules.len(), 2);
+    }
+
+    #[test]
+    fn test_parse_tabs() {
+        let yaml = r#"
+page:
+  name: TabsTest
+  state:
+    - name: activeTab
+      initial: "tab1"
+  children:
+    - element: tabs
+      bind: activeTab
+      options:
+        - id: tab1
+          label: "Tab 1"
+        - id: tab2
+          label: "Tab 2"
+"#;
+        let page: Page = serde_yaml::from_str(yaml).expect("Should parse tabs");
+        let tabs = match &page.page_data.children[0] {
+            Element::Tabs(t) => t,
+            _ => panic!(
+                "Expected Tabs element, got {:?}",
+                page.page_data.children[0]
+            ),
+        };
+        assert_eq!(tabs.options.len(), 2);
+        assert_eq!(tabs.options[0].value, "tab1");
+    }
+
+    #[test]
+    fn test_parse_nav_element() {
+        let yaml = r#"
+page:
+  name: NavTest
+  children:
+    - element: nav
+      logo: "MyApp"
+      links:
+        - label: Home
+          href: "/"
+        - label: About
+          href: "/about"
+          active: true
+      sticky: true
+"#;
+        let page: Page = serde_yaml::from_str(yaml).expect("Should parse nav");
+        let nav = match &page.page_data.children[0] {
+            Element::Nav(n) => n,
+            _ => panic!("Expected Nav element"),
+        };
+        assert_eq!(nav.logo, Some("MyApp".to_string()));
+        assert_eq!(nav.links.len(), 2);
+        assert_eq!(nav.links[1].active, Some(true));
+    }
+
+    #[test]
+    fn test_parse_list_element() {
+        let yaml = r#"
+page:
+  name: ListTest
+  children:
+    - element: list
+      items:
+        - content: "Item 1"
+          onClick: "handleClick('item1')"
+        - content: "Item 2"
+          onClick: "handleClick('item2')"
+      style: [border, rounded]
+"#;
+        let page: Page = serde_yaml::from_str(yaml).expect("Should parse list");
+        let list = match &page.page_data.children[0] {
+            Element::List(l) => l,
+            _ => panic!("Expected List element"),
+        };
+        assert_eq!(list.items.len(), 2);
+        assert_eq!(list.items[0].content, "Item 1");
+    }
+
+    #[test]
+    fn test_parse_email_element_as_input() {
+        let yaml = r#"
+page:
+  name: EmailTest
+  children:
+    - element: email
+      placeholder: "Enter email"
+      bind: email
+      style: [w-full, border]
+"#;
+        let page: Page = serde_yaml::from_str(yaml).expect("Should parse email as input");
+        let email = match &page.page_data.children[0] {
+            Element::Email(e) => e,
+            _ => panic!("Expected Email element"),
+        };
+        assert_eq!(email.placeholder, Some("Enter email".to_string()));
+        assert_eq!(email.bind, Some("email".to_string()));
+    }
+
+    #[test]
+    fn test_parse_url_element_as_input() {
+        let yaml = r#"
+page:
+  name: UrlTest
+  children:
+    - element: url
+      placeholder: "Enter URL"
+      style: [w-full]
+"#;
+        let page: Page = serde_yaml::from_str(yaml).expect("Should parse url as input");
+        let url = match &page.page_data.children[0] {
+            Element::Url(u) => u,
+            _ => panic!("Expected Url element"),
+        };
+        assert_eq!(url.placeholder, Some("Enter URL".to_string()));
+    }
+
+    #[test]
+    fn test_parse_select_options() {
+        let yaml = r#"
+page:
+  name: SelectTest
+  children:
+    - element: select
+      bind: country
+      options:
+        - value: ""
+          label: "Choose country"
+        - value: us
+          label: "United States"
+        - value: uk
+          label: "United Kingdom"
+"#;
+        let page: Page = serde_yaml::from_str(yaml).expect("Should parse select");
+        let select = match &page.page_data.children[0] {
+            Element::Select(s) => s,
+            _ => panic!("Expected Select element"),
+        };
+        assert_eq!(select.options.len(), 3);
+        assert_eq!(select.options[0].value, "");
+    }
+
+    #[test]
+    fn test_parse_captcha_config() {
+        let yaml = r#"
+page:
+  name: CaptchaTest
+  children:
+    - element: form
+      captcha:
+        provider: cloudflare
+        siteKey: "test-key"
+        theme: light
+"#;
+        let page: Page = serde_yaml::from_str(yaml).expect("Should parse captcha config");
+        let form = match &page.page_data.children[0] {
+            Element::Form(f) => f,
+            _ => panic!("Expected Form element"),
+        };
+        assert!(form.captcha.is_some());
+        let captcha = form.captcha.as_ref().unwrap();
+        assert_eq!(captcha.provider, CaptchaProvider::Cloudflare);
     }
 }

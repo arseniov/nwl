@@ -42,8 +42,9 @@ pub fn parse_page(input: &str) -> Result<Page, serde_yaml::Error> {
 }
 
 pub fn parse_yaml(input: &str) -> Result<Document, CompilerError> {
-    if let Ok(page) = serde_yaml::from_str::<Page>(input) {
-        return Ok(Document { pages: vec![page] });
+    match serde_yaml::from_str::<Page>(input) {
+        Ok(page) => return Ok(Document { pages: vec![page] }),
+        Err(e) => eprintln!("DEBUG: Page parse error: {}", e),
     }
     serde_yaml::from_str::<Document>(input).map_err(Into::into)
 }
