@@ -25,9 +25,13 @@ impl ReactGenerator {
         }
 
         output.push_str("import { Button } from '@base-ui/react/button';\n");
+        output.push_str("import { Checkbox } from '@base-ui/react/checkbox';\n");
         output.push_str("import { Select } from '@base-ui/react/select';\n");
         output.push_str("import { Radio } from '@base-ui/react/radio';\n");
         output.push_str("import { RadioGroup } from '@base-ui/react/radio-group';\n");
+        output.push_str("import { Switch } from '@base-ui/react/switch';\n");
+        output.push_str("import { Separator } from '@base-ui/react/separator';\n");
+        output.push_str("import { NumberField } from '@base-ui/react/number-field';\n");
         output.push_str("import { Dialog } from '@base-ui/react/dialog';\n");
         output.push_str("import { Menu } from '@base-ui/react/menu';\n\n");
 
@@ -406,9 +410,21 @@ impl ReactGenerator {
         Ok(format!("{}<img{} />", indent_str, props_str))
     }
 
-    fn generate_spacer(_spacer: &SpacerElement, indent: usize) -> Result<String, CodegenError> {
+    fn generate_spacer(spacer: &SpacerElement, indent: usize) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
-        Ok(format!("{}<div className=\"h-6\" />", indent_str))
+
+        let thickness = match spacer.size.as_ref().map(|s| s.as_str()) {
+            Some("small") => "h-px",
+            Some("medium") => "h-4",
+            Some("large") => "h-8",
+            Some("xl") => "h-12",
+            _ => "h-6",
+        };
+
+        Ok(format!(
+            "{}<Separator.Root className=\"w-full {} my-2\" orientation=\"horizontal\" />",
+            indent_str, thickness
+        ))
     }
 
     fn generate_container(
@@ -447,40 +463,39 @@ impl ReactGenerator {
         let indent_str = "  ".repeat(indent);
         let class_name = Self::format_style(&checkbox.style);
 
-        let mut props = Vec::new();
-        props.push("type=\"checkbox\"".to_string());
-        if !class_name.is_empty() {
-            props.push(format!("className=\"{}\"", class_name));
-        }
-
-        if let Some(bind) = &checkbox.bind {
-            let camel_name = Self::to_camel_case(bind);
-            let setter_name = format!("set{}", Self::to_pascal_case(bind));
-            props.push(format!("checked={{{}}}", camel_name));
-            props.push(format!(
-                "onChange={{() => {}(!{})}}",
-                setter_name, camel_name
-            ));
-        }
-
-        if let Some(onChange) = &checkbox.onChange {
-            props.push(format!("onChange={{(e) => {}}}", onChange));
-        }
-
-        let props_str = if props.is_empty() {
+        let wrapper_class = if class_name.is_empty() {
             String::new()
         } else {
-            format!(" {}", props.join(" "))
+            format!(" {}", class_name)
         };
 
-        if let Some(label) = &checkbox.label {
-            Ok(format!(
-                "{}<label className=\"flex items-center gap-2\"><input{} />{}</label>",
-                indent_str, props_str, label
-            ))
+        let checked_attr = if let Some(bind) = &checkbox.bind {
+            format!(" checked={{{}}}", Self::to_camel_case(bind))
         } else {
-            Ok(format!("{}<input{} />", indent_str, props_str))
-        }
+            String::new()
+        };
+
+        let onchange_attr = if let Some(bind) = &checkbox.bind {
+            format!(
+                " onCheckedChange={{({}) => set{}({})}}",
+                "checked",
+                Self::to_pascal_case(bind),
+                "checked"
+            )
+        } else {
+            String::new()
+        };
+
+        let label_html = if let Some(label) = &checkbox.label {
+            format!("<span className=\"text-gray-700\">{}</span>", label)
+        } else {
+            String::new()
+        };
+
+        Ok(format!(
+            "{}<label className=\"flex items-center gap-2 cursor-pointer{}\">{}<Checkbox.Root{} {} className=\"flex size-5 items-center justify-center rounded border data-[checked]:bg-blue-600 data-[checked]:border-blue-600 data-[unchecked]:border-gray-300\">{}  <Checkbox.Indicator className=\"text-white text-xs\" />{}</Checkbox.Root>{}</label>",
+            indent_str, wrapper_class, indent_str, checked_attr, onchange_attr, indent_str, indent_str, label_html
+        ))
     }
 
     fn generate_slider(
@@ -1099,30 +1114,37 @@ impl ReactGenerator {
         let indent_str = "  ".repeat(indent);
         let class_name = Self::format_style(&toggle.style);
 
-        let on_color_default = "green".to_string();
-        let on_color = toggle.onColor.as_ref().unwrap_or(&on_color_default);
-        let off_color_default = "gray".to_string();
-        let off_color = toggle.offColor.as_ref().unwrap_or(&off_color_default);
+        let wrapper_class = if class_name.is_empty() {
+            String::new()
+        } else {
+            format!(" className=\"{}\"", class_name)
+        };
 
-        let mut props = Vec::new();
-        props.push("type=\"checkbox\"".to_string());
-        props.push(format!("className=\"sr-only peer\""));
+        let checked_attr = if let Some(bind) = &toggle.bind {
+            format!("checked={{{}}}", Self::to_camel_case(bind))
+        } else {
+            String::new()
+        };
 
-        if let Some(bind) = &toggle.bind {
-            let camel_name = Self::to_camel_case(bind);
+        let onchange_attr = if let Some(bind) = &toggle.bind {
             let setter_name = format!("set{}", Self::to_pascal_case(bind));
-            props.push(format!("checked={{{}}}", camel_name));
-            props.push(format!(
-                "onChange={{() => {}(!{})}}",
-                setter_name, camel_name
-            ));
-        }
-
-        let props_str = props.join(" ");
+            format!(
+                "onCheckedChange={{({}) => {}({})}}",
+                if toggle.bind.is_some() {
+                    "_checked"
+                } else {
+                    "checked"
+                },
+                setter_name,
+                "checked"
+            )
+        } else {
+            String::new()
+        };
 
         let label_html = if let Some(label) = &toggle.label {
             format!(
-                "<span className=\"mr-3 text-sm font-medium text-gray-900\">{}</span>",
+                "<label htmlFor=\"toggle\" className=\"mr-3 text-sm font-medium text-gray-900\">{}</label>",
                 label
             )
         } else {
@@ -1130,8 +1152,8 @@ impl ReactGenerator {
         };
 
         Ok(format!(
-            "{}<label className=\"inline-flex relative items-center cursor-pointer\">{}<input {} /><div className=\"relative w-11 h-6 bg-{}-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-{}-500\"></div></label>",
-            indent_str, label_html, props_str, off_color, on_color
+            "{}<label className=\"inline-flex items-center cursor-pointer\">{}<Switch.Root id=\"toggle\"{} {} className=\"flex w-11 h-6 bg-gray-200 data-[checked]:bg-green-500 rounded-full transition-colors\">{}  <Switch.Thumb className=\"block w-5 h-5 bg-white rounded-full shadow-sm transition-transform data-[checked]:translate-x-5 data-[unchecked]:translate-x-0\" />{}</Switch.Root></label>",
+            indent_str, label_html, checked_attr, onchange_attr, indent_str, indent_str
         ))
     }
 
@@ -1432,49 +1454,47 @@ impl ReactGenerator {
         indent: usize,
     ) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
-        let _class_name = Self::format_style(&counter.style);
+        let class_name = Self::format_style(&counter.style);
 
-        let decrement = if let Some(bind) = &counter.bind {
-            let camel_name = Self::to_camel_case(bind);
-            let setter_name = format!("set{}", Self::to_pascal_case(bind));
-            let min = counter.min.unwrap_or(0);
-            format!(
-                "onClick={{() => {} > {} && {}({} - 1)}}",
-                camel_name, min, setter_name, camel_name
-            )
+        let min_attr = counter
+            .min
+            .map(|m| format!(" min={}", m))
+            .unwrap_or_default();
+        let max_attr = counter
+            .max
+            .map(|m| format!(" max={}", m))
+            .unwrap_or_default();
+        let step_attr = counter
+            .step
+            .map(|s| format!(" step={}", s))
+            .unwrap_or_default();
+
+        let value_attr = if let Some(bind) = &counter.bind {
+            format!(" value={{{}}}", Self::to_camel_case(bind))
         } else {
-            "onClick={() => {}}".to_string()
+            String::new()
         };
 
-        let increment = if let Some(bind) = &counter.bind {
-            let camel_name = Self::to_camel_case(bind);
-            let setter_name = format!("set{}", Self::to_pascal_case(bind));
-            let max = counter.max.unwrap_or(999);
+        let onchange_attr = if let Some(bind) = &counter.bind {
             format!(
-                "onClick={{() => {} < {} && {}({} + 1)}}",
-                camel_name, max, setter_name, camel_name
+                " onValueChange={{({}) => set{}({})}}",
+                "value",
+                Self::to_pascal_case(bind),
+                "value"
             )
         } else {
-            "onClick={() => {}}".to_string()
+            String::new()
         };
 
-        let value = if let Some(bind) = &counter.bind {
-            format!(
-                "<span className=\"text-lg font-semibold mx-4\">{{{}}}</span>",
-                Self::to_camel_case(bind)
-            )
+        let wrapper_class = if class_name.is_empty() {
+            String::new()
         } else {
-            "<span className=\"text-lg font-semibold mx-4\">0</span>".to_string()
+            format!(" {}", class_name)
         };
 
         Ok(format!(
-            "{}<div className=\"flex items-center justify-center border rounded-lg {}\">{}<button {} className=\"w-10 px-3 py-1 border-r hover:bg-gray-100 flex items-center justify-center\">-</button>{}<button {} className=\"w-10 px-3 py-1 border-l hover:bg-gray-100 flex items-center justify-center\">+</button></div>",
-            indent_str,
-            if counter.step.is_some() { "w-32" } else { "" },
-            indent_str,
-            decrement,
-            value,
-            increment
+            "{}<NumberField.Root className=\"flex items-center border rounded-lg overflow-hidden{}\"{}>{}  <NumberField.Decrement className=\"px-3 py-2 border-r hover:bg-gray-100 flex items-center justify-center bg-gray-50\">\n{}    <span className=\"text-gray-600 font-medium\">-</span>\n{}  </NumberField.Decrement>\n{}  <NumberField.Input className=\"w-16 text-center border-none focus:outline-none py-2\"{} />\n{}  <NumberField.Increment className=\"px-3 py-2 border-l hover:bg-gray-100 flex items-center justify-center bg-gray-50\">\n{}    <span className=\"text-gray-600 font-medium\">+</span>\n{}  </NumberField.Increment>\n{}</NumberField.Root>",
+            indent_str, wrapper_class, min_attr, indent_str, indent_str, indent_str, indent_str, value_attr, indent_str, indent_str, indent_str, indent_str
         ))
     }
 

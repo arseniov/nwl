@@ -5,6 +5,8 @@ page:
     properties: [items-center, min-h-screen]
   style: [bg-gray-50, py-8]
   state:
+    - name: agreedToTerms
+      initial: false
     - name: country
       initial: ""
     - name: bio
@@ -17,6 +19,10 @@ page:
       initial: ""
     - name: searchQuery
       initial: ""
+    - name: counterValue
+      initial: 5
+    - name: enableFeature
+      initial: true
   children:
     - element: nav
       style: [w-full]
@@ -64,13 +70,62 @@ page:
           style: [my-6]
 
         - element: heading
-          content: "BaseUI Select Component"
+          content: "BaseUI Form Components"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
+        - element: layout
+          layout:
+            type: column
+            properties: [gap-4]
+          children:
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "1. Checkbox"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: checkbox
+                  label: "I agree to the terms and conditions"
+                  bind: agreedToTerms
+                - element: text
+                  content: "{agreedToTerms ? 'Agreed!' : 'Not agreed'}"
+                  style: [text-sm, text-gray-600, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "2. NumberField (Counter)"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: counter
+                  bind: counterValue
+                  min: 0
+                  max: 99
+                - element: text
+                  content: "Value: {counterValue}"
+                  style: [text-sm, text-gray-600, mt-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "3. Toggle Switch"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: toggle
+                  label: "Enable feature"
+                  bind: enableFeature
+                - element: text
+                  content: "{enableFeature ? 'Enabled' : 'Disabled'}"
+                  style: [text-sm, text-gray-600, mt-2]
+
+        - element: spacer
+          style: [my-6]
+
+        - element: heading
+          content: "BaseUI Select & RadioGroup"
           style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: card
           style: [p-4, border, border-gray-200, rounded-lg, mb-4]
           children:
             - element: heading
-              content: "3. Select Dropdown"
+              content: "4. Select Dropdown"
               style: [text-base, font-semibold, text-gray-900, mb-3]
             - element: select
               bind: country
@@ -86,18 +141,11 @@ page:
             - element: text
               content: "Selected: {country || 'None'}"
               style: [text-sm, text-gray-600, mt-2]
-
-        - element: spacer
-          style: [my-6]
-
-        - element: heading
-          content: "BaseUI RadioGroup Component"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: card
           style: [p-4, border, border-gray-200, rounded-lg, mb-4]
           children:
             - element: heading
-              content: "4. Radio Button Group"
+              content: "5. Radio Group"
               style: [text-base, font-semibold, text-gray-900, mb-3]
             - element: radio-group
               options:
@@ -107,9 +155,6 @@ page:
                   label: Medium Priority
                 - value: high
                   label: High Priority
-            - element: text
-              content: "Select an option above"
-              style: [text-sm, text-gray-600, mt-2]
 
         - element: spacer
           style: [my-6]
@@ -126,7 +171,16 @@ page:
               style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
-                  content: "5. Textarea"
+                  content: "Text Input"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: input
+                  placeholder: "Enter your name..."
+                  style: [w-full, border, border-gray-300, rounded, px-3, py-2]
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg]
+              children:
+                - element: heading
+                  content: "Textarea"
                   style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: textarea
                   placeholder: "Your bio..."
@@ -140,7 +194,7 @@ page:
               style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
-                  content: "6. Form with Validation"
+                  content: "Form with Validation"
                   style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: form
                   onSubmit: "setFormStatus('Submitted!')"
@@ -176,39 +230,6 @@ page:
           style: [my-6]
 
         - element: heading
-          content: "Input Components"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
-        - element: layout
-          layout:
-            type: column
-            properties: [gap-4]
-          children:
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "Text Input"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: input
-                  placeholder: "Enter your name..."
-                  style: [w-full, border, border-gray-300, rounded, px-3, py-2]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "Search Input"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: search-input
-                  placeholder: "Search..."
-                  bind: searchQuery
-                - element: text
-                  content: "Query: {searchQuery || '-'}"
-                  style: [text-sm, text-gray-600, mt-2]
-
-        - element: spacer
-          style: [my-6]
-
-        - element: heading
           content: "Display Components"
           style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: layout
@@ -220,7 +241,7 @@ page:
               style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
-                  content: "21. Badge"
+                  content: "Badge"
                   style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: layout
                   layout:
