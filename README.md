@@ -58,15 +58,31 @@ nwl new <name>          # Create a new project
 
 nwl build [path]        # Compile NWL files to React
   --watch, -w           # Watch for changes and auto-recompile
+  --no-test             # Skip JSX validation tests
 
 nwl dev [path]          # Build + start dev server with hot reload
   --port, -p            # Port (default: 5173)
   --host                # Host binding (default: localhost)
   --no-open             # Don't open browser automatically
   --watch, -w           # Watch YAML files and recompile on change
+  --no-test             # Skip JSX validation tests
 
 nwl compile <file>      # Compile a single YAML file
   --output, -o          # Output file path
+```
+
+## JSX Validation
+
+NWL automatically validates generated JSX/TSX code to ensure:
+- Valid React syntax
+- Proper Base UI component structure
+- No undefined components
+- Balanced braces in JSX expressions
+
+The validation runs automatically during `nwl build` and `nwl dev` commands via vitest. You can also run it manually:
+
+```bash
+npm run test:jsx
 ```
 
 ## Project Templates
@@ -131,11 +147,14 @@ NWL uses [Base UI](https://base-ui.com/react) as its default component library f
 
 | Component | BaseUI Import | Generated Code |
 |-----------|---------------|----------------|
-| `button` | `@base-ui/react/button` | `<Button className="...">...</Button>` |
-| `select` | `@base-ui/react/select` | `<Select.Root items={...}>...</Select.Root>` |
-| `radio-group` | `@base-ui/react/radio-group` | `<RadioGroup>...</RadioGroup>` |
-| `modal` | `@base-ui/react/dialog` | `<Dialog.Root>...</Dialog.Root>` |
-| `menu` | `@base-ui/react/menu` | `<Menu.Root>...</Menu.Root>` |
+| `button` | `@base-ui/react` | `<Button className="...">...</Button>` |
+| `checkbox` | `@base-ui/react` | `<Checkbox.Root>...</Checkbox.Root>` |
+| `select` | `@base-ui/react` | `<Select.Root>...</Select.Root>` |
+| `radio-group` | `@base-ui/react` | `<RadioGroup>...</RadioGroup>` |
+| `switch` | `@base-ui/react` | `<Switch.Root>...</Switch.Root>` |
+| `counter` | `@base-ui/react` | `<NumberField.Root>...</NumberField.Root>` |
+| `dialog` | `@base-ui/react` | `<Dialog.Root>...</Dialog.Root>` |
+| `navigation-menu` | `@base-ui/react` | `<Menu.Root>...</Menu.Root>` |
 
 ### Form Components
 
@@ -148,6 +167,7 @@ NWL uses [Base UI](https://base-ui.com/react) as its default component library f
 | `radio-group` | Radio button group |
 | `textarea` | Multi-line text input |
 | `form` | Form with submit handler |
+| `counter` | Number field with increment/decrement |
 
 ### Date & Time
 
@@ -184,16 +204,15 @@ NWL uses [Base UI](https://base-ui.com/react) as its default component library f
 
 | Component | Description |
 |-----------|-------------|
-| `modal` | Modal dialog |
-| `alert` | Alert messages (info, warning, success, error) |
+| `dialog` | Modal dialog using Base UI Dialog |
+| `navigation-menu` | Responsive navigation menu with hamburger |
 
-### Indicators & Badges
+### Navigation
 
 | Component | Description |
 |-----------|-------------|
-| `badge` | Status badge |
-| `tag` | Tag/category label |
-| `spinner` | Loading spinner (small, medium, large) |
+| `nav` | Navigation bar with links |
+| `navigation-menu` | Hamburger menu for mobile |
 
 ### Input Components
 

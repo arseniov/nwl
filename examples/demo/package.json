@@ -9,9 +9,11 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:jsx": "vitest run src/compiled-jsx.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@base-ui/react": "1.1.0",
     "inotifywait": "^1.8.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

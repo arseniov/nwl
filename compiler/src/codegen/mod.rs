@@ -24,16 +24,18 @@ impl ReactGenerator {
             output.push_str("import React from 'react';\n");
         }
 
-        output.push_str("import { Button } from '@base-ui/react/button';\n");
-        output.push_str("import { Checkbox } from '@base-ui/react/checkbox';\n");
-        output.push_str("import { Select } from '@base-ui/react/select';\n");
-        output.push_str("import { Radio } from '@base-ui/react/radio';\n");
-        output.push_str("import { RadioGroup } from '@base-ui/react/radio-group';\n");
-        output.push_str("import { Switch } from '@base-ui/react/switch';\n");
-        output.push_str("import { Separator } from '@base-ui/react/separator';\n");
-        output.push_str("import { NumberField } from '@base-ui/react/number-field';\n");
-        output.push_str("import { Dialog } from '@base-ui/react/dialog';\n");
-        output.push_str("import { Menu } from '@base-ui/react/menu';\n\n");
+        output.push_str("import {\n");
+        output.push_str("  Button,\n");
+        output.push_str("  Checkbox,\n");
+        output.push_str("  Select,\n");
+        output.push_str("  Radio,\n");
+        output.push_str("  RadioGroup,\n");
+        output.push_str("  Switch,\n");
+        output.push_str("  Separator,\n");
+        output.push_str("  NumberField,\n");
+        output.push_str("  Dialog,\n");
+        output.push_str("  Menu,\n");
+        output.push_str("} from '@base-ui/react';\n\n");
 
         for page in &document.pages {
             output.push_str(&Self::generate_page(&page.page_data)?);
@@ -55,7 +57,7 @@ impl ReactGenerator {
 
         // Check if any menu has hamburger enabled
         let needs_menu_state = page.children.iter().any(|child| {
-            if let nwl_shared::Element::Menu(menu) = child {
+            if let nwl_shared::Element::NavigationMenu(menu) = child {
                 menu.hamburger == Some(true)
             } else {
                 false
@@ -180,7 +182,7 @@ impl ReactGenerator {
             nwl_shared::Element::Accordion(accordion) => {
                 Self::generate_accordion(accordion, indent)
             }
-            nwl_shared::Element::Modal(modal) => Self::generate_modal(modal, indent),
+            nwl_shared::Element::Dialog(dialog) => Self::generate_dialog(dialog, indent),
             nwl_shared::Element::Badge(badge) => Self::generate_badge(badge, indent),
             nwl_shared::Element::Tag(tag) => Self::generate_tag(tag, indent),
             nwl_shared::Element::Alert(alert) => Self::generate_alert(alert, indent),
@@ -197,7 +199,9 @@ impl ReactGenerator {
             nwl_shared::Element::Avatar(avatar) => Self::generate_avatar(avatar, indent),
             nwl_shared::Element::ChipInput(chip) => Self::generate_chip_input(chip, indent),
             nwl_shared::Element::Nav(nav) => Self::generate_nav(nav, indent),
-            nwl_shared::Element::Menu(menu) => Self::generate_menu(menu, indent),
+            nwl_shared::Element::NavigationMenu(menu) => {
+                Self::generate_navigation_menu(menu, indent)
+            }
             nwl_shared::Element::Url(url) => Self::generate_url(url, indent),
             nwl_shared::Element::Email(email) => Self::generate_email(email, indent),
         }
@@ -413,8 +417,8 @@ impl ReactGenerator {
     fn generate_spacer(spacer: &SpacerElement, indent: usize) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
 
-        let thickness = match spacer.size.as_ref().map(|s| s.as_str()) {
-            Some("small") => "h-px",
+        let height = match spacer.size.as_ref().map(|s| s.as_str()) {
+            Some("small") => "h-1",
             Some("medium") => "h-4",
             Some("large") => "h-8",
             Some("xl") => "h-12",
@@ -422,8 +426,8 @@ impl ReactGenerator {
         };
 
         Ok(format!(
-            "{}<Separator.Root className=\"w-full {} my-2\" orientation=\"horizontal\" />",
-            indent_str, thickness
+            "{}<Separator className=\"w-full {} my-4\" />",
+            indent_str, height
         ))
     }
 
@@ -557,9 +561,16 @@ impl ReactGenerator {
         let indent_str = "  ".repeat(indent);
         let class_name = Self::format_style(&select.style);
 
-        let bind_handling = if let Some(bind) = &select.bind {
+        let value_attr = if let Some(bind) = &select.bind {
             let camel_name = Self::to_camel_case(bind);
-            format!("value={{{}}}", camel_name)
+            format!(" value={{{}}}", camel_name)
+        } else {
+            String::new()
+        };
+
+        let onvaluechange_attr = if let Some(bind) = &select.bind {
+            let setter_name = format!("set{}", Self::to_pascal_case(bind));
+            format!(" onValueChange={{(value) => {}(value)}}", setter_name)
         } else {
             String::new()
         };
@@ -571,12 +582,12 @@ impl ReactGenerator {
         };
 
         let mut output = String::new();
-        output.push_str(&format!("{}<Select.Root>\n", indent_str));
-        output.push_str(&format!("{}  <Select.Trigger{}>\n", indent_str, props_str));
         output.push_str(&format!(
-            "{}    <Select.Value {} />\n",
-            indent_str, bind_handling
+            "{}<Select.Root{}{}>\n",
+            indent_str, value_attr, onvaluechange_attr
         ));
+        output.push_str(&format!("{}  <Select.Trigger{}>\n", indent_str, props_str));
+        output.push_str(&format!("{}    <Select.Value />\n", indent_str));
         output.push_str(&format!("{}    <Select.Icon />\n", indent_str));
         output.push_str(&format!("{}  </Select.Trigger>\n", indent_str));
         output.push_str(&format!("{}  <Select.Portal>\n", indent_str));
@@ -1121,23 +1132,14 @@ impl ReactGenerator {
         };
 
         let checked_attr = if let Some(bind) = &toggle.bind {
-            format!("checked={{{}}}", Self::to_camel_case(bind))
+            format!(" checked={{{}}}", Self::to_camel_case(bind))
         } else {
             String::new()
         };
 
         let onchange_attr = if let Some(bind) = &toggle.bind {
             let setter_name = format!("set{}", Self::to_pascal_case(bind));
-            format!(
-                "onCheckedChange={{({}) => {}({})}}",
-                if toggle.bind.is_some() {
-                    "_checked"
-                } else {
-                    "checked"
-                },
-                setter_name,
-                "checked"
-            )
+            format!("onCheckedChange={{(checked) => {}(checked)}}", setter_name)
         } else {
             String::new()
         };
@@ -1259,15 +1261,15 @@ impl ReactGenerator {
         Ok(output)
     }
 
-    fn generate_modal(
-        modal: &nwl_shared::ModalElement,
+    fn generate_dialog(
+        dialog: &nwl_shared::DialogElement,
         indent: usize,
     ) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
-        let class_name = Self::format_style(&modal.style);
+        let class_name = Self::format_style(&dialog.style);
 
-        let close_handler = if let Some(onClose) = &modal.onClose {
-            format!("onClick={{() => {} }}", onClose)
+        let close_handler = if let Some(onClose) = &dialog.onClose {
+            format!(" onClick={{() => {}}}", onClose)
         } else {
             String::new()
         };
@@ -1275,47 +1277,67 @@ impl ReactGenerator {
         let wrapper_class = if class_name.is_empty() {
             String::new()
         } else {
-            format!(" className=\"{}\"", class_name)
+            format!(" {}", class_name)
         };
+
+        let popup_class = format!(
+            "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 min-w-[320px] max-w-[90vw]{}",
+            wrapper_class
+        );
 
         let mut output = String::new();
 
-        output.push_str(&format!("{}<Dialog.Root>\n", indent_str));
-        output.push_str(&format!("{}  <Dialog.Trigger asChild>\n{}    <Button>Open Modal</Button>\n{}  </Dialog.Trigger>\n", indent_str, indent_str, indent_str));
+        let open_attr = if let Some(open) = &dialog.open {
+            format!(" open={{{}}}", Self::to_camel_case(open))
+        } else {
+            String::new()
+        };
+
+        let onopenchange_attr = if let Some(open) = &dialog.open {
+            let setter_name = format!("set{}", Self::to_pascal_case(open));
+            format!(" onOpenChange={{open => {}(open)}}", setter_name)
+        } else {
+            String::new()
+        };
+
+        output.push_str(&format!(
+            "{}<Dialog.Root{}{}>\n",
+            indent_str, open_attr, onopenchange_attr
+        ));
+
+        if dialog.open.is_none() {
+            output.push_str(&format!("{}  <Dialog.Trigger asChild>\n{}    <Button>Open dialog</Button>\n{}  </Dialog.Trigger>\n", indent_str, indent_str, indent_str));
+        }
 
         output.push_str(&format!("{}  <Dialog.Portal>\n", indent_str));
         output.push_str(&format!(
-            "{}    <Dialog.Backdrop className=\"fixed inset-0 bg-black bg-opacity-50\" />\n",
+            "{}    <Dialog.Backdrop className=\"fixed inset-0 bg-black/50 animate-fade-in\" />\n",
             indent_str
         ));
         output.push_str(&format!(
-            "{}    <Dialog.Popup{}>\n",
-            indent_str, wrapper_class
+            "{}    <Dialog.Popup className=\"{}\">\n",
+            indent_str, popup_class
         ));
 
-        output.push_str(&format!(
-            "{}      <div className=\"flex items-center justify-between mb-4\">\n",
-            indent_str
-        ));
-        if let Some(title) = &modal.title {
+        if let Some(title) = &dialog.title {
             output.push_str(&format!(
-                "{}        <Dialog.Title className=\"text-xl font-bold\">{}</Dialog.Title>\n",
+                "{}      <Dialog.Title className=\"text-xl font-semibold text-gray-900 mb-4\">{}</Dialog.Title>\n",
                 indent_str, title
             ));
         }
-        if modal.onClose.is_some() {
-            output.push_str(&format!(
-                "{}        <Dialog.Close asChild>\n{}          <Button variant=\"soft\" size=\"sm\"{}>\n{}            <span className=\"sr-only\">Close</span>\n{}            <svg className=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg>\n{}          </Button>\n{}        </Dialog.Close>\n",
-                indent_str, indent_str, close_handler, indent_str, indent_str, indent_str, indent_str
-            ));
-        }
-        output.push_str(&format!("{}      </div>\n", indent_str));
 
-        for child in &modal.children {
+        for child in &dialog.children {
             output.push_str(&format!(
                 "{}        {}\n",
                 indent_str,
                 Self::generate_element(child, indent + 4)?
+            ));
+        }
+
+        if dialog.onClose.is_some() {
+            output.push_str(&format!(
+                "{}      <div className=\"flex justify-end gap-2 mt-4\">\n{}        <Dialog.Close{}>\n{}          <span className=\"sr-only\">Close</span>\n{}          <svg className=\"w-5 h-5\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" strokeWidth=\"2\" strokeLinecap=\"round\" strokeLinejoin=\"round\"><path d=\"M18 6L6 18M6 6l12 12\"></path></svg>\n{}        </Dialog.Close>\n{}      </div>\n",
+                indent_str, indent_str, close_handler, indent_str, indent_str, indent_str, indent_str
             ));
         }
 
@@ -1458,15 +1480,15 @@ impl ReactGenerator {
 
         let min_attr = counter
             .min
-            .map(|m| format!(" min={}", m))
+            .map(|m| format!(" min={{{}}}", m))
             .unwrap_or_default();
         let max_attr = counter
             .max
-            .map(|m| format!(" max={}", m))
+            .map(|m| format!(" max={{{}}}", m))
             .unwrap_or_default();
         let step_attr = counter
             .step
-            .map(|s| format!(" step={}", s))
+            .map(|s| format!(" step={{{}}}", s))
             .unwrap_or_default();
 
         let value_attr = if let Some(bind) = &counter.bind {
@@ -1475,13 +1497,9 @@ impl ReactGenerator {
             String::new()
         };
 
-        let onchange_attr = if let Some(bind) = &counter.bind {
-            format!(
-                " onValueChange={{({}) => set{}({})}}",
-                "value",
-                Self::to_pascal_case(bind),
-                "value"
-            )
+        let onvaluechange_attr = if let Some(bind) = &counter.bind {
+            let setter_name = format!("set{}", Self::to_pascal_case(bind));
+            format!(" onValueChange={{(value) => {}(value)}}", setter_name)
         } else {
             String::new()
         };
@@ -1492,9 +1510,14 @@ impl ReactGenerator {
             format!(" {}", class_name)
         };
 
+        let children = format!(
+            "{}<NumberField.Decrement className=\"px-3 py-2 border-r hover:bg-gray-100 flex items-center justify-center bg-gray-50\">\n{}    <span className=\"text-gray-600 font-medium\">-</span>\n{}  </NumberField.Decrement>\n{}  <NumberField.Input className=\"w-16 text-center border-none focus:outline-none py-2\" />\n{}  <NumberField.Increment className=\"px-3 py-2 border-l hover:bg-gray-100 flex items-center justify-center bg-gray-50\">\n{}    <span className=\"text-gray-600 font-medium\">+</span>\n{}  </NumberField.Increment>",
+            indent_str, indent_str, indent_str, indent_str, indent_str, indent_str, indent_str
+        );
+
         Ok(format!(
-            "{}<NumberField.Root className=\"flex items-center border rounded-lg overflow-hidden{}\"{}>{}  <NumberField.Decrement className=\"px-3 py-2 border-r hover:bg-gray-100 flex items-center justify-center bg-gray-50\">\n{}    <span className=\"text-gray-600 font-medium\">-</span>\n{}  </NumberField.Decrement>\n{}  <NumberField.Input className=\"w-16 text-center border-none focus:outline-none py-2\"{} />\n{}  <NumberField.Increment className=\"px-3 py-2 border-l hover:bg-gray-100 flex items-center justify-center bg-gray-50\">\n{}    <span className=\"text-gray-600 font-medium\">+</span>\n{}  </NumberField.Increment>\n{}</NumberField.Root>",
-            indent_str, wrapper_class, min_attr, indent_str, indent_str, indent_str, indent_str, value_attr, indent_str, indent_str, indent_str, indent_str
+            "{}<NumberField.Root className=\"flex items-center border rounded-lg overflow-hidden\"{}{}{}{}>\n{}\n{}</NumberField.Root>",
+            indent_str, value_attr, min_attr, max_attr, onvaluechange_attr, children, indent_str
         ))
     }
 
@@ -1847,8 +1870,8 @@ impl ReactGenerator {
         ))
     }
 
-    fn generate_menu(
-        menu: &nwl_shared::MenuElement,
+    fn generate_navigation_menu(
+        menu: &nwl_shared::NavigationMenuElement,
         indent: usize,
     ) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);

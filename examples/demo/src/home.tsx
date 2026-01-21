@@ -1,10 +1,16 @@
 import React from 'react';
-import { Button } from '@base-ui/react/button';
-import { Select } from '@base-ui/react/select';
-import { Radio } from '@base-ui/react/radio';
-import { RadioGroup } from '@base-ui/react/radio-group';
-import { Dialog } from '@base-ui/react/dialog';
-import { Menu } from '@base-ui/react/menu';
+import {
+  Button,
+  Checkbox,
+  Select,
+  Radio,
+  RadioGroup,
+  Switch,
+  Separator,
+  NumberField,
+  Dialog,
+  Menu,
+} from '@base-ui/react';
 
 export default function Home() {
   return (

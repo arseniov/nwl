@@ -191,58 +191,161 @@ Complete the `nwl` CLI with a single bundled executable:
 3. [x] Hot reload (via Vite)
 4. [x] Error messages with YAML line/column
 
-### Phase 4: Prebuilt Components - BaseUI Integration - IN PROGRESS ✓
+### Phase 4: Base UI v1.1.0 Integration - IN PROGRESS ✓
 
-#### BaseUI Component Library Integration
+NWL uses [Base UI v1.1.0](https://base-ui.com/react) as its default component library. Base UI provides unstyled, accessible React components that are perfect for the NWL compiler since they generate clean, production-ready code while allowing full styling control via Tailwind CSS.
 
-NWL now uses [Base UI](https://base-ui.com/react) as its default component library. Base UI provides unstyled, accessible React components that are perfect for the NWL compiler since they generate clean, production-ready code while allowing full styling control via Tailwind CSS.
+#### Base UI v1.1.0 Component Library
 
-##### Implemented BaseUI Components
+NWL uses [Base UI v1.1.0](https://base-ui.com/react) as its default component library. All components are imported from the main `@base-ui/react` package to ensure compound components (like `Checkbox.Root`, `Switch.Thumb`, etc.) work correctly.
 
-| Component | BaseUI Import | Status |
-|-----------|---------------|--------|
-| Button | `@base-ui/react/button` | ✓ Implemented |
-| Select | `@base-ui/react/select` | ✓ Implemented |
-| RadioGroup | `@base-ui/react/radio-group` | ✓ Implemented |
-| Dialog | `@base-ui/react/dialog` | ✓ Implemented |
-| Menu | `@base-ui/react/menu` | ✓ Implemented |
+| Component | Import | Status | Generated Code |
+|-----------|--------|--------|----------------|
+| **Form Components** | | | |
+| Button | `@base-ui/react` | ✓ Implemented | `<Button>` with props |
+| Checkbox | `@base-ui/react` | ✓ Implemented | `<Checkbox.Root><Checkbox.Indicator>` |
+| CheckboxGroup | `@base-ui/react` | ⏳ Pending | `<CheckboxGroup>` with items |
+| Radio | `@base-ui/react` | ✓ Implemented | `<Radio.Root><Radio.Indicator>` |
+| RadioGroup | `@base-ui/react` | ✓ Implemented | `<RadioGroup>` with options |
+| Select | `@base-ui/react` | ✓ Implemented | `<Select.Root><Select.Trigger>` |
+| Slider | `@base-ui/react` | ⏳ Pending | `<Slider.Root><Slider.Track>` |
+| Switch | `@base-ui/react` | ✓ Implemented | `<Switch.Root><Switch.Thumb>` |
+| NumberField | `@base-ui/react` | ✓ Implemented | `<NumberField.Root><NumberField.Input>` |
+| **Layout Components** | | | |
+| Separator | `@base-ui/react` | ✓ Implemented | `<Separator>` (not compound) |
+| Accordion | `@base-ui/react` | ⏳ Pending | `<Accordion.Root>` |
+| Tabs | `@base-ui/react` | ⏳ Pending | `<Tabs.Root>` |
+| **Navigation** | | | |
+| NavigationMenu | `@base-ui/react` | ✓ Implemented | `<Menu.Root><Menu.Popup>` (NWL nav component) |
+| **Dialog Components** | | | |
+| Dialog | `@base-ui/react` | ✓ Implemented | `<Dialog.Root><Dialog.Popup>` |
+| Menu | `@base-ui/react` | ⏳ Pending | `<Menu.Root><Menu.Popup>` (dropdown menu) |
+| **Form Structure** | | | |
+| Field | `@base-ui/react` | ⏳ Pending | `<Field.Root>` |
+| Fieldset | `@base-ui/react` | ⏳ Pending | `<Fieldset.Root>` |
+| Form | `@base-ui/react` | ⏳ Pending | `<Form>` |
+| **Advanced Components** | | | |
+| Progress | `@base-ui/react` | ⏳ Pending | `<Progress.Root>` |
+| Autocomplete | `@base-ui/react` | ⏳ Pending | `<Autocomplete.Root>` |
+| Tooltip | `@base-ui/react` | ⏳ Pending | `<Tooltip.Root>` |
+| Popover | `@base-ui/react` | ⏳ Pending | `<Popover.Root>` |
 
-##### BaseUI Component Usage in Generated Code
+**Note:** Badge, Alert, and Tag components are not available in Base UI v1.1.0 and have been removed from NWL. Use standard HTML elements with Tailwind CSS classes instead.
 
-All NWL components now generate BaseUI component code:
+#### Imported Component Usage
+
+All Base UI components are imported from the main package:
 
 ```tsx
-// Button component generates:
-import { Button } from '@base-ui/react/button';
-<Button className="..." onClick={...}>Click me</Button>
-
-// Select component generates:
-import { Select } from '@base-ui/react/select';
-<Select.Root items={[...]}>...</Select.Root>
-
-// RadioGroup component generates:
-import { Radio } from '@base-ui/react/radio';
-import { RadioGroup } from '@base-ui/react/radio-group';
-<RadioGroup>...</RadioGroup>
-
-// Dialog component generates:
-import { Dialog } from '@base-ui/react/dialog';
-<Dialog.Root>...</Dialog.Root>
-
-// Menu component generates:
-import { Menu } from '@base-ui/react/menu';
-<Menu.Root>...</Menu.Root>
+import {
+  Button,
+  Checkbox,
+  Radio,
+  RadioGroup,
+  Select,
+  Switch,
+  NumberField,
+  Separator,
+  Dialog,
+  Menu,
+} from '@base-ui/react';
 ```
 
-##### Component Mapping
+##### Button
+```tsx
+<Button className="..." onClick={...}>Click me</Button>
+```
 
-| NWL Element | BaseUI Component | Generated Code |
-|-------------|------------------|----------------|
-| `button` | Button | `<Button>` with props |
-| `select` | Select | `<Select.Root>` with items |
-| `radio-group` | RadioGroup | `<RadioGroup>` with options |
-| `modal` | Dialog | `<Dialog.Root>` components |
-| `menu` | Menu | `<Menu.Root>` with items |
+##### Checkbox
+```tsx
+<Checkbox.Root checked={checked} onCheckedChange={setChecked}>
+  <Checkbox.Indicator />
+</Checkbox.Root>
+```
+
+##### RadioGroup
+```tsx
+<RadioGroup defaultValue="option1">
+  <Radio.Root value="option1"><Radio.Indicator /></Radio.Root>
+</RadioGroup>
+```
+
+##### Select
+```tsx
+<Select.Root value={value} onValueChange={setValue}>
+  <Select.Trigger><Select.Value /></Select.Trigger>
+  <Select.Portal>
+    <Select.Positioner>
+      <Select.Popup>
+        <Select.Item value="..."><Select.ItemText /></Select.Item>
+      </Select.Popup>
+    </Select.Positioner>
+  </Select.Portal>
+</Select.Root>
+```
+
+##### Switch
+```tsx
+<Switch.Root checked={checked} onCheckedChange={setChecked}>
+  <Switch.Thumb />
+</Switch.Root>
+```
+
+##### NumberField
+```tsx
+<NumberField.Root value={value} onValueChange={setValue}>
+  <NumberField.Decrement />
+  <NumberField.Input />
+  <NumberField.Increment />
+</NumberField.Root>
+```
+
+##### Separator
+```tsx
+import { Separator } from '@base-ui/react';
+<Separator className="..." />
+```
+
+##### Dialog
+```tsx
+<Dialog.Root open={open} onOpenChange={setOpen}>
+  <Dialog.Trigger><Button>Open</Button></Dialog.Trigger>
+  <Dialog.Portal>
+    <Dialog.Backdrop />
+    <Dialog.Popup>Content</Dialog.Popup>
+  </Dialog.Portal>
+</Dialog.Root>
+```
+
+##### Menu (Base UI dropdown menu)
+```tsx
+<Menu.Root>
+  <Menu.Trigger><Button>Menu</Button></Menu.Trigger>
+  <Menu.Portal>
+    <Menu.Positioner>
+      <Menu.Popup>
+        <Menu.Item>Item 1</Menu.Item>
+      </Menu.Popup>
+    </Menu.Positioner>
+  </Menu.Portal>
+</Menu.Root>
+```
+
+##### NavigationMenu (NWL navigation component)
+```tsx
+<navigation-menu>
+  <Menu.Root>
+    <Menu.Trigger><Button>Menu</Button></Menu.Trigger>
+    <Menu.Portal>
+      <Menu.Positioner>
+        <Menu.Popup>
+          <Menu.Item>Item 1</Menu.Item>
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  </Menu.Root>
+</navigation-menu>
+```
 
 ### Phase 5: State Management - COMPLETED ✓
 
@@ -639,10 +742,10 @@ Industry is moving in this direction - see Power Apps, Bubble, Flutter, SwiftUI.
       - [ ] Add prop validation tests
 
 7. **Navigation Components**
-    - [ ] Implement `nav:` component for navigation bars
-    - [ ] Implement `menu:` component with hamburger menu for mobile
+    - [x] Implement `nav:` component for navigation bars
+    - [x] Implement `navigation-menu:` component with hamburger menu for mobile
     - [ ] Add mobile breakpoint configuration
-    - [ ] Support dropdown menus
+    - [ ] Support dropdown menus (Base UI Menu component)
 
 ### Medium Priority - CLI & DevOps
 
@@ -739,8 +842,9 @@ Try the `/playground` route to see:
 - Selection components (color picker, file upload, progress, toggle)
 - Navigation (tabs, breadcrumb, pagination, accordion)
 - Modal & dialogs
-- Indicators (badges, tags, spinner)
 - Input components (search, counter, copy button, avatar, chip input)
+
+**Note:** Badge, Alert, and Tag components are not available in Base UI v1.1.0 and have been removed from NWL. Use standard HTML elements with Tailwind CSS classes instead.
 
 ---
 
@@ -812,7 +916,7 @@ nav:
       href: /projects
   style: [fixed, top-0, w-full, bg-black]
 
-menu:
+navigation-menu:
   items:
     - label: Services
       href: /services

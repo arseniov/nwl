@@ -26,6 +26,8 @@ enum Commands {
         input: PathBuf,
         #[arg(short, long)]
         watch: bool,
+        #[arg(long)]
+        no_test: bool,
     },
     #[command(name = "compile")]
     Compile {
@@ -53,6 +55,8 @@ enum Commands {
         no_open: bool,
         #[arg(short, long)]
         watch: bool,
+        #[arg(long)]
+        no_test: bool,
     },
 }
 
@@ -60,11 +64,15 @@ fn main() {
     let args = Args::parse();
 
     match args.command {
-        Commands::Build { input, watch } => {
+        Commands::Build {
+            input,
+            watch,
+            no_test,
+        } => {
             if watch {
-                run_watch_build(input);
+                run_watch_build(input, no_test);
             } else {
-                run_build(input);
+                run_build(input, no_test);
             }
         }
         Commands::Compile { output, file } => {
@@ -83,21 +91,25 @@ fn main() {
             host,
             no_open,
             watch,
+            no_test,
         } => {
-            run_dev_server(input, port, host, no_open, watch);
+            run_dev_server(input, port, host, no_open, watch, no_test);
         }
     }
 }
 
-fn run_build(input: PathBuf) {
+fn run_build(input: PathBuf, no_test: bool) {
     println!("Building NWL project in {}", input.display());
     if !input.exists() {
         eprintln!("Error: Directory not found: {}", input.display());
         std::process::exit(1);
     }
-    match build_project(input) {
+    match build_project(input.clone()) {
         Ok(()) => {
             println!("Build successful! Routes generated automatically.");
+            if !no_test {
+                run_jsx_validation(&input);
+            }
         }
         Err(e) => {
             eprintln!("Build error: {}", e);
@@ -106,7 +118,7 @@ fn run_build(input: PathBuf) {
     }
 }
 
-fn run_watch_build(input: PathBuf) {
+fn run_watch_build(input: PathBuf, no_test: bool) {
     println!("Watching for changes in {}...", input.display());
     println!("Press Ctrl+C to stop.");
 
@@ -121,7 +133,7 @@ fn run_watch_build(input: PathBuf) {
     println!("Watching {} file(s)", paths.len());
 
     // Initial build
-    run_build(input.clone());
+    run_build(input.clone(), no_test);
 
     // Simple polling watcher
     let mut last_modified: Vec<(PathBuf, std::time::SystemTime)> = paths
@@ -142,7 +154,7 @@ fn run_watch_build(input: PathBuf) {
                     if let Some((_, last_mod)) = last_modified.iter().find(|(p, _)| p == path) {
                         if modified > *last_mod {
                             println!("\nDetected change in: {}", path.display());
-                            run_build(input.clone());
+                            run_build(input.clone(), no_test);
 
                             if let Ok(m) = path.metadata() {
                                 if let Ok(mtime) = m.modified() {
@@ -381,7 +393,47 @@ fn write_file(path: &PathBuf, content: &str) {
     }
 }
 
-fn run_dev_server(input: PathBuf, port: String, host: String, _no_open: bool, watch: bool) {
+fn run_jsx_validation(input: &PathBuf) {
+    println!("\nRunning JSX validation tests...");
+
+    let demo_src_path = input.join("src");
+    let test_file_path = demo_src_path.join("compiled-jsx.test.ts");
+
+    if !test_file_path.exists() {
+        println!("JSX test file not found, skipping validation.");
+        return;
+    }
+
+    let status = std::process::Command::new("npx")
+        .args(&["vitest", "run", "src/compiled-jsx.test.ts"])
+        .stdout(std::process::Stdio::inherit())
+        .stderr(std::process::Stdio::inherit())
+        .current_dir(input)
+        .status();
+
+    match status {
+        Ok(s) if s.success() => {
+            println!("JSX validation passed!");
+        }
+        Ok(_) => {
+            eprintln!("\nJSX validation failed! Please check the errors above.");
+            std::process::exit(1);
+        }
+        Err(e) => {
+            eprintln!("Failed to run JSX validation: {}", e);
+            std::process::exit(1);
+        }
+    }
+}
+
+fn run_dev_server(
+    input: PathBuf,
+    port: String,
+    host: String,
+    _no_open: bool,
+    watch: bool,
+    no_test: bool,
+) {
     println!("Starting NWL dev server...");
     println!("Port: {}", port);
     println!("Host: {}", host);
@@ -392,7 +444,7 @@ fn run_dev_server(input: PathBuf, port: String, host: String, _no_open: bool, wa
 
     // Build first
     println!("\nBuilding project...");
-    run_build(input.clone());
+    run_build(input.clone(), no_test);
 
     if watch {
         println!("\nStarting Vite dev server with watch mode...");
@@ -402,8 +454,9 @@ fn run_dev_server(input: PathBuf, port: String, host: String, _no_open: bool, wa
 
         // Start watch build in background thread
         let watch_input = input.clone();
+        let watch_no_test = no_test;
         std::thread::spawn(move || {
-            run_watch_build(watch_input);
+            run_watch_build(watch_input, watch_no_test);
         });
 
         // Start Vite dev server

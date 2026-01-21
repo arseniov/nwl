@@ -23,6 +23,8 @@ page:
       initial: 5
     - name: enableFeature
       initial: true
+    - name: dialogOpen
+      initial: false
   children:
     - element: nav
       style: [w-full]
@@ -230,7 +232,7 @@ page:
           style: [my-6]
 
         - element: heading
-          content: "Display Components"
+          content: "BaseUI Dialog & Menu"
           style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: layout
           layout:
@@ -241,59 +243,32 @@ page:
               style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
-                  content: "Badge"
+                  content: "6. Dialog"
                   style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: layout
-                  layout:
-                    type: row
-                    properties: [gap-2, flex-wrap]
+                - element: button
+                  content: "Open Dialog"
+                  onClick: "setDialogOpen(true)"
+                  style: [px-4, py-2, bg-blue-600, text-white, rounded, hover:bg-blue-700]
+                - element: dialog
+                  open: dialogOpen
+                  title: "Dialog Title"
+                  onClose: "setDialogOpen(false)"
                   children:
-                    - element: badge
-                      content: "Default"
-                    - element: badge
-                      content: "Success"
-                      style: [bg-green-100, text-green-800]
-                    - element: badge
-                      content: "Warning"
-                      style: [bg-yellow-100, text-yellow-800]
-                    - element: badge
-                      content: "Error"
-                      style: [bg-red-100, text-red-800]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "Alert Messages"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: alert
-                  content: "This is an informational alert message!"
-                  alertType: info
-                - element: alert
-                  content: "Success! Your changes have been saved."
-                  alertType: success
-                - element: alert
-                  content: "Warning: This action cannot be undone."
-                  alertType: warning
-                - element: alert
-                  content: "Error: Something went wrong."
-                  alertType: error
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "Tags"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: layout
-                  layout:
-                    type: row
-                    properties: [gap-2, flex-wrap]
-                  children:
-                    - element: tag
-                      content: "React"
-                    - element: tag
-                      content: "Rust"
-                    - element: tag
-                      content: "TypeScript"
+                    - element: text
+                      content: "This is the dialog content. It uses Base UI Dialog components with Portal, Backdrop, and Popup."
+                    - element: layout
+                      layout:
+                        type: row
+                        properties: [gap-2, justify-end, mt-4]
+                      children:
+                        - element: button
+                          content: "Cancel"
+                          onClick: "setDialogOpen(false)"
+                          style: [px-4, py-2, border, border-gray-300, rounded, hover:bg-gray-50]
+                        - element: button
+                          content: "Confirm"
+                          onClick: "setDialogOpen(false)"
+                          style: [px-4, py-2, bg-blue-600, text-white, rounded, hover:bg-blue-700]
 
         - element: spacer
           style: [my-8]

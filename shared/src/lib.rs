@@ -77,8 +77,8 @@ pub enum Element {
     Tabs(TabsElement),
     #[serde(rename = "accordion")]
     Accordion(AccordionElement),
-    #[serde(rename = "modal")]
-    Modal(ModalElement),
+    #[serde(rename = "dialog")]
+    Dialog(DialogElement),
     #[serde(rename = "badge")]
     Badge(BadgeElement),
     #[serde(rename = "tag")]
@@ -103,8 +103,8 @@ pub enum Element {
     ChipInput(ChipInputElement),
     #[serde(rename = "nav")]
     Nav(NavElement),
-    #[serde(rename = "menu")]
-    Menu(MenuElement),
+    #[serde(rename = "navigation-menu")]
+    NavigationMenu(NavigationMenuElement),
     #[serde(rename = "url")]
     Url(UrlElement),
     #[serde(rename = "email")]
@@ -492,11 +492,11 @@ pub struct AccordionElement {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ModalElement {
+pub struct DialogElement {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none", alias = "isOpen")]
-    pub bind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub open: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub onClose: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -675,7 +675,7 @@ pub struct NavElement {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct MenuElement {
+pub struct NavigationMenuElement {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub items: Vec<NavLink>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
