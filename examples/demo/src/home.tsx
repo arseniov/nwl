@@ -10,6 +10,12 @@ import {
   NumberField,
   Dialog,
   Menu,
+  Accordion,
+  Form,
+  Field,
+  Fieldset,
+  Tooltip,
+  Popover,
 } from '@base-ui/react';
 
 export default function Home() {

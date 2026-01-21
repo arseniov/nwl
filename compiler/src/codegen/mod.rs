@@ -1,7 +1,7 @@
 use nwl_shared::{
-    ButtonElement, CaptchaConfig, CardElement, ContainerElement, Document, FormElement,
-    HeadingElement, ImageElement, InputElement, LayoutElement, LayoutType, ListElement, PageData,
-    SpacerElement, TextElement,
+    ButtonElement, CaptchaConfig, CardElement, ContainerElement, Document, FieldElement,
+    FieldsetElement, FormElement, HeadingElement, ImageElement, InputElement, LayoutElement,
+    LayoutType, ListElement, PageData, PopoverElement, SpacerElement, TextElement, TooltipElement,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -35,6 +35,12 @@ impl ReactGenerator {
         output.push_str("  NumberField,\n");
         output.push_str("  Dialog,\n");
         output.push_str("  Menu,\n");
+        output.push_str("  Accordion,\n");
+        output.push_str("  Form,\n");
+        output.push_str("  Field,\n");
+        output.push_str("  Fieldset,\n");
+        output.push_str("  Tooltip,\n");
+        output.push_str("  Popover,\n");
         output.push_str("} from '@base-ui/react';\n\n");
 
         for page in &document.pages {
@@ -169,6 +175,8 @@ impl ReactGenerator {
             nwl_shared::Element::RadioGroup(radio) => Self::generate_radio_group(radio, indent),
             nwl_shared::Element::Textarea(textarea) => Self::generate_textarea(textarea, indent),
             nwl_shared::Element::Form(form) => Self::generate_form(form, indent),
+            nwl_shared::Element::Field(field) => Self::generate_field(field, indent),
+            nwl_shared::Element::Fieldset(fieldset) => Self::generate_fieldset(fieldset, indent),
             nwl_shared::Element::DateInput(date) => Self::generate_date_input(date, indent),
             nwl_shared::Element::TimeInput(time) => Self::generate_time_input(time, indent),
             nwl_shared::Element::DateTimeInput(datetime) => {
@@ -183,6 +191,8 @@ impl ReactGenerator {
                 Self::generate_accordion(accordion, indent)
             }
             nwl_shared::Element::Dialog(dialog) => Self::generate_dialog(dialog, indent),
+            nwl_shared::Element::Tooltip(tooltip) => Self::generate_tooltip(tooltip, indent),
+            nwl_shared::Element::Popover(popover) => Self::generate_popover(popover, indent),
             nwl_shared::Element::Badge(badge) => Self::generate_badge(badge, indent),
             nwl_shared::Element::Tag(tag) => Self::generate_tag(tag, indent),
             nwl_shared::Element::Alert(alert) => Self::generate_alert(alert, indent),
@@ -714,16 +724,17 @@ impl ReactGenerator {
         let indent_str = "  ".repeat(indent);
         let class_name = Self::format_style(&form.style);
 
-        let mut output = String::new();
-        let props = if class_name.is_empty() {
+        let wrapper_class = if class_name.is_empty() {
             String::new()
         } else {
-            format!(" className=\"{}\"", class_name)
+            format!(" {}", class_name)
         };
 
-        let on_submit = Self::generate_form_submit_handler(form);
-
-        output.push_str(&format!("{}<form{} {}>\n", indent_str, props, on_submit));
+        let mut output = String::new();
+        output.push_str(&format!(
+            "{}<Form className=\"flex flex-col gap-4{}\">\n",
+            indent_str, wrapper_class
+        ));
 
         for child in &form.children {
             output.push_str(&format!(
@@ -733,15 +744,87 @@ impl ReactGenerator {
             ));
         }
 
-        if let Some(captcha) = &form.captcha {
+        output.push_str(&format!("{}</Form>\n", indent_str));
+
+        Ok(output)
+    }
+
+    fn generate_field(field: &FieldElement, indent: usize) -> Result<String, CodegenError> {
+        let indent_str = "  ".repeat(indent);
+        let class_name = Self::format_style(&field.style);
+
+        let wrapper_class = if class_name.is_empty() {
+            String::new()
+        } else {
+            format!(" {}", class_name)
+        };
+
+        let mut output = String::new();
+        output.push_str(&format!(
+            "{}<Field.Root name=\"{}\"{}>\n",
+            indent_str, field.name, wrapper_class
+        ));
+
+        if let Some(label) = &field.label {
             output.push_str(&format!(
-                "{}  {}\n",
-                indent_str,
-                Self::generate_captcha(captcha, indent + 1)
+                "{}  <Field.Label className=\"text-sm font-medium text-gray-900\">{}</Field.Label>\n",
+                indent_str, label
             ));
         }
 
-        output.push_str(&format!("{}</form>\n", indent_str));
+        output.push_str(&format!(
+            "{}  <Field.Control className=\"h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800\"",
+            indent_str
+        ));
+
+        if let Some(placeholder) = &field.placeholder {
+            output.push_str(&format!(" placeholder=\"{}\"", placeholder));
+        }
+
+        output.push_str(&format!(" />\n"));
+
+        output.push_str(&format!(
+            "{}  <Field.Error className=\"text-sm text-red-800\" />\n",
+            indent_str
+        ));
+
+        output.push_str(&format!("{}</Field.Root>\n", indent_str));
+
+        Ok(output)
+    }
+
+    fn generate_fieldset(
+        fieldset: &FieldsetElement,
+        indent: usize,
+    ) -> Result<String, CodegenError> {
+        let indent_str = "  ".repeat(indent);
+        let class_name = Self::format_style(&fieldset.style);
+
+        let wrapper_class = if class_name.is_empty() {
+            String::new()
+        } else {
+            format!(" {}", class_name)
+        };
+
+        let mut output = String::new();
+        output.push_str(&format!("{}<Fieldset.Root{}>\n", indent_str, wrapper_class));
+
+        if let Some(legend) = &fieldset.legend {
+            output.push_str(&format!(
+                "{}  <Fieldset.Legend className=\"text-lg font-semibold text-gray-900 mb-2\">{}</Fieldset.Legend>\n",
+                indent_str, legend
+            ));
+        }
+
+        for child in &fieldset.children {
+            output.push_str(&format!(
+                "{}  {}\n",
+                indent_str,
+                Self::generate_element(child, indent + 1)?
+            ));
+        }
+
+        output.push_str(&format!("{}</Fieldset.Root>\n", indent_str));
 
         Ok(output)
     }
@@ -1238,25 +1321,54 @@ impl ReactGenerator {
         let indent_str = "  ".repeat(indent);
         let class_name = Self::format_style(&accordion.style);
 
-        let mut output = String::new();
+        let multiple_attr = if accordion.multiple == Some(true) {
+            " multiple"
+        } else {
+            ""
+        };
+
         let wrapper_class = if class_name.is_empty() {
             String::new()
         } else {
-            format!(" className=\"{}\"", class_name)
+            format!(" {}", class_name)
         };
 
-        output.push_str(&format!("{}<div{}>\n", indent_str, wrapper_class));
+        let mut output = String::new();
+        output.push_str(&format!(
+            "{}<Accordion.Root{}>\n",
+            indent_str, multiple_attr
+        ));
 
-        for item in &accordion.items {
-            let item_title = &item.title;
-            let item_content = &item.content;
+        for (index, item) in accordion.items.iter().enumerate() {
+            let item_value = format!("item-{}", index);
             output.push_str(&format!(
-                "{}  <details className=\"mb-2 border rounded-lg\">\n{}    <summary className=\"flex items-center justify-between p-4 font-medium cursor-pointer list-none\">{}      <svg className=\"w-5 h-5 ml-2 transition-transform\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M19 9l-7 7-7-7\"></path></svg>\n    </summary>{}    <div className=\"p-4 text-gray-600\">{}</div>\n  </details>\n",
-                indent_str, indent_str, item_title, indent_str, item_content
+                "{}  <Accordion.Item value=\"{}\" className=\"border-b border-gray-200\">\n",
+                indent_str, item_value
             ));
+            output.push_str(&format!(
+                "{}    <Accordion.Header className=\"flex\">\n",
+                indent_str
+            ));
+            output.push_str(&format!(
+                "{}      <Accordion.Trigger className=\"flex flex-1 items-center justify-between py-4 px-1 font-medium text-gray-900 hover:bg-gray-50 rounded-t-lg transition-colors group\">\n{}        {}\n",
+                indent_str, indent_str, item.title
+            ));
+            output.push_str(&format!(
+                "{}        <svg className=\"w-5 h-5 text-gray-500 transition-transform group-data-[open]:rotate-180\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\" strokeWidth=\"2\" strokeLinecap=\"round\" strokeLinejoin=\"round\"><path d=\"M6 9l6 6 6-6\"></path></svg>\n",
+                indent_str
+            ));
+            output.push_str(&format!("{}      </Accordion.Trigger>\n", indent_str));
+            output.push_str(&format!("{}    </Accordion.Header>\n", indent_str));
+            output.push_str(&format!(
+                "{}      <Accordion.Panel className=\"pb-4 px-1 text-gray-600\">\n",
+                indent_str
+            ));
+            output.push_str(&format!("{}        {}\n", indent_str, item.content));
+            output.push_str(&format!("{}      </Accordion.Panel>\n", indent_str));
+            output.push_str(&format!("{}  </Accordion.Item>\n", indent_str));
         }
 
-        output.push_str(&format!("{}</div>\n", indent_str));
+        output.push_str(&format!("{}</Accordion.Root>\n", indent_str));
 
         Ok(output)
     }
@@ -1344,6 +1456,110 @@ impl ReactGenerator {
         output.push_str(&format!("{}    </Dialog.Popup>\n", indent_str));
         output.push_str(&format!("{}  </Dialog.Portal>\n", indent_str));
         output.push_str(&format!("{}</Dialog.Root>\n", indent_str));
+
+        Ok(output)
+    }
+
+    fn generate_tooltip(
+        tooltip: &nwl_shared::TooltipElement,
+        indent: usize,
+    ) -> Result<String, CodegenError> {
+        let indent_str = "  ".repeat(indent);
+        let class_name = Self::format_style(&tooltip.style);
+
+        let side_offset = " sideOffset={8}";
+
+        let wrapper_class = if class_name.is_empty() {
+            String::new()
+        } else {
+            format!(" {}", class_name)
+        };
+
+        let popup_class = format!(
+            "bg-gray-900 text-white text-sm rounded px-3 py-2 shadow-lg{}",
+            wrapper_class
+        );
+
+        let mut output = String::new();
+        output.push_str(&format!("{}<Tooltip.Provider>\n", indent_str));
+        output.push_str(&format!("{}  <Tooltip.Root>\n", indent_str));
+
+        if let Some(trigger) = &tooltip.trigger {
+            output.push_str(&format!(
+                "{}    <Tooltip.Trigger>\n{}      {}\n{}    </Tooltip.Trigger>\n",
+                indent_str, indent_str, trigger, indent_str
+            ));
+        }
+
+        output.push_str(&format!("{}    <Tooltip.Portal>\n", indent_str));
+        output.push_str(&format!(
+            "{}      <Tooltip.Positioner sideOffset={{8}}>\n",
+            indent_str
+        ));
+        output.push_str(&format!(
+            "{}        <Tooltip.Popup className=\"{}\">\n",
+            indent_str, popup_class
+        ));
+        output.push_str(&format!("{}          {}\n", indent_str, tooltip.content));
+        output.push_str(&format!("{}        </Tooltip.Popup>\n", indent_str));
+        output.push_str(&format!("{}      </Tooltip.Positioner>\n", indent_str));
+        output.push_str(&format!("{}    </Tooltip.Portal>\n", indent_str));
+        output.push_str(&format!("{}  </Tooltip.Root>\n", indent_str));
+        output.push_str(&format!("{}</Tooltip.Provider>\n", indent_str));
+
+        Ok(output)
+    }
+
+    fn generate_popover(
+        popover: &nwl_shared::PopoverElement,
+        indent: usize,
+    ) -> Result<String, CodegenError> {
+        let indent_str = "  ".repeat(indent);
+        let class_name = Self::format_style(&popover.style);
+
+        let wrapper_class = if class_name.is_empty() {
+            String::new()
+        } else {
+            format!(" {}", class_name)
+        };
+
+        let popup_class = format!(
+            "bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[200px]{}",
+            wrapper_class
+        );
+
+        let mut output = String::new();
+        output.push_str(&format!("{}<Popover.Root>\n", indent_str));
+
+        if let Some(trigger) = &popover.trigger {
+            output.push_str(&format!(
+                "{}  <Popover.Trigger>\n{}    {}\n{}  </Popover.Trigger>\n",
+                indent_str, indent_str, trigger, indent_str
+            ));
+        }
+
+        output.push_str(&format!("{}  <Popover.Portal>\n", indent_str));
+        output.push_str(&format!(
+            "{}    <Popover.Positioner sideOffset={{8}}>\n",
+            indent_str
+        ));
+        output.push_str(&format!(
+            "{}      <Popover.Popup className=\"{}\">\n",
+            indent_str, popup_class
+        ));
+
+        if let Some(title) = &popover.title {
+            output.push_str(&format!(
+                "{}        <Popover.Title className=\"font-semibold text-gray-900 mb-2\">{}</Popover.Title>\n",
+                indent_str, title
+            ));
+        }
+
+        output.push_str(&format!("{}        {}\n", indent_str, popover.content));
+        output.push_str(&format!("{}      </Popover.Popup>\n", indent_str));
+        output.push_str(&format!("{}    </Popover.Positioner>\n", indent_str));
+        output.push_str(&format!("{}  </Popover.Portal>\n", indent_str));
+        output.push_str(&format!("{}</Popover.Root>\n", indent_str));
 
         Ok(output)
     }
@@ -1880,28 +2096,54 @@ impl ReactGenerator {
         let props_str = if class_name.is_empty() {
             String::new()
         } else {
-            format!(" className=\"{}\"", class_name)
+            format!(" {}", class_name)
         };
 
         let mut output = String::new();
         output.push_str(&format!("{}<div className=\"relative\">\n", indent_str));
-        output.push_str(&format!(
-            "{}  <div className=\"flex items-center justify-between px-6 py-4 bg-black\">\n",
-            indent_str
-        ));
 
         if menu.hamburger == Some(true) {
-            output.push_str(&format!("{}    <Menu.Trigger asChild>\n", indent_str));
             output.push_str(&format!(
-                "{}      <Button variant=\"soft\" className=\"md:hidden\">\n",
+                "{}  <div className=\"flex items-center justify-between px-6 py-4{}\">\n",
+                indent_str, props_str
+            ));
+            output.push_str(&format!(
+                "{}    <div className=\"hidden md:flex gap-4\">\n",
                 indent_str
             ));
-            output.push_str(&format!("{}        <svg className=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M4 6h16M4 12h16M4 18h16\"></path></svg>\n", indent_str));
-            output.push_str(&format!("{}      </Button>\n", indent_str));
-            output.push_str(&format!("{}    </Menu.Trigger>\n", indent_str));
+            for link in &menu.items {
+                let href = link.href.as_deref().unwrap_or("#");
+                output.push_str(&format!(
+                    "{}      <a href=\"{}\" className=\"text-gray-300 hover:text-white transition-colors\">{}</a>\n",
+                    indent_str, href, link.label
+                ));
+            }
+            output.push_str(&format!("{}    </div>\n", indent_str));
+            output.push_str(&format!(
+                "{}    <Button variant=\"soft\" className=\"md:hidden\">\n",
+                indent_str
+            ));
+            output.push_str(&format!(
+                "{}      <svg className=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\" strokeWidth=\"2\" strokeLinecap=\"round\" strokeLinejoin=\"round\"><path d=\"M4 6h16M4 12h16M4 18h16\"></path></svg>\n",
+                indent_str
+            ));
+            output.push_str(&format!("{}    </Button>\n", indent_str));
+            output.push_str(&format!("{}  </div>\n", indent_str));
+        } else {
+            output.push_str(&format!(
+                "{}  <div className=\"flex items-center justify-between px-6 py-4{}\">\n",
+                indent_str, props_str
+            ));
+            for link in &menu.items {
+                let href = link.href.as_deref().unwrap_or("#");
+                output.push_str(&format!(
+                    "{}    <a href=\"{}\" className=\"text-gray-300 hover:text-white transition-colors\">{}</a>\n",
+                    indent_str, href, link.label
+                ));
+            }
+            output.push_str(&format!("{}  </div>\n", indent_str));
         }
 
-        output.push_str(&format!("{}  </div>\n", indent_str));
         output.push_str(&format!("{}  <Menu.Root>\n", indent_str));
         output.push_str(&format!("{}    <Menu.Portal>\n", indent_str));
         output.push_str(&format!(

@@ -59,6 +59,10 @@ pub enum Element {
     Textarea(TextareaElement),
     #[serde(rename = "form")]
     Form(FormElement),
+    #[serde(rename = "field")]
+    Field(FieldElement),
+    #[serde(rename = "fieldset")]
+    Fieldset(FieldsetElement),
     #[serde(rename = "date-input")]
     DateInput(DateInputElement),
     #[serde(rename = "time-input")]
@@ -79,6 +83,10 @@ pub enum Element {
     Accordion(AccordionElement),
     #[serde(rename = "dialog")]
     Dialog(DialogElement),
+    #[serde(rename = "tooltip")]
+    Tooltip(TooltipElement),
+    #[serde(rename = "popover")]
+    Popover(PopoverElement),
     #[serde(rename = "badge")]
     Badge(BadgeElement),
     #[serde(rename = "tag")]
@@ -335,6 +343,27 @@ pub struct FormElement {
     pub captcha: Option<CaptchaConfig>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub onValidationError: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub children: Vec<Element>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FieldElement {
+    pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub placeholder: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FieldsetElement {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub legend: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub children: Vec<Element>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -686,6 +715,34 @@ pub struct NavigationMenuElement {
     pub style: Vec<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub mobileStyle: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TooltipElement {
+    pub content: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub trigger: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub open: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub side: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PopoverElement {
+    pub content: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub trigger: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub open: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub side: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub style: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

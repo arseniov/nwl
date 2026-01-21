@@ -51,6 +51,12 @@ describe('Compiled JSX Validation', () => {
       'NumberField',
       'Dialog',
       'Menu',
+      'Accordion',
+      'Form',
+      'Field',
+      'Fieldset',
+      'Tooltip',
+      'Popover',
     ]
 
     for (const component of expectedComponents) {
@@ -89,5 +95,45 @@ describe('Compiled JSX Validation', () => {
     expect(content).toMatch(/<RadioGroup[^>]*>/)
     expect(content).toMatch(/<Radio\.Root[^>]*>/)
     expect(content).toMatch(/<Radio\.Indicator[^>]*\/?>/)
+
+    // Check Accordion structure
+    expect(content).toMatch(/<Accordion\.Root[^>]*>/)
+    expect(content).toMatch(/<Accordion\.Item[^>]*>/)
+    expect(content).toMatch(/<Accordion\.Header[^>]*>/)
+    expect(content).toMatch(/<Accordion\.Trigger[^>]*>/)
+    expect(content).toMatch(/<Accordion\.Panel[^>]*>/)
+
+    // Check Form/Field structure
+    expect(content).toMatch(/<Form[^>]*>/)
+    expect(content).toMatch(/<Field\.Root[^>]*>/)
+    expect(content).toMatch(/<Field\.Label[^>]*>/)
+    expect(content).toMatch(/<Field\.Control[^>]*\/?>/)
+    expect(content).toMatch(/<Field\.Error[^>]*>/)
+
+    // Check Fieldset structure
+    expect(content).toMatch(/<Fieldset\.Root[^>]*>/)
+    expect(content).toMatch(/<Fieldset\.Legend[^>]*>/)
+
+    // Check Tooltip structure
+    expect(content).toMatch(/<Tooltip\.Provider[^>]*>/)
+    expect(content).toMatch(/<Tooltip\.Root[^>]*>/)
+    expect(content).toMatch(/<Tooltip\.Trigger[^>]*>/)
+    expect(content).toMatch(/<Tooltip\.Portal[^>]*>/)
+    expect(content).toMatch(/<Tooltip\.Positioner[^>]*>/)
+    expect(content).toMatch(/<Tooltip\.Popup[^>]*>/)
+
+    // Check Popover structure
+    expect(content).toMatch(/<Popover\.Root[^>]*>/)
+    expect(content).toMatch(/<Popover\.Trigger[^>]*>/)
+    expect(content).toMatch(/<Popover\.Portal[^>]*>/)
+    expect(content).toMatch(/<Popover\.Positioner[^>]*>/)
+    expect(content).toMatch(/<Popover\.Popup[^>]*>/)
+
+    // Check NavigationMenu structure (NWL nav component using Base UI Menu)
+    expect(content).toMatch(/<Menu\.Root[^>]*>/)
+    expect(content).toMatch(/<Menu\.Portal[^>]*>/)
+    expect(content).toMatch(/<Menu\.Positioner[^>]*>/)
+    expect(content).toMatch(/<Menu\.Popup[^>]*>/)
+    expect(content).toMatch(/<Menu\.Item[^>]*>/)
   })
 })

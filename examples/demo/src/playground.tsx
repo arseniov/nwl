@@ -10,6 +10,12 @@ import {
   NumberField,
   Dialog,
   Menu,
+  Accordion,
+  Form,
+  Field,
+  Fieldset,
+  Tooltip,
+  Popover,
 } from '@base-ui/react';
 
 export default function Playground() {
@@ -135,11 +141,11 @@ export default function Playground() {
 
                 <div className="p-4 border border-gray-200 rounded-lg">
                     <h1 className="text-base font-semibold text-gray-900 mb-3">Form with Validation</h1>
-                    <form onSubmit={(e) => { e.preventDefault(); let _hasError = false; if (!email.trim()) { console.error('Email is required'); _hasError = true; } if (!new RegExp('^[^@]+@[^@]+.[^@]+$').test(email)) { console.error('Please enter a valid email address'); _hasError = true; } if (!password.trim()) { console.error('Password is required'); _hasError = true; } if (password.length < 8) { console.error('Password must be at least 8 characters'); _hasError = true; } if (_hasError) { console.error('Validation failed'); setFormStatus('Validation failed!'); return; } setFormStatus('Submitted!') }}>
+                    <Form className="flex flex-col gap-4">
                         <input className="w-full border border-gray-300 rounded px-3 py-2 mb-2" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
                         <input className="w-full border border-gray-300 rounded px-3 py-2 mb-2" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
                         <Button className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit</Button>
-          </form>
+          </Form>
 
                     <p className="text-sm mt-2">{formStatus}</p>
         </div>
@@ -173,6 +179,164 @@ export default function Playground() {
             </Dialog.Portal>
           </Dialog.Root>
 
+        </div>
+
+      </div>
+
+            <Separator className="w-full h-6 my-4" />
+            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Layout Components</h1>
+            <div className="p-4 border border-gray-200 rounded-lg mb-4">
+                <h1 className="text-base font-semibold text-gray-900 mb-3">7. Accordion</h1>
+                <Accordion.Root multiple>
+          <Accordion.Item value="item-0" className="border-b border-gray-200">
+            <Accordion.Header className="flex">
+              <Accordion.Trigger className="flex flex-1 items-center justify-between py-4 px-1 font-medium text-gray-900 hover:bg-gray-50 rounded-t-lg transition-colors group">
+                What is NWL?
+                <svg className="w-5 h-5 text-gray-500 transition-transform group-data-[open]:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+              </Accordion.Trigger>
+            </Accordion.Header>
+              <Accordion.Panel className="pb-4 px-1 text-gray-600">
+                NWL (Natural Web Language) is a domain-specific language that compiles YAML to production-ready React code.
+              </Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item value="item-1" className="border-b border-gray-200">
+            <Accordion.Header className="flex">
+              <Accordion.Trigger className="flex flex-1 items-center justify-between py-4 px-1 font-medium text-gray-900 hover:bg-gray-50 rounded-t-lg transition-colors group">
+                How does it work?
+                <svg className="w-5 h-5 text-gray-500 transition-transform group-data-[open]:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+              </Accordion.Trigger>
+            </Accordion.Header>
+              <Accordion.Panel className="pb-4 px-1 text-gray-600">
+                The Rust compiler reads YAML files and generates TypeScript React components with Tailwind CSS styling.
+              </Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item value="item-2" className="border-b border-gray-200">
+            <Accordion.Header className="flex">
+              <Accordion.Trigger className="flex flex-1 items-center justify-between py-4 px-1 font-medium text-gray-900 hover:bg-gray-50 rounded-t-lg transition-colors group">
+                Why Base UI?
+                <svg className="w-5 h-5 text-gray-500 transition-transform group-data-[open]:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+              </Accordion.Trigger>
+            </Accordion.Header>
+              <Accordion.Panel className="pb-4 px-1 text-gray-600">
+                Base UI provides accessible, unstyled components that work perfectly with NWL's Tailwind-first approach.
+              </Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>
+
+      </div>
+
+            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Form Components</h1>
+            <div className="p-4 border border-gray-200 rounded-lg mb-4">
+                <h1 className="text-base font-semibold text-gray-900 mb-3">8. Field & Fieldset</h1>
+                <Fieldset.Root>
+          <Fieldset.Legend className="text-lg font-semibold text-gray-900 mb-2">Personal Information</Fieldset.Legend>
+                    <Field.Root name="fullName">
+            <Field.Label className="text-sm font-medium text-gray-900">Full Name</Field.Label>
+            <Field.Control className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" placeholder="Enter your name" />
+            <Field.Error className="text-sm text-red-800" />
+          </Field.Root>
+
+                    <Field.Root name="email">
+            <Field.Label className="text-sm font-medium text-gray-900">Email Address</Field.Label>
+            <Field.Control className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" placeholder="you@example.com" />
+            <Field.Error className="text-sm text-red-800" />
+          </Field.Root>
+
+        </Fieldset.Root>
+
+      </div>
+
+            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Tooltip & Popover</h1>
+            <div className="flex flex-row gap-4">
+                <div className="p-4 border border-gray-200 rounded-lg flex-1">
+                    <h1 className="text-base font-semibold text-gray-900 mb-3">9. Tooltip</h1>
+                    <Tooltip.Provider>
+            <Tooltip.Root>
+              <Tooltip.Trigger>
+                Hover me
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Positioner sideOffset={8}>
+                  <Tooltip.Popup className="bg-gray-900 text-white text-sm rounded px-3 py-2 shadow-lg">
+                    This is a helpful tooltip message!
+                  </Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </Tooltip.Provider>
+
+        </div>
+
+                <div className="p-4 border border-gray-200 rounded-lg flex-1">
+                    <h1 className="text-base font-semibold text-gray-900 mb-3">10. Popover</h1>
+                    <Popover.Root>
+            <Popover.Trigger>
+              Click me
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner sideOffset={8}>
+                <Popover.Popup className="bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[200px]">
+                  <Popover.Title className="font-semibold text-gray-900 mb-2">Popover Title</Popover.Title>
+                  This is the popover content. It can contain any elements and is positioned relative to the trigger.
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+
+        </div>
+
+      </div>
+
+            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Navigation</h1>
+            <div className="p-4 border border-gray-200 rounded-lg mb-4">
+                <h1 className="text-base font-semibold text-gray-900 mb-3">11. NavigationMenu</h1>
+                <div className="relative">
+          <div className="flex items-center justify-between px-6 py-4 bg-white rounded-lg border border-gray-200">
+            <div className="hidden md:flex gap-4">
+              <a href="/" className="text-gray-300 hover:text-white transition-colors">Home</a>
+              <a href="/features" className="text-gray-300 hover:text-white transition-colors">Features</a>
+              <a href="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
+              <a href="/about" className="text-gray-300 hover:text-white transition-colors">About</a>
+              <a href="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</a>
+            </div>
+            <Button variant="soft" className="md:hidden">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </Button>
+          </div>
+          <Menu.Root>
+            <Menu.Portal>
+              <Menu.Positioner sideOffset={8} className="z-50">
+                <Menu.Popup className="min-w-[200px] p-1 bg-white border rounded-lg shadow-lg">
+                  <Menu.Arrow className="fill-white" />
+                  <Menu.Item key={0} asChild>
+                    <a href="/" className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer">
+                      Home
+                    </a>
+                  </Menu.Item>
+                  <Menu.Item key={1} asChild>
+                    <a href="/features" className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer">
+                      Features
+                    </a>
+                  </Menu.Item>
+                  <Menu.Item key={2} asChild>
+                    <a href="/pricing" className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer">
+                      Pricing
+                    </a>
+                  </Menu.Item>
+                  <Menu.Item key={3} asChild>
+                    <a href="/about" className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer">
+                      About
+                    </a>
+                  </Menu.Item>
+                  <Menu.Item key={4} asChild>
+                    <a href="/contact" className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer">
+                      Contact
+                    </a>
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
         </div>
 
       </div>

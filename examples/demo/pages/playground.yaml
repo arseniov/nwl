@@ -271,4 +271,100 @@ page:
                           style: [px-4, py-2, bg-blue-600, text-white, rounded, hover:bg-blue-700]
 
         - element: spacer
+          style: [my-6]
+
+        - element: heading
+          content: "BaseUI Layout Components"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
+        - element: card
+          style: [p-4, border, border-gray-200, rounded-lg, mb-4]
+          children:
+            - element: heading
+              content: "7. Accordion"
+              style: [text-base, font-semibold, text-gray-900, mb-3]
+            - element: accordion
+              multiple: true
+              items:
+                - title: "What is NWL?"
+                  content: "NWL (Natural Web Language) is a domain-specific language that compiles YAML to production-ready React code."
+                - title: "How does it work?"
+                  content: "The Rust compiler reads YAML files and generates TypeScript React components with Tailwind CSS styling."
+                - title: "Why Base UI?"
+                  content: "Base UI provides accessible, unstyled components that work perfectly with NWL's Tailwind-first approach."
+
+        - element: heading
+          content: "BaseUI Form Components"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
+        - element: card
+          style: [p-4, border, border-gray-200, rounded-lg, mb-4]
+          children:
+            - element: heading
+              content: "8. Field & Fieldset"
+              style: [text-base, font-semibold, text-gray-900, mb-3]
+            - element: fieldset
+              legend: "Personal Information"
+              children:
+                - element: field
+                  name: "fullName"
+                  label: "Full Name"
+                  placeholder: "Enter your name"
+                - element: field
+                  name: "email"
+                  label: "Email Address"
+                  placeholder: "you@example.com"
+
+        - element: heading
+          content: "BaseUI Tooltip & Popover"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
+        - element: layout
+          layout:
+            type: row
+            properties: [gap-4]
+          children:
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg, flex-1]
+              children:
+                - element: heading
+                  content: "9. Tooltip"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: tooltip
+                  content: "This is a helpful tooltip message!"
+                  trigger: "Hover me"
+            - element: card
+              style: [p-4, border, border-gray-200, rounded-lg, flex-1]
+              children:
+                - element: heading
+                  content: "10. Popover"
+                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                - element: popover
+                  title: "Popover Title"
+                  content: "This is the popover content. It can contain any elements and is positioned relative to the trigger."
+                  trigger: "Click me"
+
+        - element: heading
+          content: "BaseUI Navigation"
+          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
+        - element: card
+          style: [p-4, border, border-gray-200, rounded-lg, mb-4]
+          children:
+            - element: heading
+              content: "11. NavigationMenu"
+              style: [text-base, font-semibold, text-gray-900, mb-3]
+            - element: navigation-menu
+              hamburger: true
+              mobileBreakpoint: 768
+              style: [bg-white, rounded-lg, border, border-gray-200]
+              items:
+                - label: "Home"
+                  href: "/"
+                - label: "Features"
+                  href: "/features"
+                - label: "Pricing"
+                  href: "/pricing"
+                - label: "About"
+                  href: "/about"
+                - label: "Contact"
+                  href: "/contact"
+
+        - element: spacer
           style: [my-8]

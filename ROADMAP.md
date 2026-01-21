@@ -213,7 +213,7 @@ NWL uses [Base UI v1.1.0](https://base-ui.com/react) as its default component li
 | NumberField | `@base-ui/react` | ✓ Implemented | `<NumberField.Root><NumberField.Input>` |
 | **Layout Components** | | | |
 | Separator | `@base-ui/react` | ✓ Implemented | `<Separator>` (not compound) |
-| Accordion | `@base-ui/react` | ⏳ Pending | `<Accordion.Root>` |
+| Accordion | `@base-ui/react` | ✓ Implemented | `<Accordion.Root>` |
 | Tabs | `@base-ui/react` | ⏳ Pending | `<Tabs.Root>` |
 | **Navigation** | | | |
 | NavigationMenu | `@base-ui/react` | ✓ Implemented | `<Menu.Root><Menu.Popup>` (NWL nav component) |
@@ -221,14 +221,14 @@ NWL uses [Base UI v1.1.0](https://base-ui.com/react) as its default component li
 | Dialog | `@base-ui/react` | ✓ Implemented | `<Dialog.Root><Dialog.Popup>` |
 | Menu | `@base-ui/react` | ⏳ Pending | `<Menu.Root><Menu.Popup>` (dropdown menu) |
 | **Form Structure** | | | |
-| Field | `@base-ui/react` | ⏳ Pending | `<Field.Root>` |
-| Fieldset | `@base-ui/react` | ⏳ Pending | `<Fieldset.Root>` |
-| Form | `@base-ui/react` | ⏳ Pending | `<Form>` |
+| Field | `@base-ui/react` | ✓ Implemented | `<Field.Root>` |
+| Fieldset | `@base-ui/react` | ✓ Implemented | `<Fieldset.Root>` |
+| Form | `@base-ui/react` | ✓ Implemented | `<Form>` |
 | **Advanced Components** | | | |
 | Progress | `@base-ui/react` | ⏳ Pending | `<Progress.Root>` |
 | Autocomplete | `@base-ui/react` | ⏳ Pending | `<Autocomplete.Root>` |
-| Tooltip | `@base-ui/react` | ⏳ Pending | `<Tooltip.Root>` |
-| Popover | `@base-ui/react` | ⏳ Pending | `<Popover.Root>` |
+| Tooltip | `@base-ui/react` | ✓ Implemented | `<Tooltip.Root>` |
+| Popover | `@base-ui/react` | ✓ Implemented | `<Popover.Root>` |
 
 **Note:** Badge, Alert, and Tag components are not available in Base UI v1.1.0 and have been removed from NWL. Use standard HTML elements with Tailwind CSS classes instead.
 
