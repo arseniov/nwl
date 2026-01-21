@@ -191,41 +191,58 @@ Complete the `nwl` CLI with a single bundled executable:
 3. [x] Hot reload (via Vite)
 4. [x] Error messages with YAML line/column
 
-### Phase 4: Prebuilt Components - COMPLETED ✓
+### Phase 4: Prebuilt Components - BaseUI Integration - IN PROGRESS ✓
 
-- [x] Button
-- [x] Card
-- [x] Input
-- [x] Checkbox
-- [x] Slider
-- [x] Select
-- [x] RadioGroup
-- [x] Textarea
-- [x] Form
-- [x] Modal
-- [x] Table
-- [x] Tabs
-- [x] Breadcrumb
-- [x] Pagination
-- [x] Accordion
-- [x] Alert
-- [x] Badge
-- [x] Tag
-- [x] Spinner
-- [x] Progress
-- [x] Toggle
-- [x] DateInput
-- [x] TimeInput
-- [x] DateTimeInput
-- [x] ColorPicker
-- [x] FileUpload
-- [x] SearchInput
-- [x] Counter
-- [x] CopyButton
-- [x] Avatar
-- [x] ChipInput
-- [x] Nav (navigation bar)
-- [x] Menu (with hamburger mobile menu)
+#### BaseUI Component Library Integration
+
+NWL now uses [Base UI](https://base-ui.com/react) as its default component library. Base UI provides unstyled, accessible React components that are perfect for the NWL compiler since they generate clean, production-ready code while allowing full styling control via Tailwind CSS.
+
+##### Implemented BaseUI Components
+
+| Component | BaseUI Import | Status |
+|-----------|---------------|--------|
+| Button | `@base-ui/react/button` | ✓ Implemented |
+| Select | `@base-ui/react/select` | ✓ Implemented |
+| RadioGroup | `@base-ui/react/radio-group` | ✓ Implemented |
+| Dialog | `@base-ui/react/dialog` | ✓ Implemented |
+| Menu | `@base-ui/react/menu` | ✓ Implemented |
+
+##### BaseUI Component Usage in Generated Code
+
+All NWL components now generate BaseUI component code:
+
+```tsx
+// Button component generates:
+import { Button } from '@base-ui/react/button';
+<Button className="..." onClick={...}>Click me</Button>
+
+// Select component generates:
+import { Select } from '@base-ui/react/select';
+<Select.Root items={[...]}>...</Select.Root>
+
+// RadioGroup component generates:
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup } from '@base-ui/react/radio-group';
+<RadioGroup>...</RadioGroup>
+
+// Dialog component generates:
+import { Dialog } from '@base-ui/react/dialog';
+<Dialog.Root>...</Dialog.Root>
+
+// Menu component generates:
+import { Menu } from '@base-ui/react/menu';
+<Menu.Root>...</Menu.Root>
+```
+
+##### Component Mapping
+
+| NWL Element | BaseUI Component | Generated Code |
+|-------------|------------------|----------------|
+| `button` | Button | `<Button>` with props |
+| `select` | Select | `<Select.Root>` with items |
+| `radio-group` | RadioGroup | `<RadioGroup>` with options |
+| `modal` | Dialog | `<Dialog.Root>` components |
+| `menu` | Menu | `<Menu.Root>` with items |
 
 ### Phase 5: State Management - COMPLETED ✓
 

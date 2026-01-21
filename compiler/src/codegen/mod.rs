@@ -19,10 +19,17 @@ impl ReactGenerator {
         let has_state = document.pages.iter().any(|p| !p.page_data.state.is_empty());
 
         if has_state {
-            output.push_str("import React, { useState } from 'react';\n\n");
+            output.push_str("import React, { useState } from 'react';\n");
         } else {
-            output.push_str("import React from 'react';\n\n");
+            output.push_str("import React from 'react';\n");
         }
+
+        output.push_str("import { Button } from '@base-ui/react/button';\n");
+        output.push_str("import { Select } from '@base-ui/react/select';\n");
+        output.push_str("import { Radio } from '@base-ui/react/radio';\n");
+        output.push_str("import { RadioGroup } from '@base-ui/react/radio-group';\n");
+        output.push_str("import { Dialog } from '@base-ui/react/dialog';\n");
+        output.push_str("import { Menu } from '@base-ui/react/menu';\n\n");
 
         for page in &document.pages {
             output.push_str(&Self::generate_page(&page.page_data)?);
@@ -247,7 +254,7 @@ impl ReactGenerator {
         };
 
         Ok(format!(
-            "{}<button{}>{}</button>",
+            "{}<Button{}>{}</Button>",
             indent_str, props_str, button.content
         ))
     }
@@ -535,50 +542,52 @@ impl ReactGenerator {
         let indent_str = "  ".repeat(indent);
         let class_name = Self::format_style(&select.style);
 
-        let mut props = Vec::new();
-        if !class_name.is_empty() {
-            props.push(format!("className=\"{}\"", class_name));
-        }
-
-        if let Some(bind) = &select.bind {
+        let bind_handling = if let Some(bind) = &select.bind {
             let camel_name = Self::to_camel_case(bind);
-            let setter_name = format!("set{}", Self::to_pascal_case(bind));
-            props.push(format!("value={{{}}}", camel_name));
-            props.push(format!(
-                "onChange={{(e) => {}(e.target.value)}}",
-                setter_name
-            ));
-        }
-
-        if let Some(onChange) = &select.onChange {
-            props.push(format!("onChange={{(e) => {}}}", onChange));
-        }
-
-        let props_str = if props.is_empty() {
-            String::new()
+            format!("value={{{}}}", camel_name)
         } else {
-            format!(" {}", props.join(" "))
+            String::new()
         };
 
-        let mut options = String::new();
-        if let Some(placeholder) = &select.placeholder {
-            options.push_str(&format!(
-                "{}<option value=\"\" disabled>{}</option>\n",
-                indent_str, placeholder
-            ));
-        }
+        let props_str = if class_name.is_empty() {
+            String::new()
+        } else {
+            format!(" className=\"{}\"", class_name)
+        };
+
+        let mut output = String::new();
+        output.push_str(&format!("{}<Select.Root>\n", indent_str));
+        output.push_str(&format!("{}  <Select.Trigger{}>\n", indent_str, props_str));
+        output.push_str(&format!(
+            "{}    <Select.Value {} />\n",
+            indent_str, bind_handling
+        ));
+        output.push_str(&format!("{}    <Select.Icon />\n", indent_str));
+        output.push_str(&format!("{}  </Select.Trigger>\n", indent_str));
+        output.push_str(&format!("{}  <Select.Portal>\n", indent_str));
+        output.push_str(&format!(
+            "{}    <Select.Positioner sideOffset={{8}}>\n",
+            indent_str
+        ));
+        output.push_str(&format!(
+            "{}      <Select.Popup className=\"p-1 bg-white border rounded-lg shadow-lg\">\n",
+            indent_str
+        ));
+
         for opt in &select.options {
             let label = opt.label.as_ref().unwrap_or(&opt.value);
-            options.push_str(&format!(
-                "{}<option value=\"{}\">{}</option>\n",
-                indent_str, opt.value, label
+            output.push_str(&format!(
+                "{}        <Select.Item value=\"{}\" className=\"px-3 py-2 cursor-pointer hover:bg-gray-100 rounded\">\n{}          <Select.ItemText>{}</Select.ItemText>\n{}        </Select.Item>\n",
+                indent_str, opt.value, indent_str, label, indent_str
             ));
         }
 
-        Ok(format!(
-            "{}<select{}>\n{}{}</select>",
-            indent_str, props_str, options, indent_str
-        ))
+        output.push_str(&format!("{}      </Select.Popup>\n", indent_str));
+        output.push_str(&format!("{}    </Select.Positioner>\n", indent_str));
+        output.push_str(&format!("{}  </Select.Portal>\n", indent_str));
+        output.push_str(&format!("{}</Select.Root>", indent_str));
+
+        Ok(output)
     }
 
     fn generate_radio_group(
@@ -588,54 +597,48 @@ impl ReactGenerator {
         let indent_str = "  ".repeat(indent);
         let class_name = Self::format_style(&radio.style);
 
-        let mut output = String::new();
         let wrapper_class = if class_name.is_empty() {
             String::new()
         } else {
             format!(" className=\"{}\"", class_name)
         };
 
-        output.push_str(&format!("{}<div{}>\n", indent_str, wrapper_class));
+        let default_value = if radio.bind.is_some() {
+            if let Some(initial) = radio.options.first() {
+                format!(" defaultValue=\"{}\"", initial.value)
+            } else {
+                String::new()
+            }
+        } else {
+            if let Some(initial) = radio.options.first() {
+                format!(" defaultValue=\"{}\"", initial.value)
+            } else {
+                String::new()
+            }
+        };
+
+        let mut output = String::new();
+        output.push_str(&format!(
+            "{}<RadioGroup{}{}>\n",
+            indent_str, wrapper_class, default_value
+        ));
 
         if let Some(label) = &radio.label {
             output.push_str(&format!(
-                "{}  <p className=\"font-semibold mb-2\">{}</p>\n",
+                "{}  <p className=\"font-semibold mb-2 text-gray-900\">{}</p>\n",
                 indent_str, label
             ));
         }
 
         for opt in &radio.options {
             let label = opt.label.as_ref().unwrap_or(&opt.value);
-            let option_class = format!("flex items-center gap-2");
-
-            let mut input_props = Vec::new();
-            input_props.push("type=\"radio\"".to_string());
-            input_props.push(format!("value=\"{}\"", opt.value));
-
-            if let Some(bind) = &radio.bind {
-                let camel_name = Self::to_camel_case(bind);
-                input_props.push(format!("checked={{{} === \"{}\"}}", camel_name, opt.value));
-                let setter_name = format!("set{}", Self::to_pascal_case(bind));
-                input_props.push(format!(
-                    "onChange={{() => {}(\"{}\")}}",
-                    setter_name, opt.value
-                ));
-            }
-
-            if let Some(onChange) = &radio.onChange {
-                input_props.push(format!("onChange={{(e) => {}}}", onChange));
-            }
-
-            let input_str = format!(
-                "<label className=\"{}\"><input {} />{}</label>",
-                option_class,
-                input_props.join(" "),
-                label
-            );
-            output.push_str(&format!("{}  {}\n", indent_str, input_str));
+            output.push_str(&format!(
+                "{}  <label className=\"flex items-center gap-2 cursor-pointer py-1\">\n{}    <Radio.Root value=\"{}\" className=\"flex size-5 items-center justify-center rounded-full data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800\">\n{}      <Radio.Indicator className=\"flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden\" />\n{}    </Radio.Root>\n{}    <span className=\"text-gray-700\">{}</span>\n{}  </label>\n",
+                indent_str, indent_str, opt.value, indent_str, indent_str, indent_str, label, indent_str
+            ));
         }
 
-        output.push_str(&format!("{}</div>\n", indent_str));
+        output.push_str(&format!("{}</RadioGroup>\n", indent_str));
 
         Ok(output)
     }
@@ -1239,52 +1242,52 @@ impl ReactGenerator {
         indent: usize,
     ) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
+        let class_name = Self::format_style(&modal.style);
 
         let close_handler = if let Some(onClose) = &modal.onClose {
-            format!("onClick={{(e) => {{ e.stopPropagation(); {} }}}}", onClose)
+            format!("onClick={{() => {} }}", onClose)
         } else {
             String::new()
         };
 
-        let backdrop_handler = if let Some(onClose) = &modal.onClose {
-            format!("onClick={{() => {}}}", onClose)
-        } else {
+        let wrapper_class = if class_name.is_empty() {
             String::new()
+        } else {
+            format!(" className=\"{}\"", class_name)
         };
 
         let mut output = String::new();
 
-        if let Some(bind) = &modal.bind {
-            let var = Self::to_camel_case(bind);
-            output.push_str(&format!("{{{} && (\n", var));
-        }
+        output.push_str(&format!("{}<Dialog.Root>\n", indent_str));
+        output.push_str(&format!("{}  <Dialog.Trigger asChild>\n{}    <Button>Open Modal</Button>\n{}  </Dialog.Trigger>\n", indent_str, indent_str, indent_str));
 
-        output.push_str(&format!("{}  <div className=\"fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50\" {}>\n", indent_str, backdrop_handler));
+        output.push_str(&format!("{}  <Dialog.Portal>\n", indent_str));
         output.push_str(&format!(
-            "{}    <div className=\"bg-white rounded-lg p-6 max-w-md w-full shadow-xl\" {}>\n",
-            indent_str, close_handler
+            "{}    <Dialog.Backdrop className=\"fixed inset-0 bg-black bg-opacity-50\" />\n",
+            indent_str
+        ));
+        output.push_str(&format!(
+            "{}    <Dialog.Popup{}>\n",
+            indent_str, wrapper_class
         ));
 
-        // Header with title and close button
-        if modal.title.is_some() || modal.onClose.is_some() {
+        output.push_str(&format!(
+            "{}      <div className=\"flex items-center justify-between mb-4\">\n",
+            indent_str
+        ));
+        if let Some(title) = &modal.title {
             output.push_str(&format!(
-                "{}      <div className=\"flex items-center justify-between mb-4\">\n",
-                indent_str
+                "{}        <Dialog.Title className=\"text-xl font-bold\">{}</Dialog.Title>\n",
+                indent_str, title
             ));
-            if let Some(title) = &modal.title {
-                output.push_str(&format!(
-                    "{}        <h2 className=\"text-xl font-bold\">{}</h2>\n",
-                    indent_str, title
-                ));
-            }
-            if let Some(onClose) = &modal.onClose {
-                output.push_str(&format!(
-                    "{}        <button className=\"text-gray-500 hover:text-gray-700\" onClick={{() => {}}}>\n{}          <svg className=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg>\n{}        </button>\n",
-                    indent_str, onClose, indent_str, indent_str
-                ));
-            }
-            output.push_str(&format!("{}      </div>\n", indent_str));
         }
+        if modal.onClose.is_some() {
+            output.push_str(&format!(
+                "{}        <Dialog.Close asChild>\n{}          <Button variant=\"soft\" size=\"sm\"{}>\n{}            <span className=\"sr-only\">Close</span>\n{}            <svg className=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg>\n{}          </Button>\n{}        </Dialog.Close>\n",
+                indent_str, indent_str, close_handler, indent_str, indent_str, indent_str, indent_str
+            ));
+        }
+        output.push_str(&format!("{}      </div>\n", indent_str));
 
         for child in &modal.children {
             output.push_str(&format!(
@@ -1294,12 +1297,9 @@ impl ReactGenerator {
             ));
         }
 
-        output.push_str(&format!("{}    </div>\n", indent_str));
-        output.push_str(&format!("{}  </div>\n", indent_str));
-
-        if modal.bind.is_some() {
-            output.push_str(")}");
-        }
+        output.push_str(&format!("{}    </Dialog.Popup>\n", indent_str));
+        output.push_str(&format!("{}  </Dialog.Portal>\n", indent_str));
+        output.push_str(&format!("{}</Dialog.Root>\n", indent_str));
 
         Ok(output)
     }
@@ -1834,54 +1834,62 @@ impl ReactGenerator {
         let indent_str = "  ".repeat(indent);
         let class_name = Self::format_style(&menu.style);
 
-        let hamburger = if menu.hamburger == Some(true) {
-            format!(
-                "{0}{1}<button className=\"md:hidden text-white p-2\" onClick={{() => setMenuOpen(!menuOpen)}}>\n{1}  <svg className=\"w-6 h-6\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\">\n{1}    <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M4 6h16M4 12h16M4 18h16\"></path>\n{1}  </svg>\n{1}</button>\n",
-                indent_str, indent_str
-            )
-        } else {
+        let props_str = if class_name.is_empty() {
             String::new()
+        } else {
+            format!(" className=\"{}\"", class_name)
         };
 
-        let mut desktop_links = String::new();
-        let mut mobile_links = String::new();
-        for link in &menu.items {
+        let mut output = String::new();
+        output.push_str(&format!("{}<div className=\"relative\">\n", indent_str));
+        output.push_str(&format!(
+            "{}  <div className=\"flex items-center justify-between px-6 py-4 bg-black\">\n",
+            indent_str
+        ));
+
+        if menu.hamburger == Some(true) {
+            output.push_str(&format!("{}    <Menu.Trigger asChild>\n", indent_str));
+            output.push_str(&format!(
+                "{}      <Button variant=\"soft\" className=\"md:hidden\">\n",
+                indent_str
+            ));
+            output.push_str(&format!("{}        <svg className=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M4 6h16M4 12h16M4 18h16\"></path></svg>\n", indent_str));
+            output.push_str(&format!("{}      </Button>\n", indent_str));
+            output.push_str(&format!("{}    </Menu.Trigger>\n", indent_str));
+        }
+
+        output.push_str(&format!("{}  </div>\n", indent_str));
+        output.push_str(&format!("{}  <Menu.Root>\n", indent_str));
+        output.push_str(&format!("{}    <Menu.Portal>\n", indent_str));
+        output.push_str(&format!(
+            "{}      <Menu.Positioner sideOffset={{8}} className=\"z-50\">\n",
+            indent_str
+        ));
+        output.push_str(&format!("{}        <Menu.Popup className=\"min-w-[200px] p-1 bg-white border rounded-lg shadow-lg\">\n", indent_str));
+        output.push_str(&format!(
+            "{}          <Menu.Arrow className=\"fill-white\" />\n",
+            indent_str
+        ));
+
+        for (index, link) in menu.items.iter().enumerate() {
             let href = link
                 .href
                 .as_ref()
                 .map(|h| format!("href=\"{}\"", h))
                 .unwrap_or_default();
-            desktop_links.push_str(&format!(
-                "{}<a {} className=\"text-white hover:text-blue-400 transition-colors text-sm font-medium\">{}</a>\n",
-                indent_str, href, link.label
-            ));
-            mobile_links.push_str(&format!(
-                "{}<a {} className=\"block py-3 text-white hover:text-blue-400 border-b border-gray-700\">{}</a>\n",
-                indent_str, href, link.label
+            output.push_str(&format!(
+                "{}          <Menu.Item key={{{}}} asChild>\n{}            <a {} className=\"flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer\">\n{}              {}\n{}            </a>\n{}          </Menu.Item>\n",
+                indent_str, index, indent_str, href, indent_str, link.label, indent_str, indent_str
             ));
         }
 
-        let transform_class = if menu.hamburger == Some(true) {
-            "{{menuOpen ? 'translate-x-0' : 'translate-x-full'}}"
-        } else {
-            ""
-        };
+        output.push_str(&format!("{}        </Menu.Popup>\n", indent_str));
+        output.push_str(&format!("{}      </Menu.Positioner>\n", indent_str));
+        output.push_str(&format!("{}    </Menu.Portal>\n", indent_str));
+        output.push_str(&format!("{}  </Menu.Root>\n", indent_str));
+        output.push_str(&format!("{}</div>\n", indent_str));
 
-        let display_style = if menu.hamburger == Some(true) {
-            "{{display: menuOpen ? 'block' : 'none'}}"
-        } else {
-            ""
-        };
-
-        Ok(format!(
-            "{0}<div className=\"relative\">\n{0}  <div className=\"flex items-center justify-between px-6 py-4 bg-black\">\n{0}{1}{2}    <div className=\"hidden md:flex items-center gap-6\">\n{0}    </div>\n{0}  </div>\n{0}  <div className=\"fixed inset-0 bg-gray-900 z-50 transform {3} transition-transform duration-300 md:hidden\"\n{0}       style={4}>\n{0}    <div className=\"p-6\">\n{0}      <button className=\"absolute top-4 right-4 text-white\" onClick={{() => setMenuOpen(false)}}>\n{0}        <svg className=\"w-6 h-6\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\">\n{0}          <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path>\n{0}        </svg>\n{0}      </button>\n{0}      <div className=\"mt-8\">\n{0}{5}      </div>\n{0}    </div>\n{0}  </div>\n{0}</div>\n",
-            indent_str,
-            hamburger,
-            desktop_links,
-            transform_class,
-            display_style,
-            mobile_links
-        ))
+        Ok(output)
     }
 
     fn generate_url(url: &nwl_shared::UrlElement, indent: usize) -> Result<String, CodegenError> {

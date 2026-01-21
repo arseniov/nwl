@@ -1,4 +1,10 @@
 import React from 'react';
+import { Button } from '@base-ui/react/button';
+import { Select } from '@base-ui/react/select';
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup } from '@base-ui/react/radio-group';
+import { Dialog } from '@base-ui/react/dialog';
+import { Menu } from '@base-ui/react/menu';
 
 export default function Home() {
   return (
@@ -9,8 +15,8 @@ export default function Home() {
                 <h1 className="text-5xl font-bold mb-6 text-center">NWL - Natural Web Language</h1>
                 <p className="text-xl text-gray-300 text-center mb-8">A DSL that compiles declarative YAML to production-ready React and React Native code</p>
                 <div className="flex flex-row gap-4">
-                    <button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Get Started</button>
-                    <button className="bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold border border-gray-700 hover:bg-gray-700">View on GitHub</button>
+                    <Button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Get Started</Button>
+                    <Button className="bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold border border-gray-700 hover:bg-gray-700">View on GitHub</Button>
         </div>
 
                 <div className="flex flex-row gap-8 mt-12">
@@ -81,7 +87,7 @@ export default function Home() {
             <div className="flex flex-col max-w-4xl mx-auto items-center">
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">Try It Yourself</h1>
                 <p className="text-gray-600 mb-8">Explore our interactive playground with all available components</p>
-                <button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Open Playground</button>
+                <Button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Open Playground</Button>
       </div>
 
     </div>

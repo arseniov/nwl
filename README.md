@@ -27,6 +27,7 @@ NWL (Natural Web Language) is a domain-specific language that lets you describe 
 - 🔄 **Auto State Management** - `useState` hooks generated automatically
 - 📦 **Zero Runtime** - Pure compile-time code generation
 - 💻 **Full CLI** - Project scaffolding, build, watch mode, and dev server
+- ♿ **BaseUI Integration** - Accessible, unstyled components for production apps
 
 ## Quick Start
 
@@ -123,6 +124,18 @@ export default function MyPage() {
 ```
 
 ## Components
+
+NWL uses [Base UI](https://base-ui.com/react) as its default component library for maximum accessibility and flexibility. All form and interactive components generate BaseUI code.
+
+### BaseUI Components
+
+| Component | BaseUI Import | Generated Code |
+|-----------|---------------|----------------|
+| `button` | `@base-ui/react/button` | `<Button className="...">...</Button>` |
+| `select` | `@base-ui/react/select` | `<Select.Root items={...}>...</Select.Root>` |
+| `radio-group` | `@base-ui/react/radio-group` | `<RadioGroup>...</RadioGroup>` |
+| `modal` | `@base-ui/react/dialog` | `<Dialog.Root>...</Dialog.Root>` |
+| `menu` | `@base-ui/react/menu` | `<Menu.Root>...</Menu.Root>` |
 
 ### Form Components
 
@@ -427,6 +440,7 @@ page:
 
 - **Language**: Rust 1.70+
 - **Output**: TypeScript 5.x + React 18
+- **Component Library**: Base UI (headless, accessible components)
 - **Styling**: Tailwind CSS 3.4
 - **Build Tool**: Vite 5.x
 - **Parser**: serde_yaml
