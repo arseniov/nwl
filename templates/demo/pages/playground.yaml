@@ -3,16 +3,11 @@ page:
   layout:
     type: column
     properties: [items-center, min-h-screen]
-  style: [bg-gray-50, py-8]
   state:
     - name: agreedToTerms
       initial: false
-    - name: volume
-      initial: 50
     - name: country
       initial: ""
-    - name: priority
-      initial: "medium"
     - name: bio
       initial: ""
     - name: formStatus
@@ -21,39 +16,16 @@ page:
       initial: ""
     - name: password
       initial: ""
-    - name: selectedDate
-      initial: ""
-    - name: selectedTime
-      initial: ""
-    - name: selectedColor
-      initial: "#3b82f6"
-    - name: uploadedFiles
-      initial: []
-    - name: progressValue
-      initial: 45
-    - name: toggleValue
-      initial: true
-    - name: activeTab
-      initial: "tab1"
-    - name: isModalOpen
-      initial: false
     - name: searchQuery
       initial: ""
     - name: counterValue
       initial: 5
-    - name: currentPage
-      initial: 1
-    - name: tags
-      initial: ["react", "rust"]
-    - name: notification
-      initial: ""
-    - name: listSelected
-      initial: "item2"
-    - name: imageSrc
-      initial: "https://picsum.photos/seed/picsum/200/300"
+    - name: enableFeature
+      initial: true
+    - name: dialogOpen
+      initial: false
   children:
     - element: nav
-      style: [w-full]
       logo: "NWL"
       links:
         - label: Home
@@ -64,129 +36,129 @@ page:
         - label: Docs
           href: "/docs"
       sticky: true
-    - element: menu
-      style: [w-full]
-      items:
-        - label: Home
-          href: "/"
-        - label: Playground
-          href: "/playground"
-        - label: Docs
-          href: "/docs"
-      hamburger: true
-      mobileBreakpoint: 768
     - element: card
-      style: [max-w-4xl, w-full, p-8, bg-white, rounded-xl, shadow-lg]
       children:
         - element: heading
           content: "NWL Component Playground"
-          style: [text-2xl, font-bold, text-gray-900, mb-2]
         - element: text
-          content: "Explore all interactive components available in NWL"
-          style: [text-gray-600, mb-8]
+          content: "Explore all interactive components available in NWL with BaseUI"
         - element: spacer
-          style: [my-4]
+
         - element: heading
-          content: "Form Components"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
+          content: "BaseUI Button Component"
+        - element: layout
+          layout:
+            type: row
+            properties: [gap-4, flex-wrap]
+          children:
+            - element: button
+              content: "Primary Button"
+            - element: button
+              content: "Secondary"
+            - element: button
+              content: "Outline"
+
+        - element: spacer
+
+        - element: heading
+          content: "BaseUI Form Components"
         - element: layout
           layout:
             type: column
             properties: [gap-4]
           children:
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
                   content: "1. Checkbox"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: checkbox
-                  label: "I agree to the terms"
+                  label: "I agree to the terms and conditions"
                   bind: agreedToTerms
                 - element: text
                   content: "{agreedToTerms ? 'Agreed!' : 'Not agreed'}"
-                  style: [text-sm, text-gray-600, mt-2]
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
-                  content: "2. Slider"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: slider
-                  bind: volume
+                  content: "2. NumberField (Counter)"
+                - element: counter
+                  bind: counterValue
                   min: 0
-                  max: 100
-                  step: 10
-                  label: "Volume: {volume}%"
-                - element: layout
-                  layout:
-                    type: row
-                    properties: [justify-between]
-                  children:
-                    - element: text
-                      content: "0%"
-                      style: [text-xs, text-gray-500]
-                    - element: text
-                      content: "100%"
-                      style: [text-xs, text-gray-500]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "3. Select"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: select
-                  bind: country
-                  options:
-                    - value: ""
-                      label: "Choose country"
-                    - value: "us"
-                      label: "United States"
-                    - value: "uk"
-                      label: "United Kingdom"
-                    - value: "ca"
-                      label: "Canada"
+                  max: 99
                 - element: text
-                  content: "{country || 'None'}"
-                  style: [text-sm, text-gray-600, mt-2]
+                  content: "Value: {counterValue}"
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
-                  content: "4. Radio Group"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: radio-group
-                  bind: priority
-                  options:
-                    - value: low
-                      label: Low
-                    - value: medium
-                      label: Medium
-                    - value: high
-                      label: High
+                  content: "3. Toggle Switch"
+                - element: toggle
+                  label: "Enable feature"
+                  bind: enableFeature
                 - element: text
-                  content: "{priority}"
-                  style: [text-sm, text-gray-600, mt-2]
+                  content: "{enableFeature ? 'Enabled' : 'Disabled'}"
+
+        - element: spacer
+
+        - element: heading
+          content: "BaseUI Select & RadioGroup"
+        - element: card
+          children:
+            - element: heading
+              content: "4. Select Dropdown"
+            - element: select
+              bind: country
+              options:
+                - value: ""
+                  label: "Choose country"
+                - value: "us"
+                  label: "United States"
+                - value: "uk"
+                  label: "United Kingdom"
+                - value: "ca"
+                  label: "Canada"
+            - element: text
+              content: "Selected: {country || 'None'}"
+        - element: card
+          children:
+            - element: heading
+              content: "5. Radio Group"
+            - element: radio-group
+              options:
+                - value: low
+                  label: Low Priority
+                - value: medium
+                  label: Medium Priority
+                - value: high
+                  label: High Priority
+
+        - element: spacer
+
+        - element: heading
+          content: "Form Components"
+        - element: layout
+          layout:
+            type: column
+            properties: [gap-4]
+          children:
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
-                  content: "5. Textarea"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                  content: "Text Input"
+                - element: input
+                  placeholder: "Enter your name..."
+            - element: card
+              children:
+                - element: heading
+                  content: "Textarea"
                 - element: textarea
                   placeholder: "Your bio..."
                   bind: bio
                   rows: 3
-                  style: [w-full, border, border-gray-300, rounded, px-3, py-2]
                 - element: text
-                  content: "{bio.length} chars"
-                  style: [text-xs, text-gray-500, mt-2]
+                  content: "{bio.length} characters"
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
-                  content: "6. Form"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
+                  content: "Form with Validation"
                 - element: form
                   onSubmit: "setFormStatus('Submitted!')"
                   onValidationError: "setFormStatus('Validation failed!')"
@@ -205,371 +177,127 @@ page:
                     - element: input
                       placeholder: "Email"
                       bind: email
-                      style: [w-full, border, border-gray-300, rounded, px-3, py-2, mb-2]
                     - element: input
                       placeholder: "Password"
                       bind: password
-                      style: [w-full, border, border-gray-300, rounded, px-3, py-2, mb-2]
                     - element: button
                       content: "Submit"
-                      style: [w-full, bg-blue-600, text-white, px-4, py-2, rounded]
                 - element: text
                   content: "{formStatus}"
-                  style: [text-sm, mt-2]
-
-          content: "Date & Time Inputs"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
-        - element: layout
-          layout:
-            type: column
-            properties: [gap-4]
-          children:
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "7. Date Input"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: date-input
-                  bind: selectedDate
-                - element: text
-                  content: "Selected: {selectedDate || 'None'}"
-                  style: [text-sm, text-gray-600, mt-2]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "8. Time Input"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: time-input
-                  bind: selectedTime
-                - element: text
-                  content: "Selected: {selectedTime || 'None'}"
-                  style: [text-sm, text-gray-600, mt-2]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "9. DateTime Input"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: datetime-input
-                - element: text
-                  content: "DateTime picker"
-                  style: [text-sm, text-gray-600, mt-2]
-
-        # Selection & Display
-        # Toggle Components
-        - element: heading
-          content: "Toggle Components"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
-        - element: layout
-          layout:
-            type: column
-            properties: [gap-4]
-          children:
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "13. Toggle Switch"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: toggle
-                  label: "Enable notifications"
-                  bind: toggleValue
-                - element: text
-                  content: "{toggleValue ? 'Enabled' : 'Disabled'}"
-                  style: [text-sm, text-gray-600, mt-2]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "14. Modal"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-
-        # Modal & Dialogs
-        - element: heading
-          content: "Modal & Dialogs"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
-        - element: layout
-          layout:
-            type: column
-            properties: [gap-4]
-          children:
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "19. Modal"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: button
-                  content: "Open Modal"
-                  onClick: "setIsModalOpen(true)"
-                  style: [bg-blue-600, text-white, px-4, py-2, rounded]
-                - element: modal
-                  isOpen: isModalOpen
-                  title: "Example Modal"
-                  onClose: "setIsModalOpen(false)"
-                  children:
-                    - element: text
-                      content: "This is a modal dialog. Click outside or the X to close."
-                      style: [text-gray-600]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "20. Alert"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: alert
-                  content: "This is an informational alert message!"
-                  alertType: info
-                - element: alert
-                  content: "Success! Your changes have been saved."
-                  alertType: success
-                - element: alert
-                  content: "Warning: This action cannot be undone."
-                  alertType: warning
-                - element: alert
-                  content: "Error: Something went wrong."
-                  alertType: error
-
-        # Indicators & Badges
-        # Indicators & Badges
-        - element: heading
-          content: "Indicators & Badges"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
-        - element: layout
-          layout:
-            type: column
-            properties: [gap-4]
-          children:
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "21. Badge"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: layout
-                  layout:
-                    type: row
-                    properties: [gap-2, flex-wrap]
-                  children:
-                    - element: badge
-                      content: "Default"
-                    - element: badge
-                      content: "Primary"
-                      style: [bg-blue-100, text-blue-800]
-                    - element: badge
-                      content: "Success"
-                      style: [bg-green-100, text-green-800]
-                    - element: badge
-                      content: "Warning"
-                      style: [bg-yellow-100, text-yellow-800]
-                    - element: badge
-                      content: "Danger"
-                      style: [bg-red-100, text-red-800]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "22. Tag"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: layout
-                  layout:
-                    type: row
-                    properties: [gap-2, flex-wrap]
-                  children:
-                    - element: tag
-                      content: "React"
-                      onRemove: null
-                    - element: tag
-                      content: "Rust"
-                      onRemove: null
-                    - element: tag
-                      content: "TypeScript"
-                      onRemove: null
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "23. Spinner"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: layout
-                  layout:
-                    type: row
-                    properties: [gap-4]
-                  children:
-                    - element: spinner
-                      size: small
-                    - element: spinner
-                      size: medium
-                    - element: spinner
-                      size: large
-
-        # Input Components
-        - element: heading
-          content: "Input Components"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
-        - element: layout
-          layout:
-            type: column
-            properties: [gap-4]
-          children:
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "24. Search Input"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: search-input
-                  placeholder: "Search..."
-                  bind: searchQuery
-                - element: text
-                  content: "Query: {searchQuery || '-'}"
-                  style: [text-sm, text-gray-600, mt-2]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "25. Counter"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: counter
-                  bind: counterValue
-                  min: 0
-                  max: 99
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "26. Copy Button"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: copy-button
-                  content: "https://nwl.dev"
-                  text: "Copy URL"
-                - element: copy-button
-                  text: "Copy Text"
-                  style: [ml-2]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "27. Avatar"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: layout
-                  layout:
-                    type: row
-                    properties: [gap-2, items-center]
-                  children:
-                    - element: avatar
-                      name: "JD"
-                      size: small
-                    - element: avatar
-                      name: "AB"
-                      size: medium
-                    - element: avatar
-                      name: "CD"
-                      size: large
-
-        # Chip Input
-        - element: heading
-          content: "Chip Input"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
-        - element: card
-          style: [p-4, border, border-gray-200, rounded-lg]
-          children:
-            - element: heading
-              content: "28. Chip Input (Tags)"
-              style: [text-base, font-semibold, text-gray-900, mb-3]
-            - element: chip-input
-              label: "Add Tags"
-              bind: tags
-              placeholder: "Type and press Enter..."
-              suggestions:
-                - react
-                - rust
-                - typescript
-                - javascript
-                - python
-            - element: text
-              content: "Tags: {tags.join(', ')}"
-              style: [text-sm, text-gray-600, mt-3]
-
-        # List & Image Components
-        - element: heading
-          content: "List & Media"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-8]
-        - element: layout
-          layout:
-            type: column
-            properties: [gap-4]
-          children:
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "29. List"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: list
-                  items:
-                    - content: "First item"
-                      onClick: "setListSelected('item1')"
-                    - content: "Second item"
-                      onClick: "setListSelected('item2')"
-                    - content: "Third item"
-                      onClick: "setListSelected('item3')"
-                  style: [border, rounded]
-                - element: text
-                  content: "Selected: {listSelected || 'None'}"
-                  style: [text-sm, text-gray-600, mt-2]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "30. Image"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: image
-                  src: "https://picsum.photos/seed/picsum/1280/720"
-                  alt: "Placeholder image"
-                  style: [w-full, rounded]
-                - element: text
-                  content: "Sample image with placeholder"
-                  style: [text-sm, text-gray-600, mt-2]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "31. Container"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: container
-                  style: [bg-gray-100, p-4, rounded]
-                  children:
-                    - element: text
-                      content: "This is a container with background color and padding"
-                      style: [text-gray-700]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "32. Email Input"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: email
-                  placeholder: "Enter your email"
-                  bind: email
-                  style: [w-full, border, border-gray-300, rounded, px-3, py-2]
-                - element: text
-                  content: "Email: {email || 'Not entered'}"
-                  style: [text-sm, text-gray-600, mt-2]
-            - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
-              children:
-                - element: heading
-                  content: "33. URL Input"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
-                - element: url
-                  placeholder: "Enter a URL"
-                  style: [w-full, border, border-gray-300, rounded, px-3, py-2]
-                - element: text
-                  content: "URL input field for web addresses"
-                  style: [text-sm, text-gray-600, mt-2]
 
         - element: spacer
-          style: [my-8]
+
+        - element: heading
+          content: "BaseUI Dialog & Menu"
+        - element: layout
+          layout:
+            type: column
+            properties: [gap-4]
+          children:
+            - element: card
+              children:
+                - element: heading
+                  content: "6. Dialog"
+                - element: button
+                  content: "Open Dialog"
+                  onClick: "setDialogOpen(true)"
+                - element: dialog
+                  open: dialogOpen
+                  title: "Dialog Title"
+                  onClose: "setDialogOpen(false)"
+                  children:
+                    - element: text
+                      content: "This is the dialog content. It uses Base UI Dialog components with Portal, Backdrop, and Popup."
+                    - element: layout
+                      layout:
+                        type: row
+                        properties: [gap-2, justify-end, mt-4]
+                      children:
+                        - element: button
+                          content: "Cancel"
+                          onClick: "setDialogOpen(false)"
+                        - element: button
+                          content: "Confirm"
+                          onClick: "setDialogOpen(false)"
+
+        - element: spacer
+
+        - element: heading
+          content: "BaseUI Layout Components"
+        - element: card
+          children:
+            - element: heading
+              content: "7. Accordion"
+            - element: accordion
+              multiple: true
+              items:
+                - title: "What is NWL?"
+                  content: "NWL (Natural Web Language) is a domain-specific language that compiles YAML to production-ready React code."
+                - title: "How does it work?"
+                  content: "The Rust compiler reads YAML files and generates TypeScript React components with Tailwind CSS styling."
+                - title: "Why Base UI?"
+                  content: "Base UI provides accessible, unstyled components that work perfectly with NWL's Tailwind-first approach."
+
+        - element: heading
+          content: "BaseUI Form Components"
+        - element: card
+          children:
+            - element: heading
+              content: "8. Field & Fieldset"
+            - element: fieldset
+              legend: "Personal Information"
+              children:
+                - element: field
+                  name: "fullName"
+                  label: "Full Name"
+                  placeholder: "Enter your name"
+                - element: field
+                  name: "email"
+                  label: "Email Address"
+                  placeholder: "you@example.com"
+
+        - element: heading
+          content: "BaseUI Tooltip & Popover"
+        - element: layout
+          layout:
+            type: row
+            properties: [gap-4]
+          children:
+            - element: card
+              children:
+                - element: heading
+                  content: "9. Tooltip"
+                - element: tooltip
+                  content: "This is a helpful tooltip message!"
+                  trigger: "Hover me"
+            - element: card
+              children:
+                - element: heading
+                  content: "10. Popover"
+                - element: popover
+                  title: "Popover Title"
+                  content: "This is the popover content. It can contain any elements and is positioned relative to the trigger."
+                  trigger: "Click me"
+
+        - element: heading
+          content: "BaseUI Navigation"
+        - element: card
+          children:
+            - element: heading
+              content: "11. NavigationMenu"
+            - element: navigation-menu
+              hamburger: true
+              mobileBreakpoint: 768
+              items:
+                - label: "Home"
+                  href: "/"
+                - label: "Features"
+                  href: "/features"
+                - label: "Pricing"
+                  href: "/pricing"
+                - label: "About"
+                  href: "/about"
+                - label: "Contact"
+                  href: "/contact"
+
+        - element: spacer

@@ -1,6 +1,6 @@
 pub mod codegen;
 
-use crate::codegen::{generate_react, generate_router, CodegenError};
+use crate::codegen::{generate_react, generate_router, get_css_import_path, CodegenError};
 use nwl_shared::{Document, Page, ProjectConfig};
 use std::fs;
 use std::path::PathBuf;
@@ -17,19 +17,35 @@ pub enum CompilerError {
 
 pub fn compile_file(path: PathBuf) -> Result<String, CompilerError> {
     let content = fs::read_to_string(path)?;
-    compile(&content)
+    compile_with_css(&content, &None, &None)
 }
 
 pub fn compile(input: &str) -> Result<String, CompilerError> {
+    compile_with_css(input, &None, &None)
+}
+
+pub fn compile_with_css(
+    input: &str,
+    css_theme: &Option<String>,
+    css_override: &Option<String>,
+) -> Result<String, CompilerError> {
     let document = parse_yaml(input)?;
-    let output = generate_react(&document)?;
+    let output = generate_react(&document, css_theme, css_override)?;
     Ok(output)
 }
 
 pub fn compile_page(input: &str) -> Result<String, CompilerError> {
+    compile_page_with_css(input, &None, &None)
+}
+
+pub fn compile_page_with_css(
+    input: &str,
+    css_theme: &Option<String>,
+    css_override: &Option<String>,
+) -> Result<String, CompilerError> {
     let page: Page = serde_yaml::from_str(input)?;
     let document = Document { pages: vec![page] };
-    let output = generate_react(&document)?;
+    let output = generate_react(&document, css_theme, css_override)?;
     Ok(output)
 }
 
@@ -61,6 +77,24 @@ pub fn build_project(project_dir: PathBuf) -> Result<(), CompilerError> {
     let config_content = fs::read_to_string(&config_path)?;
     let config: ProjectConfig = serde_yaml::from_str(&config_content)?;
 
+    // Log CSS configuration
+    println!(
+        "[NWL] CSS Theme: {:?}",
+        config.css_theme.as_ref().unwrap_or(&"none".to_string())
+    );
+    println!(
+        "[NWL] CSS Override: {:?}",
+        config.css_override.as_ref().unwrap_or(&"none".to_string())
+    );
+
+    // Check if CSS should be imported based on project config
+    let has_css_config = config.css_theme.is_some() || config.css_override.is_some();
+    if has_css_config {
+        println!("[NWL] CSS processing: theme and override styles will be imported");
+    } else {
+        println!("[NWL] CSS processing: no custom CSS configured");
+    }
+
     let mut import_statements = String::new();
     let mut route_entries = String::new();
 
@@ -77,7 +111,14 @@ pub fn build_project(project_dir: PathBuf) -> Result<(), CompilerError> {
         let page: Page = serde_yaml::from_str(&page_content)?;
         let component_name = page.page_data.name.clone();
         let document = Document { pages: vec![page] };
-        let component_code = generate_react(&document)?;
+
+        // Generate component with project-level CSS settings
+        let component_code = generate_react(&document, &config.css_theme, &config.css_override)?;
+        println!(
+            "[NWL] Generated component: {} -> src/{}.tsx",
+            component_name,
+            component_name.to_lowercase()
+        );
 
         let component_file = format!("{}.tsx", component_name.to_lowercase());
         let component_path = project_dir.join("src").join(&component_file);
@@ -99,9 +140,28 @@ pub fn build_project(project_dir: PathBuf) -> Result<(), CompilerError> {
         }
     }
 
-    let router_code = generate_router(&config.name, &import_statements, &route_entries);
+    // Generate router with CSS imports if configured
+    let router_code = generate_router(
+        &config.name,
+        &import_statements,
+        &route_entries,
+        &config.css_theme,
+        &config.css_override,
+    );
+    println!("[NWL] Generated router: src/main.tsx");
+
     let main_tsx_path = project_dir.join("src").join("main.tsx");
     fs::write(&main_tsx_path, &router_code)?;
+
+    // Log summary
+    println!(
+        "[NWL] Build complete: {} routes, {} pages",
+        config.routes.len(),
+        config.routes.len()
+    );
+    if has_css_config {
+        println!("[NWL] CSS files to be bundled: themes/theme.css, themes/theme.override.css");
+    }
 
     Ok(())
 }

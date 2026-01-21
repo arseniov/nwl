@@ -794,6 +794,14 @@ pub struct PageData {
     pub children: Vec<Element>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub state: Vec<StateDefinition>,
+    #[serde(rename = "cssTheme", default, skip_serializing_if = "Option::is_none")]
+    pub css_theme: Option<String>,
+    #[serde(
+        rename = "cssOverride",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub css_override: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -826,6 +834,14 @@ pub struct ProjectConfig {
     pub name: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub routes: Vec<RouteConfig>,
+    #[serde(rename = "cssTheme", default, skip_serializing_if = "Option::is_none")]
+    pub css_theme: Option<String>,
+    #[serde(
+        rename = "cssOverride",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub css_override: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

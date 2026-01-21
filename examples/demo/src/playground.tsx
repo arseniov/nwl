@@ -22,159 +22,156 @@ export default function Playground() {
   const [agreedToTerms, setAgreedToTerms] = useState(false), [country, setCountry] = useState(""), [bio, setBio] = useState(""), [formStatus, setFormStatus] = useState(""), [email, setEmail] = useState(""), [password, setPassword] = useState(""), [searchQuery, setSearchQuery] = useState(""), [counterValue, setCounterValue] = useState(5), [enableFeature, setEnableFeature] = useState(true), [dialogOpen, setDialogOpen] = useState(false);
   return (
     <>
-      <div className="bg-gray-50 py-8">
-            <nav className="w-full flex items-center justify-between px-6 py-4 sticky top-0 z-50 bg-black"><a href="/" className="text-xl font-bold text-white">NWL</a><div className="flex items-center gap-6">    <a href="/" className="text-sm font-medium transition-colors text-white hover:text-blue-400">Home</a>
+      <div>
+            <nav className=" flex items-center justify-between px-6 py-4 sticky top-0 z-50 bg-black"><a href="/" className="text-xl font-bold text-white">NWL</a><div className="flex items-center gap-6">    <a href="/" className="text-sm font-medium transition-colors text-white hover:text-blue-400">Home</a>
     <a href="/playground" className="text-sm font-medium transition-colors text-blue-400">Playground</a>
     <a href="/docs" className="text-sm font-medium transition-colors text-white hover:text-blue-400">Docs</a>
 </div></nav>
-            <div className="max-w-4xl w-full p-8 bg-white rounded-xl shadow-lg">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">NWL Component Playground</h1>
-            <p className="text-gray-600 mb-8">Explore all interactive components available in NWL with BaseUI</p>
-            <Separator className="w-full h-6 my-4" />
-            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Button Component</h1>
+            <div className="Card">
+            <h1>NWL Component Playground</h1>
+            <p>Explore all interactive components available in NWL with BaseUI</p>
+            <Separator />
+            <h1>BaseUI Button Component</h1>
             <div className="flex flex-row gap-4 flex-wrap">
-                <Button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Primary Button</Button>
-                <Button className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">Secondary</Button>
-                <Button className="border border-blue-600 text-blue-600 px-4 py-2 rounded hover:bg-blue-50">Outline</Button>
+                <Button className="Button">Primary Button</Button>
+                <Button className="Button">Secondary</Button>
+                <Button className="Button">Outline</Button>
       </div>
 
-            <Separator className="w-full h-6 my-4" />
-            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Form Components</h1>
+            <Separator />
+            <h1>BaseUI Form Components</h1>
             <div className="flex flex-col gap-4">
-                <div className="p-4 border border-gray-200 rounded-lg">
-                    <h1 className="text-base font-semibold text-gray-900 mb-3">1. Checkbox</h1>
-                    <label className="flex items-center gap-2 cursor-pointer">          <Checkbox.Root checked={agreedToTerms}  onCheckedChange={(checked) => setAgreedToTerms(checked)} className="flex size-5 items-center justify-center rounded border data-[checked]:bg-blue-600 data-[checked]:border-blue-600 data-[unchecked]:border-gray-300">            <Checkbox.Indicator className="text-white text-xs" />          </Checkbox.Root><span className="text-gray-700">I agree to the terms and conditions</span></label>
-                    <p className="text-sm text-gray-600 mt-2">{agreedToTerms ? 'Agreed!' : 'Not agreed'}</p>
+                <div className="Card">
+                    <h1>1. Checkbox</h1>
+                    <label className="flex items-center gap-2 cursor-pointer">          <Checkbox.Root className="Checkbox-root" checked={agreedToTerms}  onCheckedChange={(checked) => setAgreedToTerms(checked)}>            <Checkbox.Indicator className="Checkbox-indicator" />          </Checkbox.Root><span>I agree to the terms and conditions</span></label>
+                    <p>{agreedToTerms ? 'Agreed!' : 'Not agreed'}</p>
         </div>
 
-                <div className="p-4 border border-gray-200 rounded-lg">
-                    <h1 className="text-base font-semibold text-gray-900 mb-3">2. NumberField (Counter)</h1>
-                    <NumberField.Root className="flex items-center border rounded-lg overflow-hidden" value={counterValue} min={0} max={99} onValueChange={(value) => setCounterValue(value)}>
-          <NumberField.Decrement className="px-3 py-2 border-r hover:bg-gray-100 flex items-center justify-center bg-gray-50">
-              <span className="text-gray-600 font-medium">-</span>
+                <div className="Card">
+                    <h1>2. NumberField (Counter)</h1>
+                    <NumberField.Root className="NumberField-root" value={counterValue} min={0} max={99} onValueChange={(value) => setCounterValue(value)}>
+          <NumberField.Decrement className="NumberField-decrement">
+              <span>-</span>
             </NumberField.Decrement>
-            <NumberField.Input className="w-16 text-center border-none focus:outline-none py-2" />
-            <NumberField.Increment className="px-3 py-2 border-l hover:bg-gray-100 flex items-center justify-center bg-gray-50">
-              <span className="text-gray-600 font-medium">+</span>
+            <NumberField.Input className="NumberField-input" />
+            <NumberField.Increment className="NumberField-increment">
+              <span>+</span>
             </NumberField.Increment>
           </NumberField.Root>
-                    <p className="text-sm text-gray-600 mt-2">Value: {counterValue}</p>
+                    <p>Value: {counterValue}</p>
         </div>
 
-                <div className="p-4 border border-gray-200 rounded-lg">
-                    <h1 className="text-base font-semibold text-gray-900 mb-3">3. Toggle Switch</h1>
-                    <label className="inline-flex items-center cursor-pointer"><label htmlFor="toggle" className="mr-3 text-sm font-medium text-gray-900">Enable feature</label><Switch.Root id="toggle" checked={enableFeature} onCheckedChange={(checked) => setEnableFeature(checked)} className="flex w-11 h-6 bg-gray-200 data-[checked]:bg-green-500 rounded-full transition-colors">            <Switch.Thumb className="block w-5 h-5 bg-white rounded-full shadow-sm transition-transform data-[checked]:translate-x-5 data-[unchecked]:translate-x-0" />          </Switch.Root></label>
-                    <p className="text-sm text-gray-600 mt-2">{enableFeature ? 'Enabled' : 'Disabled'}</p>
+                <div className="Card">
+                    <h1>3. Toggle Switch</h1>
+                    <label className="inline-flex items-center cursor-pointer gap-3"><span className="font-medium">Enable feature</span><Switch.Root className="Switch-root" id="toggle" checked={enableFeature} onCheckedChange={(checked) => setEnableFeature(checked)}>            <Switch.Thumb className="Switch-thumb" />          </Switch.Root></label>
+                    <p>{enableFeature ? 'Enabled' : 'Disabled'}</p>
         </div>
 
       </div>
 
-            <Separator className="w-full h-6 my-4" />
-            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Select & RadioGroup</h1>
-            <div className="p-4 border border-gray-200 rounded-lg mb-4">
-                <h1 className="text-base font-semibold text-gray-900 mb-3">4. Select Dropdown</h1>
+            <Separator />
+            <h1>BaseUI Select & RadioGroup</h1>
+            <div className="Card">
+                <h1>4. Select Dropdown</h1>
                 <Select.Root value={country} onValueChange={(value) => setCountry(value)}>
-          <Select.Trigger>
+          <Select.Trigger className="Select-trigger">
             <Select.Value />
             <Select.Icon />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner sideOffset={8}>
-              <Select.Popup className="p-1 bg-white border rounded-lg shadow-lg">
-                <Select.Item value="" className="px-3 py-2 cursor-pointer hover:bg-gray-100 rounded">
+              <Select.Popup className="Select-popup">
+                <Select.Item className="Select-item" value="">
                   <Select.ItemText>Choose country</Select.ItemText>
                 </Select.Item>
-                <Select.Item value="us" className="px-3 py-2 cursor-pointer hover:bg-gray-100 rounded">
+                <Select.Item className="Select-item" value="us">
                   <Select.ItemText>United States</Select.ItemText>
                 </Select.Item>
-                <Select.Item value="uk" className="px-3 py-2 cursor-pointer hover:bg-gray-100 rounded">
+                <Select.Item className="Select-item" value="uk">
                   <Select.ItemText>United Kingdom</Select.ItemText>
                 </Select.Item>
-                <Select.Item value="ca" className="px-3 py-2 cursor-pointer hover:bg-gray-100 rounded">
+                <Select.Item className="Select-item" value="ca">
                   <Select.ItemText>Canada</Select.ItemText>
                 </Select.Item>
               </Select.Popup>
             </Select.Positioner>
           </Select.Portal>
         </Select.Root>
-                <p className="text-sm text-gray-600 mt-2">Selected: {country || 'None'}</p>
+                <p>Selected: {country || 'None'}</p>
       </div>
 
-            <div className="p-4 border border-gray-200 rounded-lg mb-4">
-                <h1 className="text-base font-semibold text-gray-900 mb-3">5. Radio Group</h1>
-                <RadioGroup defaultValue="low">
+            <div className="Card">
+                <h1>5. Radio Group</h1>
+                <RadioGroup className="RadioGroup" defaultValue="low">
           <label className="flex items-center gap-2 cursor-pointer py-1">
-            <Radio.Root value="low" className="flex size-5 items-center justify-center rounded-full data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800">
-              <Radio.Indicator className="flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden" />
+            <Radio.Root className="Radio-root" value="low">
+              <Radio.Indicator className="Radio-indicator" />
             </Radio.Root>
-            <span className="text-gray-700">Low Priority</span>
+            <span>Low Priority</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer py-1">
-            <Radio.Root value="medium" className="flex size-5 items-center justify-center rounded-full data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800">
-              <Radio.Indicator className="flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden" />
+            <Radio.Root className="Radio-root" value="medium">
+              <Radio.Indicator className="Radio-indicator" />
             </Radio.Root>
-            <span className="text-gray-700">Medium Priority</span>
+            <span>Medium Priority</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer py-1">
-            <Radio.Root value="high" className="flex size-5 items-center justify-center rounded-full data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800">
-              <Radio.Indicator className="flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden" />
+            <Radio.Root className="Radio-root" value="high">
+              <Radio.Indicator className="Radio-indicator" />
             </Radio.Root>
-            <span className="text-gray-700">High Priority</span>
+            <span>High Priority</span>
           </label>
         </RadioGroup>
 
       </div>
 
-            <Separator className="w-full h-6 my-4" />
-            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">Form Components</h1>
+            <Separator />
+            <h1>Form Components</h1>
             <div className="flex flex-col gap-4">
-                <div className="p-4 border border-gray-200 rounded-lg">
-                    <h1 className="text-base font-semibold text-gray-900 mb-3">Text Input</h1>
-                    <input className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Enter your name..." />
+                <div className="Card">
+                    <h1>Text Input</h1>
+                    <input placeholder="Enter your name..." />
         </div>
 
-                <div className="p-4 border border-gray-200 rounded-lg">
-                    <h1 className="text-base font-semibold text-gray-900 mb-3">Textarea</h1>
-                    <textarea className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Your bio..." rows={3} value={bio} onChange={(e) => setBio(e.target.value)} />
-                    <p className="text-xs text-gray-500 mt-2">{bio.length} characters</p>
+                <div className="Card">
+                    <h1>Textarea</h1>
+                    <textarea placeholder="Your bio..." rows={3} value={bio} onChange={(e) => setBio(e.target.value)} />
+                    <p>{bio.length} characters</p>
         </div>
 
-                <div className="p-4 border border-gray-200 rounded-lg">
-                    <h1 className="text-base font-semibold text-gray-900 mb-3">Form with Validation</h1>
-                    <Form className="flex flex-col gap-4">
-                        <input className="w-full border border-gray-300 rounded px-3 py-2 mb-2" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                        <input className="w-full border border-gray-300 rounded px-3 py-2 mb-2" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                        <Button className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit</Button>
+                <div className="Card">
+                    <h1>Form with Validation</h1>
+                    <Form className="Form">
+                        <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <input placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                        <Button className="Button">Submit</Button>
           </Form>
 
-                    <p className="text-sm mt-2">{formStatus}</p>
+                    <p>{formStatus}</p>
         </div>
 
       </div>
 
-            <Separator className="w-full h-6 my-4" />
-            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Dialog & Menu</h1>
+            <Separator />
+            <h1>BaseUI Dialog & Menu</h1>
             <div className="flex flex-col gap-4">
-                <div className="p-4 border border-gray-200 rounded-lg">
-                    <h1 className="text-base font-semibold text-gray-900 mb-3">6. Dialog</h1>
-                    <Button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" onClick={() => setDialogOpen(true)}>Open Dialog</Button>
+                <div className="Card">
+                    <h1>6. Dialog</h1>
+                    <Button className="Button" onClick={() => setDialogOpen(true)}>Open Dialog</Button>
                     <Dialog.Root open={dialogOpen} onOpenChange={open => setDialogOpen(open)}>
             <Dialog.Portal>
-              <Dialog.Backdrop className="fixed inset-0 bg-black/50 animate-fade-in" />
-              <Dialog.Popup className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 min-w-[320px] max-w-[90vw]">
-                <Dialog.Title className="text-xl font-semibold text-gray-900 mb-4">Dialog Title</Dialog.Title>
+              <Dialog.Backdrop className="Dialog-backdrop" />
+              <Dialog.Popup className="Dialog-popup">
+                <Dialog.Title className="Dialog-title">Dialog Title</Dialog.Title>
                                     <p>This is the dialog content. It uses Base UI Dialog components with Portal, Backdrop, and Popup.</p>
                                     <div className="flex flex-row gap-2 justify-end mt-4">
-                                        <Button className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                                        <Button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" onClick={() => setDialogOpen(false)}>Confirm</Button>
+                                        <Button className="Button" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                                        <Button className="Button" onClick={() => setDialogOpen(false)}>Confirm</Button>
                   </div>
 
-                <div className="flex justify-end gap-2 mt-4">
-                  <Dialog.Close onClick={() => setDialogOpen(false)}>
-                    <span className="sr-only">Close</span>
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-                  </Dialog.Close>
-                </div>
+                <Dialog.Close className="Dialog-close">
+                  <span className="sr-only">Close</span>
+                </Dialog.Close>
               </Dialog.Popup>
             </Dialog.Portal>
           </Dialog.Root>
@@ -183,41 +180,38 @@ export default function Playground() {
 
       </div>
 
-            <Separator className="w-full h-6 my-4" />
-            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Layout Components</h1>
-            <div className="p-4 border border-gray-200 rounded-lg mb-4">
-                <h1 className="text-base font-semibold text-gray-900 mb-3">7. Accordion</h1>
+            <Separator />
+            <h1>BaseUI Layout Components</h1>
+            <div className="Card">
+                <h1>7. Accordion</h1>
                 <Accordion.Root multiple>
-          <Accordion.Item value="item-0" className="border-b border-gray-200">
-            <Accordion.Header className="flex">
-              <Accordion.Trigger className="flex flex-1 items-center justify-between py-4 px-1 font-medium text-gray-900 hover:bg-gray-50 rounded-t-lg transition-colors group">
+          <Accordion.Item value="item-0">
+            <Accordion.Header>
+              <Accordion.Trigger>
                 What is NWL?
-                <svg className="w-5 h-5 text-gray-500 transition-transform group-data-[open]:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
               </Accordion.Trigger>
             </Accordion.Header>
-              <Accordion.Panel className="pb-4 px-1 text-gray-600">
+              <Accordion.Panel>
                 NWL (Natural Web Language) is a domain-specific language that compiles YAML to production-ready React code.
               </Accordion.Panel>
           </Accordion.Item>
-          <Accordion.Item value="item-1" className="border-b border-gray-200">
-            <Accordion.Header className="flex">
-              <Accordion.Trigger className="flex flex-1 items-center justify-between py-4 px-1 font-medium text-gray-900 hover:bg-gray-50 rounded-t-lg transition-colors group">
+          <Accordion.Item value="item-1">
+            <Accordion.Header>
+              <Accordion.Trigger>
                 How does it work?
-                <svg className="w-5 h-5 text-gray-500 transition-transform group-data-[open]:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
               </Accordion.Trigger>
             </Accordion.Header>
-              <Accordion.Panel className="pb-4 px-1 text-gray-600">
+              <Accordion.Panel>
                 The Rust compiler reads YAML files and generates TypeScript React components with Tailwind CSS styling.
               </Accordion.Panel>
           </Accordion.Item>
-          <Accordion.Item value="item-2" className="border-b border-gray-200">
-            <Accordion.Header className="flex">
-              <Accordion.Trigger className="flex flex-1 items-center justify-between py-4 px-1 font-medium text-gray-900 hover:bg-gray-50 rounded-t-lg transition-colors group">
+          <Accordion.Item value="item-2">
+            <Accordion.Header>
+              <Accordion.Trigger>
                 Why Base UI?
-                <svg className="w-5 h-5 text-gray-500 transition-transform group-data-[open]:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
               </Accordion.Trigger>
             </Accordion.Header>
-              <Accordion.Panel className="pb-4 px-1 text-gray-600">
+              <Accordion.Panel>
                 Base UI provides accessible, unstyled components that work perfectly with NWL's Tailwind-first approach.
               </Accordion.Panel>
           </Accordion.Item>
@@ -225,31 +219,31 @@ export default function Playground() {
 
       </div>
 
-            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Form Components</h1>
-            <div className="p-4 border border-gray-200 rounded-lg mb-4">
-                <h1 className="text-base font-semibold text-gray-900 mb-3">8. Field & Fieldset</h1>
-                <Fieldset.Root>
-          <Fieldset.Legend className="text-lg font-semibold text-gray-900 mb-2">Personal Information</Fieldset.Legend>
-                    <Field.Root name="fullName">
-            <Field.Label className="text-sm font-medium text-gray-900">Full Name</Field.Label>
-            <Field.Control className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" placeholder="Enter your name" />
-            <Field.Error className="text-sm text-red-800" />
+            <h1>BaseUI Form Components</h1>
+            <div className="Card">
+                <h1>8. Field & Fieldset</h1>
+                <Fieldset.Root className="Fieldset-root">
+          <Fieldset.Legend className="Fieldset-legend">Personal Information</Fieldset.Legend>
+                    <Field.Root name="fullName" className="Field-root">
+            <Field.Label className="Field-label">Full Name</Field.Label>
+            <Field.Control placeholder="Enter your name" className="Field-control" />
+            <Field.Error className="Field-error" />
           </Field.Root>
 
-                    <Field.Root name="email">
-            <Field.Label className="text-sm font-medium text-gray-900">Email Address</Field.Label>
-            <Field.Control className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" placeholder="you@example.com" />
-            <Field.Error className="text-sm text-red-800" />
+                    <Field.Root name="email" className="Field-root">
+            <Field.Label className="Field-label">Email Address</Field.Label>
+            <Field.Control placeholder="you@example.com" className="Field-control" />
+            <Field.Error className="Field-error" />
           </Field.Root>
 
         </Fieldset.Root>
 
       </div>
 
-            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Tooltip & Popover</h1>
+            <h1>BaseUI Tooltip & Popover</h1>
             <div className="flex flex-row gap-4">
-                <div className="p-4 border border-gray-200 rounded-lg flex-1">
-                    <h1 className="text-base font-semibold text-gray-900 mb-3">9. Tooltip</h1>
+                <div className="Card">
+                    <h1>9. Tooltip</h1>
                     <Tooltip.Provider>
             <Tooltip.Root>
               <Tooltip.Trigger>
@@ -257,7 +251,7 @@ export default function Playground() {
               </Tooltip.Trigger>
               <Tooltip.Portal>
                 <Tooltip.Positioner sideOffset={8}>
-                  <Tooltip.Popup className="bg-gray-900 text-white text-sm rounded px-3 py-2 shadow-lg">
+                  <Tooltip.Popup className="Tooltip-popup">
                     This is a helpful tooltip message!
                   </Tooltip.Popup>
                 </Tooltip.Positioner>
@@ -267,16 +261,16 @@ export default function Playground() {
 
         </div>
 
-                <div className="p-4 border border-gray-200 rounded-lg flex-1">
-                    <h1 className="text-base font-semibold text-gray-900 mb-3">10. Popover</h1>
+                <div className="Card">
+                    <h1>10. Popover</h1>
                     <Popover.Root>
             <Popover.Trigger>
               Click me
             </Popover.Trigger>
             <Popover.Portal>
               <Popover.Positioner sideOffset={8}>
-                <Popover.Popup className="bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[200px]">
-                  <Popover.Title className="font-semibold text-gray-900 mb-2">Popover Title</Popover.Title>
+                <Popover.Popup className="Popover-popup">
+                  <Popover.Title className="Popover-title">Popover Title</Popover.Title>
                   This is the popover content. It can contain any elements and is positioned relative to the trigger.
                 </Popover.Popup>
               </Popover.Positioner>
@@ -287,26 +281,27 @@ export default function Playground() {
 
       </div>
 
-            <h1 className="text-xl font-semibold text-gray-900 mb-6 mt-4">BaseUI Navigation</h1>
-            <div className="p-4 border border-gray-200 rounded-lg mb-4">
-                <h1 className="text-base font-semibold text-gray-900 mb-3">11. NavigationMenu</h1>
-                <div className="relative">
-          <div className="flex items-center justify-between px-6 py-4 bg-white rounded-lg border border-gray-200">
-            <div className="hidden md:flex gap-4">
-              <a href="/" className="text-gray-300 hover:text-white transition-colors">Home</a>
-              <a href="/features" className="text-gray-300 hover:text-white transition-colors">Features</a>
-              <a href="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
-              <a href="/about" className="text-gray-300 hover:text-white transition-colors">About</a>
-              <a href="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</a>
+            <h1>BaseUI Navigation</h1>
+            <div className="Card">
+                <h1>11. NavigationMenu</h1>
+                <div className="NavigationMenu">
+          <nav className="NavigationMenu-nav flex items-center justify-between px-6 py-4 bg-gray-900 border-b border-gray-700">
+            <a href="/" className="NavigationMenu-logo">NWL</a>
+            <div className="hidden md:flex gap-4 NavigationMenu-nav">
+              <a href="/" className="NavigationMenu-link">Home</a>
+              <a href="/features" className="NavigationMenu-link">Features</a>
+              <a href="/pricing" className="NavigationMenu-link">Pricing</a>
+              <a href="/about" className="NavigationMenu-link">About</a>
+              <a href="/contact" className="NavigationMenu-link">Contact</a>
             </div>
-            <Button variant="soft" className="md:hidden">
+            <Button className="Button md:hidden">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </Button>
-          </div>
+          </nav>
           <Menu.Root>
             <Menu.Portal>
               <Menu.Positioner sideOffset={8} className="z-50">
-                <Menu.Popup className="min-w-[200px] p-1 bg-white border rounded-lg shadow-lg">
+                <Menu.Popup className="Popover-popup min-w-[200px] p-1 bg-white border rounded-lg shadow-lg">
                   <Menu.Arrow className="fill-white" />
                   <Menu.Item key={0} asChild>
                     <a href="/" className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer">
@@ -341,7 +336,7 @@ export default function Playground() {
 
       </div>
 
-            <Separator className="w-full h-6 my-4" />
+            <Separator />
     </div>
 
       </div>

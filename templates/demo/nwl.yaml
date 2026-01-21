@@ -1,6 +1,11 @@
 name: {PROJECT_NAME}
-source: src
-pages: pages
+
+# CSS Theme Configuration
+# Available themes: default, or custom theme name
+# The theme.css and theme.override.css files in the themes/ folder will be imported
+cssTheme: default
+cssOverride: default
+
 routes:
   - path: /
     page: pages/home.yaml

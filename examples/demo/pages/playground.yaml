@@ -3,7 +3,6 @@ page:
   layout:
     type: column
     properties: [items-center, min-h-screen]
-  style: [bg-gray-50, py-8]
   state:
     - name: agreedToTerms
       initial: false
@@ -27,7 +26,6 @@ page:
       initial: false
   children:
     - element: nav
-      style: [w-full]
       logo: "NWL"
       links:
         - label: Home
@@ -39,20 +37,15 @@ page:
           href: "/docs"
       sticky: true
     - element: card
-      style: [max-w-4xl, w-full, p-8, bg-white, rounded-xl, shadow-lg]
       children:
         - element: heading
           content: "NWL Component Playground"
-          style: [text-2xl, font-bold, text-gray-900, mb-2]
         - element: text
           content: "Explore all interactive components available in NWL with BaseUI"
-          style: [text-gray-600, mb-8]
         - element: spacer
-          style: [my-4]
 
         - element: heading
           content: "BaseUI Button Component"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: layout
           layout:
             type: row
@@ -60,75 +53,57 @@ page:
           children:
             - element: button
               content: "Primary Button"
-              style: [bg-blue-600, text-white, px-4, py-2, rounded, hover:bg-blue-700]
             - element: button
               content: "Secondary"
-              style: [bg-gray-200, text-gray-800, px-4, py-2, rounded, hover:bg-gray-300]
             - element: button
               content: "Outline"
-              style: [border, border-blue-600, text-blue-600, px-4, py-2, rounded, hover:bg-blue-50]
 
         - element: spacer
-          style: [my-6]
 
         - element: heading
           content: "BaseUI Form Components"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: layout
           layout:
             type: column
             properties: [gap-4]
           children:
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
                   content: "1. Checkbox"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: checkbox
                   label: "I agree to the terms and conditions"
                   bind: agreedToTerms
                 - element: text
                   content: "{agreedToTerms ? 'Agreed!' : 'Not agreed'}"
-                  style: [text-sm, text-gray-600, mt-2]
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
                   content: "2. NumberField (Counter)"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: counter
                   bind: counterValue
                   min: 0
                   max: 99
                 - element: text
                   content: "Value: {counterValue}"
-                  style: [text-sm, text-gray-600, mt-2]
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
                   content: "3. Toggle Switch"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: toggle
                   label: "Enable feature"
                   bind: enableFeature
                 - element: text
                   content: "{enableFeature ? 'Enabled' : 'Disabled'}"
-                  style: [text-sm, text-gray-600, mt-2]
 
         - element: spacer
-          style: [my-6]
 
         - element: heading
           content: "BaseUI Select & RadioGroup"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: card
-          style: [p-4, border, border-gray-200, rounded-lg, mb-4]
           children:
             - element: heading
               content: "4. Select Dropdown"
-              style: [text-base, font-semibold, text-gray-900, mb-3]
             - element: select
               bind: country
               options:
@@ -142,13 +117,10 @@ page:
                   label: "Canada"
             - element: text
               content: "Selected: {country || 'None'}"
-              style: [text-sm, text-gray-600, mt-2]
         - element: card
-          style: [p-4, border, border-gray-200, rounded-lg, mb-4]
           children:
             - element: heading
               content: "5. Radio Group"
-              style: [text-base, font-semibold, text-gray-900, mb-3]
             - element: radio-group
               options:
                 - value: low
@@ -159,45 +131,34 @@ page:
                   label: High Priority
 
         - element: spacer
-          style: [my-6]
 
         - element: heading
           content: "Form Components"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: layout
           layout:
             type: column
             properties: [gap-4]
           children:
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
                   content: "Text Input"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: input
                   placeholder: "Enter your name..."
-                  style: [w-full, border, border-gray-300, rounded, px-3, py-2]
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
                   content: "Textarea"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: textarea
                   placeholder: "Your bio..."
                   bind: bio
                   rows: 3
-                  style: [w-full, border, border-gray-300, rounded, px-3, py-2]
                 - element: text
                   content: "{bio.length} characters"
-                  style: [text-xs, text-gray-500, mt-2]
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
                   content: "Form with Validation"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: form
                   onSubmit: "setFormStatus('Submitted!')"
                   onValidationError: "setFormStatus('Validation failed!')"
@@ -216,39 +177,30 @@ page:
                     - element: input
                       placeholder: "Email"
                       bind: email
-                      style: [w-full, border, border-gray-300, rounded, px-3, py-2, mb-2]
                     - element: input
                       placeholder: "Password"
                       bind: password
-                      style: [w-full, border, border-gray-300, rounded, px-3, py-2, mb-2]
                     - element: button
                       content: "Submit"
-                      style: [w-full, bg-blue-600, text-white, px-4, py-2, rounded, hover:bg-blue-700]
                 - element: text
                   content: "{formStatus}"
-                  style: [text-sm, mt-2]
 
         - element: spacer
-          style: [my-6]
 
         - element: heading
           content: "BaseUI Dialog & Menu"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: layout
           layout:
             type: column
             properties: [gap-4]
           children:
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg]
               children:
                 - element: heading
                   content: "6. Dialog"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: button
                   content: "Open Dialog"
                   onClick: "setDialogOpen(true)"
-                  style: [px-4, py-2, bg-blue-600, text-white, rounded, hover:bg-blue-700]
                 - element: dialog
                   open: dialogOpen
                   title: "Dialog Title"
@@ -264,24 +216,18 @@ page:
                         - element: button
                           content: "Cancel"
                           onClick: "setDialogOpen(false)"
-                          style: [px-4, py-2, border, border-gray-300, rounded, hover:bg-gray-50]
                         - element: button
                           content: "Confirm"
                           onClick: "setDialogOpen(false)"
-                          style: [px-4, py-2, bg-blue-600, text-white, rounded, hover:bg-blue-700]
 
         - element: spacer
-          style: [my-6]
 
         - element: heading
           content: "BaseUI Layout Components"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: card
-          style: [p-4, border, border-gray-200, rounded-lg, mb-4]
           children:
             - element: heading
               content: "7. Accordion"
-              style: [text-base, font-semibold, text-gray-900, mb-3]
             - element: accordion
               multiple: true
               items:
@@ -294,13 +240,10 @@ page:
 
         - element: heading
           content: "BaseUI Form Components"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: card
-          style: [p-4, border, border-gray-200, rounded-lg, mb-4]
           children:
             - element: heading
               content: "8. Field & Fieldset"
-              style: [text-base, font-semibold, text-gray-900, mb-3]
             - element: fieldset
               legend: "Personal Information"
               children:
@@ -315,27 +258,22 @@ page:
 
         - element: heading
           content: "BaseUI Tooltip & Popover"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: layout
           layout:
             type: row
             properties: [gap-4]
           children:
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg, flex-1]
               children:
                 - element: heading
                   content: "9. Tooltip"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: tooltip
                   content: "This is a helpful tooltip message!"
                   trigger: "Hover me"
             - element: card
-              style: [p-4, border, border-gray-200, rounded-lg, flex-1]
               children:
                 - element: heading
                   content: "10. Popover"
-                  style: [text-base, font-semibold, text-gray-900, mb-3]
                 - element: popover
                   title: "Popover Title"
                   content: "This is the popover content. It can contain any elements and is positioned relative to the trigger."
@@ -343,17 +281,13 @@ page:
 
         - element: heading
           content: "BaseUI Navigation"
-          style: [text-xl, font-semibold, text-gray-900, mb-6, mt-4]
         - element: card
-          style: [p-4, border, border-gray-200, rounded-lg, mb-4]
           children:
             - element: heading
               content: "11. NavigationMenu"
-              style: [text-base, font-semibold, text-gray-900, mb-3]
             - element: navigation-menu
               hamburger: true
               mobileBreakpoint: 768
-              style: [bg-white, rounded-lg, border, border-gray-200]
               items:
                 - label: "Home"
                   href: "/"
@@ -367,4 +301,3 @@ page:
                   href: "/contact"
 
         - element: spacer
-          style: [my-8]

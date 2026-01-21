@@ -27,8 +27,8 @@ export default function Home() {
                 <h1 className="text-5xl font-bold mb-6 text-center">NWL - Natural Web Language</h1>
                 <p className="text-xl text-gray-300 text-center mb-8">A DSL that compiles declarative YAML to production-ready React and React Native code</p>
                 <div className="flex flex-row gap-4">
-                    <Button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Get Started</Button>
-                    <Button className="bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold border border-gray-700 hover:bg-gray-700">View on GitHub</Button>
+                    <Button className="Button" className="Button bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Get Started</Button>
+                    <Button className="Button bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold border border-gray-700 hover:bg-gray-700">View on GitHub</Button>
         </div>
 
                 <div className="flex flex-row gap-8 mt-12">
@@ -57,17 +57,17 @@ export default function Home() {
             <div className="flex flex-col max-w-4xl mx-auto">
                 <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">Why NWL?</h1>
                 <div className="flex flex-row gap-8 flex-wrap">
-                    <div className="flex-1 p-6 border border-gray-200 rounded-xl min-w-280">
+                    <div className="Card flex-1 p-6 border border-gray-200 rounded-xl min-w-280">
                         <p className="text-xl font-semibold text-gray-900 mb-3">Simple & Declarative</p>
                         <p className="text-gray-600">Write UI in plain YAML. No JavaScript knowledge required. Focus on what to build, not how to build it.</p>
           </div>
 
-                    <div className="flex-1 p-6 border border-gray-200 rounded-xl min-w-280">
+                    <div className="Card flex-1 p-6 border border-gray-200 rounded-xl min-w-280">
                         <p className="text-xl font-semibold text-gray-900 mb-3">Type-Safe Output</p>
                         <p className="text-gray-600">Generate production-ready TypeScript/React code. Full type inference and compile-time validation.</p>
           </div>
 
-                    <div className="flex-1 p-6 border border-gray-200 rounded-xl min-w-280">
+                    <div className="Card flex-1 p-6 border border-gray-200 rounded-xl min-w-280">
                         <p className="text-xl font-semibold text-gray-900 mb-3">Fast Compilation</p>
                         <p className="text-gray-600">Built with Rust for instant compilation. Regenerate your entire UI in milliseconds.</p>
           </div>
@@ -81,7 +81,7 @@ export default function Home() {
             <div className="bg-gray-50 py-16 px-6">
             <div className="flex flex-col max-w-4xl mx-auto">
                 <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">How It Works</h1>
-                <div className="bg-gray-900 rounded-xl p-6 overflow-x-auto">
+                <div className="Card bg-gray-900 rounded-xl p-6 overflow-x-auto">
                     <div className="flex flex-col gap-2">
                         <p className="text-green-400 font-mono text-sm">1. Write simple YAML</p>
                         <p className="text-blue-400 font-mono text-sm">2. Run the NWL compiler</p>
@@ -99,7 +99,7 @@ export default function Home() {
             <div className="flex flex-col max-w-4xl mx-auto items-center">
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">Try It Yourself</h1>
                 <p className="text-gray-600 mb-8">Explore our interactive playground with all available components</p>
-                <Button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Open Playground</Button>
+                <Button className="Button" className="Button bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Open Playground</Button>
       </div>
 
     </div>

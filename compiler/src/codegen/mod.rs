@@ -13,7 +13,11 @@ pub enum CodegenError {
 pub struct ReactGenerator;
 
 impl ReactGenerator {
-    pub fn generate(document: &Document) -> Result<String, CodegenError> {
+    pub fn generate(
+        document: &Document,
+        css_theme: &Option<String>,
+        css_override: &Option<String>,
+    ) -> Result<String, CodegenError> {
         let mut output = String::new();
 
         let has_state = document.pages.iter().any(|p| !p.page_data.state.is_empty());
@@ -250,8 +254,12 @@ impl ReactGenerator {
         let class_name = Self::format_style(&button.style);
 
         let mut props = Vec::new();
-        if !class_name.is_empty() {
-            props.push(format!("className=\"{}\"", class_name));
+
+        // Combine Base UI class with user classes
+        if class_name.is_empty() {
+            props.push("className=\"Button\"".to_string());
+        } else {
+            props.push(format!("className=\"Button {}\"", class_name));
         }
 
         if let Some(onClick) = &button.onClick {
@@ -283,9 +291,9 @@ impl ReactGenerator {
 
         let mut output = String::new();
         let props = if class_name.is_empty() {
-            String::new()
+            " className=\"Card\"".to_string()
         } else {
-            format!(" className=\"{}\"", class_name)
+            format!(" className=\"Card {}\"", class_name)
         };
 
         output.push_str(&format!("{}<div{}>\n", indent_str, props));
@@ -305,19 +313,16 @@ impl ReactGenerator {
 
     fn generate_list(list: &ListElement, indent: usize) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
+        let class_name = Self::format_style(&list.style);
 
         let mut output = String::new();
-
-        output.push_str(&format!("{}<div className=\"border rounded", indent_str));
-
-        if !list.style.is_empty() {
-            let style_str = list.style.join(" ");
-            output.push_str(&format!(" {}\"", style_str));
+        let props = if class_name.is_empty() {
+            " className=\"List\"".to_string()
         } else {
-            output.push_str("\"");
-        }
+            format!(" className=\"List {}\"", class_name)
+        };
 
-        output.push_str(">\n");
+        output.push_str(&format!("{}<div{}>\n", indent_str, props));
 
         for (index, item) in list.items.iter().enumerate() {
             let key = format!("list-item-{}", index);
@@ -328,7 +333,7 @@ impl ReactGenerator {
             };
 
             output.push_str(&format!(
-                "{}  <div key=\"{}\" className=\"p-2 border-b last:border-b-0 cursor-pointer hover:bg-gray-50\"{}>\n",
+                "{}  <div key=\"{}\" className=\"List-item\"{}>\n",
                 indent_str, key, click_handler
             ));
             output.push_str(&format!("{}    {}\n", indent_str, item.content));
@@ -427,18 +432,7 @@ impl ReactGenerator {
     fn generate_spacer(spacer: &SpacerElement, indent: usize) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
 
-        let height = match spacer.size.as_ref().map(|s| s.as_str()) {
-            Some("small") => "h-1",
-            Some("medium") => "h-4",
-            Some("large") => "h-8",
-            Some("xl") => "h-12",
-            _ => "h-6",
-        };
-
-        Ok(format!(
-            "{}<Separator className=\"w-full {} my-4\" />",
-            indent_str, height
-        ))
+        Ok(format!("{}<Separator />", indent_str))
     }
 
     fn generate_container(
@@ -501,13 +495,19 @@ impl ReactGenerator {
         };
 
         let label_html = if let Some(label) = &checkbox.label {
-            format!("<span className=\"text-gray-700\">{}</span>", label)
+            format!("<span>{}</span>", label)
         } else {
             String::new()
         };
 
+        let wrapper_class = if class_name.is_empty() {
+            "".to_string()
+        } else {
+            format!(" {}", class_name)
+        };
+
         Ok(format!(
-            "{}<label className=\"flex items-center gap-2 cursor-pointer{}\">{}<Checkbox.Root{} {} className=\"flex size-5 items-center justify-center rounded border data-[checked]:bg-blue-600 data-[checked]:border-blue-600 data-[unchecked]:border-gray-300\">{}  <Checkbox.Indicator className=\"text-white text-xs\" />{}</Checkbox.Root>{}</label>",
+            "{}<label className=\"flex items-center gap-2 cursor-pointer{}\">{}<Checkbox.Root className=\"Checkbox-root\"{} {}>{}  <Checkbox.Indicator className=\"Checkbox-indicator\" />{}</Checkbox.Root>{}</label>",
             indent_str, wrapper_class, indent_str, checked_attr, onchange_attr, indent_str, indent_str, label_html
         ))
     }
@@ -586,9 +586,9 @@ impl ReactGenerator {
         };
 
         let props_str = if class_name.is_empty() {
-            String::new()
+            " className=\"Select-trigger\"".to_string()
         } else {
-            format!(" className=\"{}\"", class_name)
+            format!(" className=\"Select-trigger {}\"", class_name)
         };
 
         let mut output = String::new();
@@ -606,14 +606,14 @@ impl ReactGenerator {
             indent_str
         ));
         output.push_str(&format!(
-            "{}      <Select.Popup className=\"p-1 bg-white border rounded-lg shadow-lg\">\n",
+            "{}      <Select.Popup className=\"Select-popup\">\n",
             indent_str
         ));
 
         for opt in &select.options {
             let label = opt.label.as_ref().unwrap_or(&opt.value);
             output.push_str(&format!(
-                "{}        <Select.Item value=\"{}\" className=\"px-3 py-2 cursor-pointer hover:bg-gray-100 rounded\">\n{}          <Select.ItemText>{}</Select.ItemText>\n{}        </Select.Item>\n",
+                "{}        <Select.Item className=\"Select-item\" value=\"{}\">\n{}          <Select.ItemText>{}</Select.ItemText>\n{}        </Select.Item>\n",
                 indent_str, opt.value, indent_str, label, indent_str
             ));
         }
@@ -654,22 +654,25 @@ impl ReactGenerator {
         };
 
         let mut output = String::new();
+        let wrapper_class = if class_name.is_empty() {
+            " className=\"RadioGroup\"".to_string()
+        } else {
+            format!(" className=\"RadioGroup {}\"", class_name)
+        };
+
         output.push_str(&format!(
             "{}<RadioGroup{}{}>\n",
             indent_str, wrapper_class, default_value
         ));
 
         if let Some(label) = &radio.label {
-            output.push_str(&format!(
-                "{}  <p className=\"font-semibold mb-2 text-gray-900\">{}</p>\n",
-                indent_str, label
-            ));
+            output.push_str(&format!("{}  <p>{}</p>\n", indent_str, label));
         }
 
         for opt in &radio.options {
             let label = opt.label.as_ref().unwrap_or(&opt.value);
             output.push_str(&format!(
-                "{}  <label className=\"flex items-center gap-2 cursor-pointer py-1\">\n{}    <Radio.Root value=\"{}\" className=\"flex size-5 items-center justify-center rounded-full data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800\">\n{}      <Radio.Indicator className=\"flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden\" />\n{}    </Radio.Root>\n{}    <span className=\"text-gray-700\">{}</span>\n{}  </label>\n",
+                "{}  <label className=\"flex items-center gap-2 cursor-pointer py-1\">\n{}    <Radio.Root className=\"Radio-root\" value=\"{}\">\n{}      <Radio.Indicator className=\"Radio-indicator\" />\n{}    </Radio.Root>\n{}    <span>{}</span>\n{}  </label>\n",
                 indent_str, indent_str, opt.value, indent_str, indent_str, indent_str, label, indent_str
             ));
         }
@@ -725,16 +728,13 @@ impl ReactGenerator {
         let class_name = Self::format_style(&form.style);
 
         let wrapper_class = if class_name.is_empty() {
-            String::new()
+            " className=\"Form\"".to_string()
         } else {
-            format!(" {}", class_name)
+            format!(" className=\"Form {}\"", class_name)
         };
 
         let mut output = String::new();
-        output.push_str(&format!(
-            "{}<Form className=\"flex flex-col gap-4{}\">\n",
-            indent_str, wrapper_class
-        ));
+        output.push_str(&format!("{}<Form{}>\n", indent_str, wrapper_class));
 
         for child in &form.children {
             output.push_str(&format!(
@@ -754,9 +754,9 @@ impl ReactGenerator {
         let class_name = Self::format_style(&field.style);
 
         let wrapper_class = if class_name.is_empty() {
-            String::new()
+            " className=\"Field-root\"".to_string()
         } else {
-            format!(" {}", class_name)
+            format!(" className=\"Field-root {}\"", class_name)
         };
 
         let mut output = String::new();
@@ -767,24 +767,21 @@ impl ReactGenerator {
 
         if let Some(label) = &field.label {
             output.push_str(&format!(
-                "{}  <Field.Label className=\"text-sm font-medium text-gray-900\">{}</Field.Label>\n",
+                "{}  <Field.Label className=\"Field-label\">{}</Field.Label>\n",
                 indent_str, label
             ));
         }
 
-        output.push_str(&format!(
-            "{}  <Field.Control className=\"h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800\"",
-            indent_str
-        ));
+        output.push_str(&format!("{}  <Field.Control", indent_str));
 
         if let Some(placeholder) = &field.placeholder {
             output.push_str(&format!(" placeholder=\"{}\"", placeholder));
         }
 
-        output.push_str(&format!(" />\n"));
+        output.push_str(&format!(" className=\"Field-control\" />\n"));
 
         output.push_str(&format!(
-            "{}  <Field.Error className=\"text-sm text-red-800\" />\n",
+            "{}  <Field.Error className=\"Field-error\" />\n",
             indent_str
         ));
 
@@ -801,9 +798,9 @@ impl ReactGenerator {
         let class_name = Self::format_style(&fieldset.style);
 
         let wrapper_class = if class_name.is_empty() {
-            String::new()
+            " className=\"Fieldset-root\"".to_string()
         } else {
-            format!(" {}", class_name)
+            format!(" className=\"Fieldset-root {}\"", class_name)
         };
 
         let mut output = String::new();
@@ -811,7 +808,7 @@ impl ReactGenerator {
 
         if let Some(legend) = &fieldset.legend {
             output.push_str(&format!(
-                "{}  <Fieldset.Legend className=\"text-lg font-semibold text-gray-900 mb-2\">{}</Fieldset.Legend>\n",
+                "{}  <Fieldset.Legend className=\"Fieldset-legend\">{}</Fieldset.Legend>\n",
                 indent_str, legend
             ));
         }
@@ -1209,9 +1206,9 @@ impl ReactGenerator {
         let class_name = Self::format_style(&toggle.style);
 
         let wrapper_class = if class_name.is_empty() {
-            String::new()
+            " className=\"Switch-root\"".to_string()
         } else {
-            format!(" className=\"{}\"", class_name)
+            format!(" className=\"Switch-root {}\"", class_name)
         };
 
         let checked_attr = if let Some(bind) = &toggle.bind {
@@ -1228,16 +1225,13 @@ impl ReactGenerator {
         };
 
         let label_html = if let Some(label) = &toggle.label {
-            format!(
-                "<label htmlFor=\"toggle\" className=\"mr-3 text-sm font-medium text-gray-900\">{}</label>",
-                label
-            )
+            format!("<span className=\"font-medium\">{}</span>", label)
         } else {
             String::new()
         };
 
         Ok(format!(
-            "{}<label className=\"inline-flex items-center cursor-pointer\">{}<Switch.Root id=\"toggle\"{} {} className=\"flex w-11 h-6 bg-gray-200 data-[checked]:bg-green-500 rounded-full transition-colors\">{}  <Switch.Thumb className=\"block w-5 h-5 bg-white rounded-full shadow-sm transition-transform data-[checked]:translate-x-5 data-[unchecked]:translate-x-0\" />{}</Switch.Root></label>",
+            "{}<label className=\"inline-flex items-center cursor-pointer gap-3\">{}<Switch.Root className=\"Switch-root\" id=\"toggle\"{} {}>{}  <Switch.Thumb className=\"Switch-thumb\" />{}</Switch.Root></label>",
             indent_str, label_html, checked_attr, onchange_attr, indent_str, indent_str
         ))
     }
@@ -1259,34 +1253,20 @@ impl ReactGenerator {
         output.push_str(&format!("{}<div{}>\n", indent_str, wrapper_class));
 
         if let Some(label) = &tabs.label {
-            output.push_str(&format!(
-                "{}  <p className=\"font-semibold mb-2\">{}</p>\n",
-                indent_str, label
-            ));
+            output.push_str(&format!("{}  <p>{}</p>\n", indent_str, label));
         }
 
-        output.push_str(&format!(
-            "{}  <div className=\"border-b border-gray-200\">\n",
-            indent_str
-        ));
-        output.push_str(&format!(
-            "{}    <nav className=\"-mb-px flex space-x-8\">\n",
-            indent_str
-        ));
+        output.push_str(&format!("{}  <div>\n", indent_str));
+        output.push_str(&format!("{}    <nav>\n", indent_str));
 
         for (index, tab) in tabs.options.iter().enumerate() {
             let tab_label = tab.label.as_ref().unwrap_or(&tab.value);
-            let active_class = if index == 0 {
-                "border-blue-500 text-blue-600"
-            } else {
-                "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            };
 
             let mut input_props = Vec::new();
             input_props.push("type=\"radio\"".to_string());
             input_props.push("name=\"tabs\"".to_string());
             input_props.push(format!("value=\"{}\"", tab.value));
-            input_props.push(format!("className=\"sr-only peer\""));
+            input_props.push(format!("className=\"sr-only\""));
 
             if let Some(bind) = &tabs.bind {
                 let camel_name = Self::to_camel_case(bind);
@@ -1299,9 +1279,8 @@ impl ReactGenerator {
             }
 
             output.push_str(&format!(
-                "{}      <label className=\"{} cursor-pointer whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm\">{}<input {} /></label>\n",
+                "{}      <label className=\"cursor-pointer whitespace-nowrap py-4 px-1 border-b-2\">{}<input {} /></label>\n",
                 indent_str,
-                active_class,
                 tab_label,
                 input_props.join(" ")
             ));
@@ -1342,29 +1321,19 @@ impl ReactGenerator {
         for (index, item) in accordion.items.iter().enumerate() {
             let item_value = format!("item-{}", index);
             output.push_str(&format!(
-                "{}  <Accordion.Item value=\"{}\" className=\"border-b border-gray-200\">\n",
+                "{}  <Accordion.Item value=\"{}\">\n",
                 indent_str, item_value
             ));
+            output.push_str(&format!("{}    <Accordion.Header>\n", indent_str));
             output.push_str(&format!(
-                "{}    <Accordion.Header className=\"flex\">\n",
-                indent_str
+                "{}      <Accordion.Trigger>\n{}        {}\n{}      </Accordion.Trigger>\n",
+                indent_str, indent_str, item.title, indent_str
             ));
-            output.push_str(&format!(
-                "{}      <Accordion.Trigger className=\"flex flex-1 items-center justify-between py-4 px-1 font-medium text-gray-900 hover:bg-gray-50 rounded-t-lg transition-colors group\">\n{}        {}\n",
-                indent_str, indent_str, item.title
-            ));
-            output.push_str(&format!(
-                "{}        <svg className=\"w-5 h-5 text-gray-500 transition-transform group-data-[open]:rotate-180\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\" strokeWidth=\"2\" strokeLinecap=\"round\" strokeLinejoin=\"round\"><path d=\"M6 9l6 6 6-6\"></path></svg>\n",
-                indent_str
-            ));
-            output.push_str(&format!("{}      </Accordion.Trigger>\n", indent_str));
             output.push_str(&format!("{}    </Accordion.Header>\n", indent_str));
             output.push_str(&format!(
-                "{}      <Accordion.Panel className=\"pb-4 px-1 text-gray-600\">\n",
-                indent_str
+                "{}      <Accordion.Panel>\n{}        {}\n{}      </Accordion.Panel>\n",
+                indent_str, indent_str, item.content, indent_str
             ));
-            output.push_str(&format!("{}        {}\n", indent_str, item.content));
-            output.push_str(&format!("{}      </Accordion.Panel>\n", indent_str));
             output.push_str(&format!("{}  </Accordion.Item>\n", indent_str));
         }
 
@@ -1387,15 +1356,12 @@ impl ReactGenerator {
         };
 
         let wrapper_class = if class_name.is_empty() {
-            String::new()
+            "".to_string()
         } else {
             format!(" {}", class_name)
         };
 
-        let popup_class = format!(
-            "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 min-w-[320px] max-w-[90vw]{}",
-            wrapper_class
-        );
+        let popup_class = format!("Dialog-popup{}", wrapper_class);
 
         let mut output = String::new();
 
@@ -1423,7 +1389,7 @@ impl ReactGenerator {
 
         output.push_str(&format!("{}  <Dialog.Portal>\n", indent_str));
         output.push_str(&format!(
-            "{}    <Dialog.Backdrop className=\"fixed inset-0 bg-black/50 animate-fade-in\" />\n",
+            "{}    <Dialog.Backdrop className=\"Dialog-backdrop\" />\n",
             indent_str
         ));
         output.push_str(&format!(
@@ -1433,7 +1399,7 @@ impl ReactGenerator {
 
         if let Some(title) = &dialog.title {
             output.push_str(&format!(
-                "{}      <Dialog.Title className=\"text-xl font-semibold text-gray-900 mb-4\">{}</Dialog.Title>\n",
+                "{}      <Dialog.Title className=\"Dialog-title\">{}</Dialog.Title>\n",
                 indent_str, title
             ));
         }
@@ -1448,8 +1414,8 @@ impl ReactGenerator {
 
         if dialog.onClose.is_some() {
             output.push_str(&format!(
-                "{}      <div className=\"flex justify-end gap-2 mt-4\">\n{}        <Dialog.Close{}>\n{}          <span className=\"sr-only\">Close</span>\n{}          <svg className=\"w-5 h-5\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" strokeWidth=\"2\" strokeLinecap=\"round\" strokeLinejoin=\"round\"><path d=\"M18 6L6 18M6 6l12 12\"></path></svg>\n{}        </Dialog.Close>\n{}      </div>\n",
-                indent_str, indent_str, close_handler, indent_str, indent_str, indent_str, indent_str
+                "{}      <Dialog.Close className=\"Dialog-close\">\n{}        <span className=\"sr-only\">Close</span>\n{}      </Dialog.Close>\n",
+                indent_str, indent_str, indent_str
             ));
         }
 
@@ -1475,11 +1441,6 @@ impl ReactGenerator {
             format!(" {}", class_name)
         };
 
-        let popup_class = format!(
-            "bg-gray-900 text-white text-sm rounded px-3 py-2 shadow-lg{}",
-            wrapper_class
-        );
-
         let mut output = String::new();
         output.push_str(&format!("{}<Tooltip.Provider>\n", indent_str));
         output.push_str(&format!("{}  <Tooltip.Root>\n", indent_str));
@@ -1497,11 +1458,9 @@ impl ReactGenerator {
             indent_str
         ));
         output.push_str(&format!(
-            "{}        <Tooltip.Popup className=\"{}\">\n",
-            indent_str, popup_class
+            "{}        <Tooltip.Popup className=\"Tooltip-popup\">\n{}          {}\n{}        </Tooltip.Popup>\n",
+            indent_str, indent_str, tooltip.content, indent_str
         ));
-        output.push_str(&format!("{}          {}\n", indent_str, tooltip.content));
-        output.push_str(&format!("{}        </Tooltip.Popup>\n", indent_str));
         output.push_str(&format!("{}      </Tooltip.Positioner>\n", indent_str));
         output.push_str(&format!("{}    </Tooltip.Portal>\n", indent_str));
         output.push_str(&format!("{}  </Tooltip.Root>\n", indent_str));
@@ -1515,18 +1474,6 @@ impl ReactGenerator {
         indent: usize,
     ) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
-        let class_name = Self::format_style(&popover.style);
-
-        let wrapper_class = if class_name.is_empty() {
-            String::new()
-        } else {
-            format!(" {}", class_name)
-        };
-
-        let popup_class = format!(
-            "bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[200px]{}",
-            wrapper_class
-        );
 
         let mut output = String::new();
         output.push_str(&format!("{}<Popover.Root>\n", indent_str));
@@ -1544,13 +1491,13 @@ impl ReactGenerator {
             indent_str
         ));
         output.push_str(&format!(
-            "{}      <Popover.Popup className=\"{}\">\n",
-            indent_str, popup_class
+            "{}      <Popover.Popup className=\"Popover-popup\">\n",
+            indent_str
         ));
 
         if let Some(title) = &popover.title {
             output.push_str(&format!(
-                "{}        <Popover.Title className=\"font-semibold text-gray-900 mb-2\">{}</Popover.Title>\n",
+                "{}        <Popover.Title className=\"Popover-title\">{}</Popover.Title>\n",
                 indent_str, title
             ));
         }
@@ -1569,21 +1516,27 @@ impl ReactGenerator {
         indent: usize,
     ) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
-        let variant = badge
-            .variant
-            .as_ref()
-            .map(|v| match v.as_str() {
-                "success" => "bg-green-100 text-green-800",
-                "warning" => "bg-yellow-100 text-yellow-800",
-                "error" => "bg-red-100 text-red-800",
-                "info" => "bg-blue-100 text-blue-800",
-                _ => "bg-gray-100 text-gray-800",
-            })
-            .unwrap_or("bg-gray-100 text-gray-800");
+        let class_name = Self::format_style(&badge.style);
+
+        let props_str = if class_name.is_empty() {
+            " className=\"Badge\"".to_string()
+        } else {
+            format!(" className=\"Badge {}\"", class_name)
+        };
+
+        let variant_class = match badge.variant.as_deref().unwrap_or("default") {
+            "success" => " Badge-success",
+            "warning" => " Badge-warning",
+            "error" => " Badge-error",
+            "info" => " Badge-info",
+            _ => " Badge-default",
+        };
+
+        let final_class = format!("{}{}", props_str, variant_class);
 
         Ok(format!(
-            "{}<span className=\"{} px-2 py-1 rounded-full text-xs font-semibold\">{}</span>",
-            indent_str, variant, badge.content
+            "{}<span{}>{}</span>",
+            indent_str, final_class, badge.content
         ))
     }
 
@@ -1597,17 +1550,20 @@ impl ReactGenerator {
                 .as_ref()
                 .map(|h| format!("onClick={{() => {}}}", h))
                 .unwrap_or_default();
-            format!(
-                "<button {} className=\"ml-1 text-gray-400 hover:text-gray-600\">×</button>",
-                handler
-            )
+            format!("<button className=\"Tag-close\" {}>×</button>", handler)
         } else {
             String::new()
         };
 
+        let props_str = if class_name.is_empty() {
+            "className=\"Tag\"".to_string()
+        } else {
+            format!("className=\"Tag {}\"", class_name)
+        };
+
         Ok(format!(
-            "{}<span className=\"inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 {}\">{}{}</span>",
-            indent_str, class_name, tag.content, close_btn
+            "{}<span {}>{} {}</span>",
+            indent_str, props_str, tag.content, close_btn
         ))
     }
 
@@ -1616,16 +1572,7 @@ impl ReactGenerator {
         indent: usize,
     ) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
-        let alert_type = alert
-            .alertType
-            .as_ref()
-            .map(|t| match t.as_str() {
-                "success" => "bg-green-50 text-green-800 border-green-200",
-                "error" => "bg-red-50 text-red-800 border-red-200",
-                "warning" => "bg-yellow-50 text-yellow-800 border-yellow-200",
-                _ => "bg-blue-50 text-blue-800 border-blue-200",
-            })
-            .unwrap_or("bg-blue-50 text-blue-800 border-blue-200");
+        let class_name = Self::format_style(&alert.style);
 
         let dismiss_btn = if alert.dismissible == Some(true) {
             let handler = alert
@@ -1633,22 +1580,27 @@ impl ReactGenerator {
                 .as_ref()
                 .map(|h| format!("onClick={{() => {}}}", h))
                 .unwrap_or_default();
-            format!("<button {} className=\"ml-auto -mx-1.5 -my-1.5 bg-transparent text-current rounded-lg focus:ring-2 inline-flex items-center justify-center h-8 w-8\">×</button>", handler)
+            format!("<button className=\"Alert-dismiss\" {} />", handler)
         } else {
             String::new()
         };
 
+        let variant_class = match alert.alertType.as_deref().unwrap_or("info") {
+            "success" => " Alert-success",
+            "warning" => " Alert-warning",
+            "error" => " Alert-error",
+            _ => " Alert-info",
+        };
+
+        let base_class = if class_name.is_empty() {
+            format!("Alert{}", variant_class)
+        } else {
+            format!("Alert{} {}", variant_class, class_name)
+        };
+
         Ok(format!(
-            "{}<div className=\"my-2 {} border p-4 rounded-lg flex items-start {}\">{}<p>{}</p></div>",
-            indent_str,
-            alert_type,
-            if alert.dismissible == Some(true) {
-                "relative"
-            } else {
-                ""
-            },
-            dismiss_btn,
-            alert.content
+            "{}<div className=\"{}\">{}<p>{}</p></div>",
+            indent_str, base_class, dismiss_btn, alert.content
         ))
     }
 
@@ -1657,33 +1609,37 @@ impl ReactGenerator {
         indent: usize,
     ) -> Result<String, CodegenError> {
         let indent_str = "  ".repeat(indent);
-        let size = spinner
-            .size
-            .as_ref()
-            .map(|s| match s.as_str() {
-                "sm" => "w-4 h-4",
-                "lg" => "w-8 h-8",
-                _ => "w-6 h-6",
-            })
-            .unwrap_or("w-6 h-6");
+        let class_name = Self::format_style(&spinner.style);
+
+        let size_class = match spinner.size.as_deref().unwrap_or("md") {
+            "sm" => " Spinner-sm",
+            "lg" => " Spinner-lg",
+            _ => "",
+        };
 
         let label = spinner
             .label
             .as_ref()
-            .map(|l| {
-                format!(
-                    "<span className=\"ml-2 text-sm text-gray-600\">{}</span>",
-                    l
-                )
-            })
+            .map(|l| format!("<span className=\"Spinner-label\">{}</span>", l))
             .unwrap_or_default();
 
+        let container_class = if class_name.is_empty() {
+            "Spinner".to_string()
+        } else {
+            format!("Spinner {}", class_name)
+        };
+
         Ok(format!(
-            "{}<div className=\"flex items-center justify-center\">{}<div className=\"{} animate-spin rounded-full border-2 border-gray-300 border-t-blue-600\"></div>{}</div>",
+            "{}<div className=\"{}\">{}<div className=\"Spinner-spinner{}\" />{}</div>",
             indent_str,
+            container_class,
             label,
-            size,
-            if label.is_empty() { "<div className=\"sr-only\">Loading...</div>".to_string() } else { String::new() }
+            size_class,
+            if label.is_empty() {
+                "<span className=\"sr-only\">Loading...</span>".to_string()
+            } else {
+                String::new()
+            }
         ))
     }
 
@@ -1721,19 +1677,27 @@ impl ReactGenerator {
         };
 
         let wrapper_class = if class_name.is_empty() {
-            String::new()
+            "NumberField-root".to_string()
         } else {
-            format!(" {}", class_name)
+            format!("NumberField-root {}", class_name)
         };
 
         let children = format!(
-            "{}<NumberField.Decrement className=\"px-3 py-2 border-r hover:bg-gray-100 flex items-center justify-center bg-gray-50\">\n{}    <span className=\"text-gray-600 font-medium\">-</span>\n{}  </NumberField.Decrement>\n{}  <NumberField.Input className=\"w-16 text-center border-none focus:outline-none py-2\" />\n{}  <NumberField.Increment className=\"px-3 py-2 border-l hover:bg-gray-100 flex items-center justify-center bg-gray-50\">\n{}    <span className=\"text-gray-600 font-medium\">+</span>\n{}  </NumberField.Increment>",
+            "{}<NumberField.Decrement className=\"NumberField-decrement\">\n{}    <span>-</span>\n{}  </NumberField.Decrement>\n{}  <NumberField.Input className=\"NumberField-input\" />\n{}  <NumberField.Increment className=\"NumberField-increment\">\n{}    <span>+</span>\n{}  </NumberField.Increment>",
             indent_str, indent_str, indent_str, indent_str, indent_str, indent_str, indent_str
         );
 
         Ok(format!(
-            "{}<NumberField.Root className=\"flex items-center border rounded-lg overflow-hidden\"{}{}{}{}>\n{}\n{}</NumberField.Root>",
-            indent_str, value_attr, min_attr, max_attr, onvaluechange_attr, children, indent_str
+            "{}<NumberField.Root className=\"{}\"{}{}{}{}{}>\n{}\n{}</NumberField.Root>",
+            indent_str,
+            wrapper_class,
+            value_attr,
+            min_attr,
+            max_attr,
+            step_attr,
+            onvaluechange_attr,
+            children,
+            indent_str
         ))
     }
 
@@ -1774,9 +1738,13 @@ impl ReactGenerator {
         let props_str = props.join(" ");
 
         Ok(format!(
-            "{}<div className=\"relative\">{}<input {} /><button className=\"absolute right-3 top-1/2 -translate-y-1/2 text-gray-400\">🔍</button></div>",
+            "{}<div>{}<input {} /></div>",
             indent_str,
-            if !class_name.is_empty() { format!("<span className=\"{}\"></span>", class_name) } else { String::new() },
+            if !class_name.is_empty() {
+                format!("<span className=\"{}\"></span>", class_name)
+            } else {
+                String::new()
+            },
             props_str
         ))
     }
@@ -1817,11 +1785,8 @@ impl ReactGenerator {
             .unwrap_or_else(|| "Copy".to_string());
 
         Ok(format!(
-            "{}<button {} className=\"inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 {}\">{}</button>",
-            indent_str,
-            handler,
-            class_name,
-            button_text
+            "{}<button {} className=\"inline-flex items-center {}\">{}</button>",
+            indent_str, handler, class_name, button_text
         ))
     }
 
@@ -2093,56 +2058,48 @@ impl ReactGenerator {
         let indent_str = "  ".repeat(indent);
         let class_name = Self::format_style(&menu.style);
 
-        let props_str = if class_name.is_empty() {
-            String::new()
+        let nav_class = if class_name.is_empty() {
+            "NavigationMenu".to_string()
         } else {
-            format!(" {}", class_name)
+            format!("NavigationMenu {}", class_name)
         };
 
         let mut output = String::new();
-        output.push_str(&format!("{}<div className=\"relative\">\n", indent_str));
+        output.push_str(&format!(
+            "{}<div className=\"{}\">\n",
+            indent_str, nav_class
+        ));
+        output.push_str(&format!(
+            "{}  <nav className=\"NavigationMenu-nav flex items-center justify-between px-6 py-4 bg-gray-900 border-b border-gray-700\">\n",
+            indent_str
+        ));
+        output.push_str(&format!(
+            "{}    <a href=\"/\" className=\"NavigationMenu-logo\">NWL</a>\n",
+            indent_str
+        ));
+        output.push_str(&format!(
+            "{}    <div className=\"hidden md:flex gap-4 NavigationMenu-nav\">\n",
+            indent_str
+        ));
 
-        if menu.hamburger == Some(true) {
+        for link in &menu.items {
+            let href = link.href.as_deref().unwrap_or("#");
             output.push_str(&format!(
-                "{}  <div className=\"flex items-center justify-between px-6 py-4{}\">\n",
-                indent_str, props_str
+                "{}      <a href=\"{}\" className=\"NavigationMenu-link\">{}</a>\n",
+                indent_str, href, link.label
             ));
-            output.push_str(&format!(
-                "{}    <div className=\"hidden md:flex gap-4\">\n",
-                indent_str
-            ));
-            for link in &menu.items {
-                let href = link.href.as_deref().unwrap_or("#");
-                output.push_str(&format!(
-                    "{}      <a href=\"{}\" className=\"text-gray-300 hover:text-white transition-colors\">{}</a>\n",
-                    indent_str, href, link.label
-                ));
-            }
-            output.push_str(&format!("{}    </div>\n", indent_str));
-            output.push_str(&format!(
-                "{}    <Button variant=\"soft\" className=\"md:hidden\">\n",
-                indent_str
-            ));
-            output.push_str(&format!(
-                "{}      <svg className=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\" strokeWidth=\"2\" strokeLinecap=\"round\" strokeLinejoin=\"round\"><path d=\"M4 6h16M4 12h16M4 18h16\"></path></svg>\n",
-                indent_str
-            ));
-            output.push_str(&format!("{}    </Button>\n", indent_str));
-            output.push_str(&format!("{}  </div>\n", indent_str));
-        } else {
-            output.push_str(&format!(
-                "{}  <div className=\"flex items-center justify-between px-6 py-4{}\">\n",
-                indent_str, props_str
-            ));
-            for link in &menu.items {
-                let href = link.href.as_deref().unwrap_or("#");
-                output.push_str(&format!(
-                    "{}    <a href=\"{}\" className=\"text-gray-300 hover:text-white transition-colors\">{}</a>\n",
-                    indent_str, href, link.label
-                ));
-            }
-            output.push_str(&format!("{}  </div>\n", indent_str));
         }
+        output.push_str(&format!("{}    </div>\n", indent_str));
+        output.push_str(&format!(
+            "{}    <Button className=\"Button md:hidden\">\n",
+            indent_str
+        ));
+        output.push_str(&format!(
+            "{}      <svg className=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\" strokeWidth=\"2\" strokeLinecap=\"round\" strokeLinejoin=\"round\"><path d=\"M4 6h16M4 12h16M4 18h16\"></path></svg>\n",
+            indent_str
+        ));
+        output.push_str(&format!("{}    </Button>\n", indent_str));
+        output.push_str(&format!("{}  </nav>\n", indent_str));
 
         output.push_str(&format!("{}  <Menu.Root>\n", indent_str));
         output.push_str(&format!("{}    <Menu.Portal>\n", indent_str));
@@ -2150,7 +2107,7 @@ impl ReactGenerator {
             "{}      <Menu.Positioner sideOffset={{8}} className=\"z-50\">\n",
             indent_str
         ));
-        output.push_str(&format!("{}        <Menu.Popup className=\"min-w-[200px] p-1 bg-white border rounded-lg shadow-lg\">\n", indent_str));
+        output.push_str(&format!("{}        <Menu.Popup className=\"Popover-popup min-w-[200px] p-1 bg-white border rounded-lg shadow-lg\">\n", indent_str));
         output.push_str(&format!(
             "{}          <Menu.Arrow className=\"fill-white\" />\n",
             indent_str
@@ -2361,16 +2318,34 @@ impl ReactGenerator {
     }
 }
 
-pub fn generate_react(document: &Document) -> Result<String, CodegenError> {
-    ReactGenerator::generate(document)
+pub fn generate_react(
+    document: &Document,
+    css_theme: &Option<String>,
+    css_override: &Option<String>,
+) -> Result<String, CodegenError> {
+    ReactGenerator::generate(document, css_theme, css_override)
 }
 
-pub fn generate_router(name: &str, imports: &str, routes: &str) -> String {
+pub fn generate_router(
+    name: &str,
+    imports: &str,
+    routes: &str,
+    css_theme: &Option<String>,
+    css_override: &Option<String>,
+) -> String {
+    let has_css = css_theme.is_some() || css_override.is_some();
+    let css_imports = if has_css {
+        "import '../themes/theme.css';\nimport '../themes/theme.override.css';\n"
+    } else {
+        ""
+    };
+
     format!(
         r#"import React from 'react'
 import ReactDOM from 'react-dom/client'
 import {{ BrowserRouter, Routes, Route }} from 'react-router-dom'
 import './index.css'
+{}
 
 {}
 
@@ -2384,8 +2359,74 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>,
 )
 "#,
-        imports, routes
+        css_imports, imports, routes
     )
+}
+
+pub fn generate_css(document: &Document) -> Result<String, CodegenError> {
+    let mut css_output = String::new();
+    let mut override_css = String::new();
+    let mut has_custom_theme = false;
+
+    for page in &document.pages {
+        if let Some(theme) = &page.page_data.css_theme {
+            has_custom_theme = true;
+            if theme == "default" {
+                css_output.push_str("/* Default Base UI Theme */\n");
+                css_output.push_str(include_str!("../../../themes/default.css"));
+                css_output.push('\n');
+            } else {
+                css_output.push_str(&format!("/* Custom theme: {} */\n", theme));
+                css_output.push_str(&format!("@import './themes/{}.css';\n", theme));
+            }
+        }
+
+        if let Some(override_file) = &page.page_data.css_override {
+            override_css.push_str(&format!("/* Override styles: {} */\n", override_file));
+            if override_file == "default" {
+                override_css.push_str("/* Add your custom override styles here */\n");
+            } else {
+                override_css.push_str(&format!("@import './themes/{}';\n", override_file));
+            }
+        }
+    }
+
+    if !has_custom_theme {
+        css_output.push_str("/* Default Base UI Theme */\n");
+        css_output.push_str(include_str!("../../../themes/default.css"));
+        css_output.push('\n');
+    }
+
+    if override_css.is_empty() {
+        override_css.push_str("/* Theme Overrides */\n");
+        override_css.push_str("/* Add your custom override styles here */\n");
+    }
+
+    Ok(format!(
+        "{}\n===OVERRIDE_FILE===\n{}",
+        css_output, override_css
+    ))
+}
+
+pub fn get_css_import_path(
+    document: &Document,
+    css_theme: &Option<String>,
+    css_override: &Option<String>,
+) -> (String, String) {
+    let has_project_css = css_theme.is_some() || css_override.is_some();
+    let has_page_css = document
+        .pages
+        .iter()
+        .any(|p| p.page_data.css_theme.is_some() || p.page_data.css_override.is_some());
+
+    if has_project_css || has_page_css {
+        (
+            "./themes/theme.css".to_string(),
+            "./themes/theme.override.css".to_string(),
+        )
+    } else {
+        (String::new(), String::new())
+    }
 }
 
 impl From<CodegenError> for nwl_shared::CompileError {
@@ -2420,6 +2461,8 @@ mod tests {
                     }),
                 ],
                 state: vec![],
+                css_theme: None,
+                css_override: None,
             },
         }
     }
@@ -2428,7 +2471,7 @@ mod tests {
     fn test_generate_simple_page() {
         let page = make_simple_page();
         let document = Document { pages: vec![page] };
-        let result = generate_react(&document);
+        let result = generate_react(&document, &None, &None);
         assert!(result.is_ok());
         let code = result.unwrap();
         assert!(code.contains("export default function Test()"));
@@ -2449,10 +2492,12 @@ mod tests {
                     style: vec!["text-xl".to_string(), "font-semibold".to_string()],
                 })],
                 state: vec![],
+                css_theme: None,
+                css_override: None,
             },
         };
         let document = Document { pages: vec![page] };
-        let result = generate_react(&document).unwrap();
+        let result = generate_react(&document, &None, &None).unwrap();
         assert!(result.contains("<h1"));
         assert!(result.contains("Test Heading"));
     }
@@ -2470,10 +2515,12 @@ mod tests {
                     style: vec!["bg-primary".to_string()],
                 })],
                 state: vec![],
+                css_theme: None,
+                css_override: None,
             },
         };
         let document = Document { pages: vec![page] };
-        let result = generate_react(&document).unwrap();
+        let result = generate_react(&document, &None, &None).unwrap();
         assert!(result.contains("onClick={() => handleSubmit()}"));
         assert!(result.contains("Submit"));
     }
@@ -2494,10 +2541,12 @@ mod tests {
                     style: vec![],
                 })],
                 state: vec![],
+                css_theme: None,
+                css_override: None,
             },
         };
         let document = Document { pages: vec![page] };
-        let result = generate_react(&document).unwrap();
+        let result = generate_react(&document, &None, &None).unwrap();
         // Page layout creates a div with the page style (bg-gray-100)
         assert!(result.contains("className=\"bg-gray-100\""));
         assert!(result.contains("Title"));
@@ -2535,6 +2584,8 @@ mod tests {
                     style: vec![],
                 })],
                 state: vec![],
+                css_theme: None,
+                css_override: None,
             },
         };
         let page2 = Page {
@@ -2547,12 +2598,14 @@ mod tests {
                     style: vec![],
                 })],
                 state: vec![],
+                css_theme: None,
+                css_override: None,
             },
         };
         let document = Document {
             pages: vec![page1, page2],
         };
-        let result = generate_react(&document).unwrap();
+        let result = generate_react(&document, &None, &None).unwrap();
         assert!(result.contains("function Home()"));
         assert!(result.contains("function About()"));
         assert!(result.contains("Welcome"));
@@ -2563,7 +2616,7 @@ mod tests {
     fn test_generate_router() {
         let imports = "import Home from './home';\nimport About from './about';".to_string();
         let routes = "        <Route path=\"/\" element={<Home />}} />\n        <Route path=\"/about\" element={<About />}} />\n".to_string();
-        let router = generate_router("TestApp", &imports, &routes);
+        let router = generate_router("TestApp", &imports, &routes, &None, &None);
         assert!(router.contains("import React from 'react'"));
         assert!(router.contains("BrowserRouter"));
         assert!(router.contains("Home"));
@@ -2589,10 +2642,12 @@ mod tests {
                     value_type: None,
                     initial: Some(serde_yaml::Value::Number(0.into())),
                 }],
+                css_theme: None,
+                css_override: None,
             },
         };
         let document = Document { pages: vec![page] };
-        let result = generate_react(&document).unwrap();
+        let result = generate_react(&document, &None, &None).unwrap();
         assert!(result.contains("useState"));
         assert!(result.contains("count"));
         assert!(result.contains("setCount"));

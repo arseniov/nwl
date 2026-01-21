@@ -1,0 +1,57 @@
+/* Theme Overrides - Custom CSS */
+
+/* Add your custom override styles here to customize the default theme */
+
+/* Example: Change primary button color */
+/* .Button { */
+/*   background-color: #4f46e5; */
+/*   color: white; */
+/* } */
+/* .Button:hover { */
+/*   background-color: #4338ca; */
+/* } */
+
+/* Example: Change badge styles */
+/* .Badge { */
+/*   font-weight: 700; */
+/*   text-transform: uppercase; */
+/*   letter-spacing: 0.05em; */
+/* } */
+
+/* Example: Add custom component styles */
+/* .my-custom-component { */
+/*   background-color: #f3f4f6; */
+/*   padding: 1rem; */
+/*   border-radius: 0.5rem; */
+/*   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); */
+/* } */
+
+/* Example: Override specific component styles */
+/* .Alert-success { */
+/*   background-color: #d1fae5; */
+/*   border-color: #059669; */
+/*   color: #064e3b; */
+/* } */
+
+/* Custom theme overrides */
+.Button {
+  /* Add your button overrides here */
+  /* background-color: #2563eb; */
+  /* color: white; */
+}
+
+.Card {
+  /* Add your card overrides here */
+  /* box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); */
+  /* border-color: #d1d5db; */
+}
+
+.Badge {
+  /* Add your badge overrides here */
+  /* font-weight: 700; */
+}
+
+.Alert {
+  /* Add your alert overrides here */
+  /* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); */
+}
