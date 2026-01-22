@@ -74,7 +74,7 @@ pub fn process_css(
     })
 }
 
-fn parse_css(content: &str) -> Result<Vec<CssRule>, String> {
+pub fn parse_css(content: &str) -> Result<Vec<CssRule>, String> {
     let mut rules = Vec::new();
     let mut current_selector = String::new();
     let mut current_properties = HashMap::new();
@@ -141,7 +141,7 @@ fn parse_css(content: &str) -> Result<Vec<CssRule>, String> {
     Ok(rules)
 }
 
-fn merge_css_rules(base_rules: Vec<CssRule>, override_css: &str) -> Vec<CssRule> {
+pub fn merge_css_rules(base_rules: Vec<CssRule>, override_css: &str) -> Vec<CssRule> {
     let override_rules = parse_css(override_css).unwrap_or_default();
 
     // Create a map of base rules by selector
@@ -192,7 +192,7 @@ fn apply_inline_styles(rules: &mut Vec<CssRule>, inline_styles: &HashMap<String,
     }
 }
 
-fn resolve_utility_class(class: &str) -> (String, String) {
+pub fn resolve_utility_class(class: &str) -> (String, String) {
     // Map Tailwind utility classes to CSS properties
     // Format: (property, value)
     let mappings: Vec<(&str, &str, &str)> = vec![

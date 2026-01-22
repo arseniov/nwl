@@ -2494,8 +2494,7 @@ mod tests {
     #[test]
     fn test_generate_simple_page() {
         let page = make_simple_page();
-        let document = Document { pages: vec![page] };
-        let result = generate_react(&document, &None, &None);
+        let result = generate_react(&page, &None, &None);
         assert!(result.is_ok());
         let code = result.unwrap();
         assert!(code.contains("export default function Test()"));
@@ -2520,8 +2519,7 @@ mod tests {
                 css_override: None,
             },
         };
-        let document = Document { pages: vec![page] };
-        let result = generate_react(&document, &None, &None).unwrap();
+        let result = generate_react(&page, &None, &None).unwrap();
         assert!(result.contains("<h1"));
         assert!(result.contains("Test Heading"));
     }
@@ -2543,8 +2541,7 @@ mod tests {
                 css_override: None,
             },
         };
-        let document = Document { pages: vec![page] };
-        let result = generate_react(&document, &None, &None).unwrap();
+        let result = generate_react(&page, &None, &None).unwrap();
         assert!(result.contains("onClick={() => handleSubmit()}"));
         assert!(result.contains("Submit"));
     }
@@ -2557,7 +2554,7 @@ mod tests {
                 layout: Some(Layout {
                     layout_type: LayoutType::Column,
                     columns: None,
-                    properties: vec!["items-center".to_string(), "gap-4".to_string()],
+                    style: vec!["items-center".to_string(), "gap-4".to_string()],
                 }),
                 style: vec!["bg-gray-100".to_string()],
                 children: vec![Element::Heading(HeadingElement {
@@ -2569,8 +2566,7 @@ mod tests {
                 css_override: None,
             },
         };
-        let document = Document { pages: vec![page] };
-        let result = generate_react(&document, &None, &None).unwrap();
+        let result = generate_react(&page, &None, &None).unwrap();
         // Page layout creates a div with the page style (bg-gray-100)
         assert!(result.contains("className=\"bg-gray-100\""));
         assert!(result.contains("Title"));
@@ -2629,18 +2625,17 @@ mod tests {
         let document = Document {
             pages: vec![page1, page2],
         };
-        let result = generate_react(&document, &None, &None).unwrap();
+        let result = generate_react(&document.pages[0], &None, &None).unwrap();
         assert!(result.contains("function Home()"));
-        assert!(result.contains("function About()"));
         assert!(result.contains("Welcome"));
-        assert!(result.contains("About Us"));
     }
 
     #[test]
     fn test_generate_router() {
         let imports = "import Home from './home';\nimport About from './about';".to_string();
         let routes = "        <Route path=\"/\" element={<Home />}} />\n        <Route path=\"/about\" element={<About />}} />\n".to_string();
-        let router = generate_router("TestApp", &imports, &routes, &None, &None);
+        let document = Document { pages: vec![] };
+        let router = generate_router("TestApp", &imports, &routes, &None, &None, &document);
         assert!(router.contains("import React from 'react'"));
         assert!(router.contains("BrowserRouter"));
         assert!(router.contains("Home"));
@@ -2670,8 +2665,7 @@ mod tests {
                 css_override: None,
             },
         };
-        let document = Document { pages: vec![page] };
-        let result = generate_react(&document, &None, &None).unwrap();
+        let result = generate_react(&page, &None, &None).unwrap();
         assert!(result.contains("useState"));
         assert!(result.contains("count"));
         assert!(result.contains("setCount"));
@@ -2682,11 +2676,216 @@ mod tests {
         let layout = Layout {
             layout_type: LayoutType::Column,
             columns: None,
-            properties: vec!["items-center".to_string(), "gap-4".to_string()],
+            style: vec!["items-center".to_string(), "gap-4".to_string()],
         };
         let result = ReactGenerator::format_layout_props(&layout);
         assert!(result.contains("flex flex-col"));
         assert!(result.contains("items-center"));
         assert!(result.contains("gap-4"));
+    }
+
+    #[test]
+    fn test_css_processing_utility_class_mapping() {
+        use crate::codegen::css_processing::resolve_utility_class;
+
+        // Test text utilities
+        let (prop, value) = resolve_utility_class("text-lg");
+        assert_eq!(prop, "font-size");
+        assert_eq!(value, "1.125rem");
+
+        let (prop, value) = resolve_utility_class("text-2xl");
+        assert_eq!(prop, "font-size");
+        assert_eq!(value, "1.5rem");
+
+        // Test color utilities
+        let (prop, value) = resolve_utility_class("text-blue-600");
+        assert_eq!(prop, "color");
+        assert_eq!(value, "#2563eb");
+
+        // Test background utilities
+        let (prop, value) = resolve_utility_class("bg-blue-500");
+        assert_eq!(prop, "background-color");
+        assert_eq!(value, "#3b82f6");
+
+        // Test spacing utilities
+        let (prop, value) = resolve_utility_class("p-4");
+        assert_eq!(prop, "padding");
+        assert_eq!(value, "1rem");
+
+        // Test flex utilities
+        let (prop, value) = resolve_utility_class("flex");
+        assert_eq!(prop, "display");
+        assert_eq!(value, "flex");
+
+        // Test unknown utility returns empty
+        let (prop, value) = resolve_utility_class("unknown-class");
+        assert!(
+            prop.is_empty(),
+            "Unknown utility should return empty property"
+        );
+        assert!(
+            value.is_empty(),
+            "Unknown utility should return empty value"
+        );
+    }
+
+    #[test]
+    fn test_css_parse_basic_rules() {
+        use crate::codegen::css_processing::parse_css;
+
+        let css = r#"
+        .Button {
+            display: inline-flex;
+            color: white;
+        }
+        .Card {
+            background: blue;
+        }
+        "#;
+
+        let rules = parse_css(css).unwrap();
+        assert_eq!(rules.len(), 2);
+
+        // Find Button rule
+        let button_rule = rules.iter().find(|r| r.selector == ".Button").unwrap();
+        assert_eq!(
+            button_rule.properties.get("display"),
+            Some(&"inline-flex".to_string())
+        );
+        assert_eq!(
+            button_rule.properties.get("color"),
+            Some(&"white".to_string())
+        );
+
+        // Find Card rule
+        let card_rule = rules.iter().find(|r| r.selector == ".Card").unwrap();
+        assert_eq!(
+            card_rule.properties.get("background"),
+            Some(&"blue".to_string())
+        );
+    }
+
+    #[test]
+    fn test_css_merge_replaces_competing_properties() {
+        use crate::codegen::css_processing::merge_css_rules;
+
+        let base_css = r#"
+        .Button {
+            background-color: blue;
+            color: white;
+            font-size: 14px;
+        }
+        "#;
+
+        let override_css = r#"
+        .Button {
+            background-color: red;
+            font-size: 16px;
+        }
+        "#;
+
+        let merged = merge_css_rules(
+            crate::codegen::css_processing::parse_css(base_css).unwrap(),
+            override_css,
+        );
+
+        // Find Button rule
+        let button_rule = merged.iter().find(|r| r.selector == ".Button").unwrap();
+
+        // Override should replace background-color
+        assert_eq!(
+            button_rule.properties.get("background-color"),
+            Some(&"red".to_string())
+        );
+
+        // Override should replace font-size
+        assert_eq!(
+            button_rule.properties.get("font-size"),
+            Some(&"16px".to_string())
+        );
+
+        // Color should remain from base (no competing property in override)
+        assert_eq!(
+            button_rule.properties.get("color"),
+            Some(&"white".to_string())
+        );
+    }
+
+    #[test]
+    fn test_collect_inline_styles_from_document() {
+        use crate::codegen::css_processing::collect_inline_styles;
+        use nwl_shared::Element;
+
+        let page = Page {
+            page_data: PageData {
+                name: "Test".to_string(),
+                layout: None,
+                style: vec![],
+                children: vec![
+                    Element::Button(ButtonElement {
+                        content: "Click Me".to_string(),
+                        onClick: None,
+                        style: vec!["bg-red-500".to_string(), "text-white".to_string()],
+                    }),
+                    Element::Card(CardElement {
+                        style: vec!["p-6".to_string()],
+                        children: vec![],
+                    }),
+                ],
+                state: vec![],
+                css_theme: None,
+                css_override: None,
+            },
+        };
+
+        let document = Document { pages: vec![page] };
+        let styles = collect_inline_styles(&document);
+
+        // Check Button styles
+        assert!(styles.contains_key("Button"));
+        let button_styles = styles.get("Button").unwrap();
+        assert!(button_styles.contains(&"bg-red-500".to_string()));
+        assert!(button_styles.contains(&"text-white".to_string()));
+
+        // Check Card styles
+        assert!(styles.contains_key("Card"));
+        let card_styles = styles.get("Card").unwrap();
+        assert!(card_styles.contains(&"p-6".to_string()));
+    }
+
+    #[test]
+    fn test_generate_css_output_format() {
+        use crate::codegen::css_processing::{generate_css_output, CssRule};
+        use std::collections::HashMap;
+
+        let rules = vec![
+            CssRule {
+                selector: ".Button".to_string(),
+                properties: vec![
+                    ("display".to_string(), "inline-flex".to_string()),
+                    ("color".to_string(), "white".to_string()),
+                ]
+                .into_iter()
+                .collect(),
+                is_pseudo: false,
+            },
+            CssRule {
+                selector: ".Button:hover".to_string(),
+                properties: vec![("background-color".to_string(), "blue".to_string())]
+                    .into_iter()
+                    .collect(),
+                is_pseudo: true,
+            },
+        ];
+
+        let output = generate_css_output(&rules);
+
+        // Check format
+        assert!(output.contains("/* Processed CSS - Generated by NWL Compiler */"));
+        assert!(output.contains(".Button {"));
+        assert!(output.contains("display: inline-flex;"));
+        assert!(output.contains("color: white;"));
+        assert!(output.contains(".Button:hover {"));
+        assert!(output.contains("background-color: blue;"));
     }
 }
