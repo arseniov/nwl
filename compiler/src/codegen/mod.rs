@@ -1,8 +1,13 @@
 use nwl_shared::{
     ButtonElement, CaptchaConfig, CardElement, ContainerElement, Document, FieldElement,
     FieldsetElement, FormElement, HeadingElement, ImageElement, InputElement, LayoutElement,
-    LayoutType, ListElement, PageData, PopoverElement, SpacerElement, TextElement, TooltipElement,
+    LayoutType, ListElement, Page, PageData, PopoverElement, SpacerElement, TextElement,
+    TooltipElement,
 };
+
+pub mod css_processing;
+
+pub use css_processing::{collect_inline_styles, generate_css_output, process_css, ProcessedCss};
 
 #[derive(Debug, thiserror::Error)]
 pub enum CodegenError {
@@ -14,13 +19,13 @@ pub struct ReactGenerator;
 
 impl ReactGenerator {
     pub fn generate(
-        document: &Document,
+        page: &Page,
         css_theme: &Option<String>,
         css_override: &Option<String>,
     ) -> Result<String, CodegenError> {
         let mut output = String::new();
 
-        let has_state = document.pages.iter().any(|p| !p.page_data.state.is_empty());
+        let has_state = !page.page_data.state.is_empty();
 
         if has_state {
             output.push_str("import React, { useState } from 'react';\n");
@@ -47,10 +52,8 @@ impl ReactGenerator {
         output.push_str("  Popover,\n");
         output.push_str("} from '@base-ui/react';\n\n");
 
-        for page in &document.pages {
-            output.push_str(&Self::generate_page(&page.page_data)?);
-            output.push('\n');
-        }
+        output.push_str(&Self::generate_page(&page.page_data)?);
+        output.push('\n');
 
         Ok(output)
     }
@@ -2319,11 +2322,11 @@ impl ReactGenerator {
 }
 
 pub fn generate_react(
-    document: &Document,
+    page: &Page,
     css_theme: &Option<String>,
     css_override: &Option<String>,
 ) -> Result<String, CodegenError> {
-    ReactGenerator::generate(document, css_theme, css_override)
+    ReactGenerator::generate(page, css_theme, css_override)
 }
 
 pub fn generate_router(
@@ -2332,10 +2335,30 @@ pub fn generate_router(
     routes: &str,
     css_theme: &Option<String>,
     css_override: &Option<String>,
+    document: &Document,
 ) -> String {
     let has_css = css_theme.is_some() || css_override.is_some();
-    let css_imports = if has_css {
-        "import '../themes/theme.css';\nimport '../themes/theme.override.css';\n"
+
+    // Generate processed CSS with proper precedence
+    let _css_content = if has_css {
+        let inline_styles = css_processing::collect_inline_styles(document);
+        let processed = css_processing::process_css(
+            &std::path::PathBuf::from("."),
+            css_theme,
+            css_override,
+            &inline_styles,
+        )
+        .unwrap_or_else(|_| css_processing::ProcessedCss {
+            rules: Vec::new(),
+            import_statements: Vec::new(),
+        });
+        css_processing::generate_css_output(&processed.rules)
+    } else {
+        String::new()
+    };
+
+    let css_import = if has_css {
+        "import '../themes/processed.css';\n"
     } else {
         ""
     };
@@ -2349,6 +2372,7 @@ import './index.css'
 
 {}
 
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
@@ -2359,7 +2383,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>,
 )
 "#,
-        css_imports, imports, routes
+        css_import, imports, routes
     )
 }
 

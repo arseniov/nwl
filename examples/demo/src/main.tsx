@@ -2,12 +2,12 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
-import '../themes/theme.css';
-import '../themes/theme.override.css';
+import '../themes/processed.css';
 
 
 import Home from './home';
 import Playground from './playground';
+
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

@@ -30,8 +30,12 @@ pub fn compile_with_css(
     css_override: &Option<String>,
 ) -> Result<String, CompilerError> {
     let document = parse_yaml(input)?;
-    let output = generate_react(&document, css_theme, css_override)?;
-    Ok(output)
+    if document.pages.len() == 1 {
+        let output = generate_react(&document.pages[0], css_theme, css_override)?;
+        Ok(output)
+    } else {
+        Err(CompilerError::from(CodegenError::UnsupportedElement))
+    }
 }
 
 pub fn compile_page(input: &str) -> Result<String, CompilerError> {
@@ -44,8 +48,7 @@ pub fn compile_page_with_css(
     css_override: &Option<String>,
 ) -> Result<String, CompilerError> {
     let page: Page = serde_yaml::from_str(input)?;
-    let document = Document { pages: vec![page] };
-    let output = generate_react(&document, css_theme, css_override)?;
+    let output = generate_react(&page, css_theme, css_override)?;
     Ok(output)
 }
 
@@ -110,10 +113,9 @@ pub fn build_project(project_dir: PathBuf) -> Result<(), CompilerError> {
         let page_content = fs::read_to_string(&page_path)?;
         let page: Page = serde_yaml::from_str(&page_content)?;
         let component_name = page.page_data.name.clone();
-        let document = Document { pages: vec![page] };
 
         // Generate component with project-level CSS settings
-        let component_code = generate_react(&document, &config.css_theme, &config.css_override)?;
+        let component_code = generate_react(&page, &config.css_theme, &config.css_override)?;
         println!(
             "[NWL] Generated component: {} -> src/{}.tsx",
             component_name,
@@ -140,13 +142,51 @@ pub fn build_project(project_dir: PathBuf) -> Result<(), CompilerError> {
         }
     }
 
-    // Generate router with CSS imports if configured
+    // Create a full document for CSS processing (collect all pages)
+    let mut all_pages = Vec::new();
+    for route in &config.routes {
+        let page_path = project_dir.join(&route.page);
+        if page_path.exists() {
+            let page_content = fs::read_to_string(&page_path)?;
+            let page: Page = serde_yaml::from_str(&page_content)?;
+            all_pages.push(page);
+        }
+    }
+    let document = Document { pages: all_pages };
+
+    // Generate processed CSS file if configured
+    if has_css_config {
+        let inline_styles = crate::codegen::css_processing::collect_inline_styles(&document);
+        let processed = crate::codegen::css_processing::process_css(
+            &project_dir,
+            &config.css_theme,
+            &config.css_override,
+            &inline_styles,
+        )
+        .unwrap_or_else(|_| crate::codegen::css_processing::ProcessedCss {
+            rules: Vec::new(),
+            import_statements: Vec::new(),
+        });
+        let css_output = crate::codegen::css_processing::generate_css_output(&processed.rules);
+
+        // Write processed CSS file
+        let themes_dir = project_dir.join("themes");
+        if !themes_dir.exists() {
+            fs::create_dir_all(&themes_dir)?;
+        }
+        let processed_css_path = themes_dir.join("processed.css");
+        fs::write(&processed_css_path, &css_output)?;
+        println!("[NWL] Generated CSS: themes/processed.css");
+    }
+
+    // Generate router with CSS processing
     let router_code = generate_router(
         &config.name,
         &import_statements,
         &route_entries,
         &config.css_theme,
         &config.css_override,
+        &document,
     );
     println!("[NWL] Generated router: src/main.tsx");
 
