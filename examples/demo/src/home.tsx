@@ -27,7 +27,7 @@ export default function Home() {
                 <h1 className="text-5xl font-bold mb-6 text-center">NWL - Natural Web Language</h1>
                 <p className="text-xl text-gray-300 text-center mb-8">A DSL that compiles declarative YAML to production-ready React and React Native code</p>
                 <div className="flex flex-row gap-4">
-                    <Button className="Button" className="Button bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Get Started</Button>
+                    <Button className="Button bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Get Started</Button>
                     <Button className="Button bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold border border-gray-700 hover:bg-gray-700">View on GitHub</Button>
         </div>
 
@@ -99,7 +99,7 @@ export default function Home() {
             <div className="flex flex-col max-w-4xl mx-auto items-center">
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">Try It Yourself</h1>
                 <p className="text-gray-600 mb-8">Explore our interactive playground with all available components</p>
-                <Button className="Button" className="Button bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Open Playground</Button>
+                <Button className="Button bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700" onClick={() => window.location.href = "/playground"}>Open Playground</Button>
       </div>
 
     </div>

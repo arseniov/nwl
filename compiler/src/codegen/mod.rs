@@ -2266,7 +2266,7 @@ impl ReactGenerator {
             }
         }
 
-        for prop in &layout.properties {
+        for prop in &layout.style {
             classes.push(prop.clone());
         }
 

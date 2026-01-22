@@ -2,7 +2,7 @@ page:
   name: Playground
   layout:
     type: column
-    properties: [items-center, min-h-screen]
+    style: [items-center, min-h-screen]
   state:
     - name: agreedToTerms
       initial: false
@@ -49,7 +49,7 @@ page:
         - element: layout
           layout:
             type: row
-            properties: [gap-4, flex-wrap]
+            style: [gap-4, flex-wrap]
           children:
             - element: button
               content: "Primary Button"
@@ -65,7 +65,7 @@ page:
         - element: layout
           layout:
             type: column
-            properties: [gap-4]
+            style: [gap-4]
           children:
             - element: card
               children:
@@ -137,7 +137,7 @@ page:
         - element: layout
           layout:
             type: column
-            properties: [gap-4]
+            style: [gap-4]
           children:
             - element: card
               children:
@@ -192,7 +192,7 @@ page:
         - element: layout
           layout:
             type: column
-            properties: [gap-4]
+            style: [gap-4]
           children:
             - element: card
               children:
@@ -211,7 +211,7 @@ page:
                     - element: layout
                       layout:
                         type: row
-                        properties: [gap-2, justify-end, mt-4]
+                        style: [gap-2, justify-end, mt-4]
                       children:
                         - element: button
                           content: "Cancel"
@@ -261,7 +261,7 @@ page:
         - element: layout
           layout:
             type: row
-            properties: [gap-4]
+            style: [gap-4]
           children:
             - element: card
               children:

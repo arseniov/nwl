@@ -21,7 +21,8 @@ pub struct Layout {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub columns: Option<u32>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub properties: Vec<String>,
+    #[serde(alias = "properties")]
+    pub style: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
